@@ -15,12 +15,15 @@
 #' @export
 #'
 #' @examples
+#' @importFrom ggplot2 ggplot aes geom_bar coord_flip theme_classic geom_line geom_ribbon
+#' @importFrom ggplot2 alpha scale_y_continuous coord_cartesian theme facet_wrap
+
 mohns_rho <- function(df.tmb,
                       peels = 5,
                       parms ,
                       mps,
-                      lower = -Inf,
-                      upper = Inf,
+                      lwr = list(NA),
+                      upr = list(NA),
                       Fbarage = c(1,2),
                       plotfigure = TRUE,
                       limits = NA,
@@ -31,30 +34,32 @@ mohns_rho <- function(df.tmb,
   options(dplyr.summarise.inform = FALSE)
 
   # Run first the model as is
-  obj <-TMB::MakeADFun(df.tmb,parms,DLL=dll, map = mps, silent = TRUE)
-
-  x <- obj$report()
-  system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
-                          control = list(iter.max = 1e6,
-                                         eval.max = 1e6))) #
-  system.time(rep<-TMB::sdreport(obj))
-  rep
+  # obj <-TMB::MakeADFun(df.tmb,parms,DLL=dll, map = mps, silent = TRUE)
+  #
+  # x <- obj$report()
+  # system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
+  #                         control = list(iter.max = 1e6,
+  #                                        eval.max = 1e6))) #
+  # system.time(rep<-TMB::sdreport(obj))
+  # rep
 
   # Save the results to a data frame
-
-  SSB.base <- rep$value[names(rep$value) == 'SSB']
-  recruit.base <- rep$value[names(rep$value) == 'Rsave']
+  asses1 <- runAssessment(df.tmb, parms = parms, mps = mps)
 
 
-  F0base <- data.frame(F0 = rep$value[names(rep$value) == 'F0'])
+  SSB.base <- asses1$reps$value[names(asses1$reps$value) == 'SSB']
+  recruit.base <- asses1$reps$value[names(asses1$reps$value) == 'Rsave']
+
+
+  F0base <- data.frame(F0 = asses1$reps$value[names(asses1$reps$value) == 'F0'])
   F0base$age <- df.tmb$age
   F0base$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*df.tmb$nyears)
   F0base$year <- rep(years, each = length(ages))
 
 
-  Fbarbase <- F0base[F0base$age %in% Fbarage,] %>% group_by(year, age) %>%
-    summarise(Fbar0 = sum(F0)) %>% group_by(year) %>%
-    summarise(Fmean = mean(Fbar0))
+  Fbarbase <- F0base[F0base$age %in% Fbarage,] %>% dplyr::group_by(year, age) %>%
+    dplyr::summarise(Fbar0 = sum(F0)) %>% dplyr::group_by(year) %>%
+    dplyr::summarise(Fmean = mean(Fbar0))
 
 
 
@@ -63,7 +68,7 @@ mohns_rho <- function(df.tmb,
                         R = recruit.base[1:(length(SSB.base)-1)],
                         Fbar = Fbarbase$Fmean,
                         peel = 0,
-                        convergence = rep$pdHess)
+                        convergence = asses1$reps$pdHess)
 
 
 
@@ -112,48 +117,29 @@ mohns_rho <- function(df.tmb,
 
   mps.new <- mps
 
-  mps.new$Fyear <- mps.new$Fyear[1:df.new$nyears]
+  if('Fyear' %in% names(mps.new)){
+    mps.new$Fyear <- factor(rep(NA, df.new$nyears))
+  }
+
+  if('logRin' %in% names(mps.new)){
+    mps.new$logRin <- factor(rep(NA, df.new$nyears))
+  }
+
+  assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new, lwr = lwr, upr = upr)
+
+  SSB.tmb <- assess.new$reps$value[names(assess.new$reps$value) == 'SSB']
+  recruit.tmb <- assess.new$reps$value[names(assess.new$reps$value) == 'Rsave']
 
 
-
-  obj.new <-TMB::MakeADFun(df.new,parms.new,DLL=dll, map = mps.new, silent = TRUE)
-
-
-  lower <- obj.new$par-Inf
-  upper <- obj.new$par+Inf
-
-
-  lower[names(lower) == 'SDsurvey' ] <- .2
-
-  # upper[names(upper) == 'SDcatch'] <- 2
-  lower[names(lower) == 'Fseason'] <- 0.0001
-  upper[names(upper) == 'SDsurvey'] <- 3
-
-  upper[names(upper) == 'SDsurvey'] <- 3
-  upper[names(upper) == 'logQ'] <- 10
-  lower[names(lower) == 'logSDrec'] <- log(0.2)
-  upper[names(upper) == 'logSDrec'] <- log(2)
-
-  system.time(opt.new<-stats::nlminb(obj.new$par,obj.new$fn,obj.new$gr,lower=lower,upper=upper,
-                          control = list(iter.max = 1e6,
-                                         eval.max = 1e6))) #
-
-  system.time(rep.new<-TMB::sdreport(obj.new))
-
-
-  SSB.tmb <- rep.new$value[names(rep.new$value) == 'SSB']
-  recruit.tmb <- rep.new$value[names(rep.new$value) == 'Rsave']
-
-
-  F0 <- data.frame(F0 = rep.new$value[names(rep.new$value) == 'F0'])
+  F0 <- data.frame(F0 = assess.new$reps$value[names(assess.new$reps$value) == 'F0'])
   F0$age <- df.new$age
   F0$season <- rep(1:df.new$nseason, each = df.new$nage*df.new$nyears)
   F0$year <- rep(df.new$years, each = length(df.new$age))
 
 
-  Fbar <- F0[F0$age %in% Fbarage,] %>% group_by(year, age) %>%
-    summarise(Fbar0 = sum(F0)) %>% group_by(year) %>%
-    summarise(Fmean = mean(Fbar0))
+  Fbar <- F0[F0$age %in% Fbarage,] %>% dplyr::group_by(year, age) %>%
+    dplyr::summarise(Fbar0 = sum(F0)) %>% dplyr::group_by(year) %>%
+    dplyr::summarise(Fmean = mean(Fbar0))
 
 
   tmp <- data.frame(years = df.new$years,
@@ -161,7 +147,7 @@ mohns_rho <- function(df.tmb,
                                  R = recruit.tmb[1:(length(SSB.tmb)-1)],
                                  Fbar = Fbar$Fmean,
                                  peel = i,
-                                 convergence = rep.new$pdHess)
+                                 convergence = assess.new$reps$pdHess)
 
   xx[1:(df.new$nyears),i+1] <- tmp$SSB
 
@@ -189,13 +175,13 @@ mohns_rho <- function(df.tmb,
 }
   # Plot the figures and calculate Mohns rho
 
-  mohns.tot <- mohns %>% summarise(SSB = mean(SSB),
+  mohns.tot <- mohns %>% dplyr::summarise(SSB = mean(SSB),
                                    R = mean(R),
                                    F0 = mean(F0))
 
 
 
-  df.plot <- df.save %>% pivot_longer(2:4)
+  df.plot <- df.save %>% tidyr::pivot_longer(2:4)
 
   df.plot$name[df.plot$name == 'SSB'] <- paste('SSB, rho = ', round(mohns.tot$SSB,3))
   df.plot$name[df.plot$name == 'Fbar'] <- paste('Fbar, rho = ', round(mohns.tot$F0,3))
@@ -206,15 +192,18 @@ mohns_rho <- function(df.tmb,
     limits <- c(min(df.plot$years), max(df.plot$years))
   }
 
-  p1 <- ggplot2::ggplot(df.plot, aes(x = years, y = value, color = factor(peel)))+geom_line()+
-    facet_wrap(~name, scales = 'free_y', nrow = 3)+theme_classic()+theme(legend.position = 'none')+
+  p1 <- function(){
+    ggplot2::ggplot(df.plot, aes(x = years, y = value, color = factor(peel)))+geom_line()+
+    ggplot2::facet_wrap(~name, scales = 'free_y', nrow = 3)+theme_classic()+theme(legend.position = 'none')+
     scale_y_continuous('')+coord_cartesian(xlim = limits)
+  }
+
   if(plotfigure == TRUE){
-  print(p1)
+  print(p1())
   }
 
 
   return(list(df.save = df.save,
-              p1 = p1,
+              p1 = p1(),
               mohns = mohns.tot))
 }

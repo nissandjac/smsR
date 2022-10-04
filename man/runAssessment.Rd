@@ -4,18 +4,18 @@
 \alias{runAssessment}
 \title{Run the sms model}
 \usage{
-runAssessment(df.tmb, lower = -Inf, upper = Inf, parms = NA, mps = NA)
+runAssessment(df.tmb, lwr = list(NA), upr = list(NA), parms, mps)
 }
 \arguments{
 \item{df.tmb}{list of tmb parameters}
 
-\item{lower}{lower bounds}
-
-\item{upper}{upper bounds}
-
 \item{parms}{optional parameter input}
 
 \item{mps}{optional mapping input}
+
+\item{lower}{lower bounds}
+
+\item{upper}{upper bounds}
 }
 \value{
 a list of derived variables

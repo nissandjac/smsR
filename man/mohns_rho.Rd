@@ -9,8 +9,8 @@ mohns_rho(
   peels = 5,
   parms,
   mps,
-  lower = -Inf,
-  upper = Inf,
+  lwr = list(NA),
+  upr = list(NA),
   Fbarage = c(1, 2),
   plotfigure = TRUE,
   limits = NA,
@@ -26,10 +26,6 @@ mohns_rho(
 
 \item{mps}{parameters that are mapped}
 
-\item{lower}{lower boundary of parameters}
-
-\item{upper}{upper boundary of parameters}
-
 \item{Fbarage}{ages to calculate Fbar}
 
 \item{plotfigure}{TRUE FALSE of whether to plot figure}
@@ -37,6 +33,10 @@ mohns_rho(
 \item{limits}{limits on plot}
 
 \item{dll}{which dll to use. Uses 'sms' as standard}
+
+\item{lower}{lower boundary of parameters}
+
+\item{upper}{upper boundary of parameters}
 }
 \description{
 Calculate mohns rho.
