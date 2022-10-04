@@ -107,8 +107,9 @@
     scale_y_continuous('Catch')+theme(legend.position = c(0.8,.8))
   }
 
-  ls <- (pssb()+pCatch())/(prec() + pF0())
-  print(ls)
+  ls <- gridExtra::grid.arrange(pssb(),pCatch(),prec(),  pF0(), ncol = 2)
+
+  ls
 
   return(ls)
   }

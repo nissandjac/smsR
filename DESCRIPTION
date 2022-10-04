@@ -12,7 +12,7 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
-    patchwork,
+    gridExtra,
     usethis,
     magrittr
 LinkingTo: TMB, RcppEigen
