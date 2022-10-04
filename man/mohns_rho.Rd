@@ -38,9 +38,6 @@ mohns_rho(
 
 \item{dll}{which dll to use. Uses 'sms' as standard}
 }
-\value{
-
-}
 \description{
 Calculate mohns rho.
 }

@@ -62,7 +62,6 @@ Type objective_function<Type>::operator() ()
   //DATA_SCALAR(logSDrec); // Recruitment deviations
   DATA_VECTOR(nllfactor); // weight of likelihood functions
   DATA_IVECTOR(estCV); // Determine which SDs are calculated or estimated
-  DATA_VECTOR(CVmin); // Minimum values of CV (if needed)
    // Parameters
   PARAMETER_VECTOR(logRin); // Recruitment
   PARAMETER_VECTOR(logNinit); // Initial distribution
@@ -165,11 +164,12 @@ if(useBlocks == 0){
       for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
 
         if(isFseason(qrts) == 1){
-          if(i <= CminageSeason(qrts)){
+          if(i < CminageSeason(qrts)){
           Fquarter(i,j,qrts) = Fseason(i,qrts);
+
         }else{
-          Fquarter(i,j,qrts) = Type(0.0);
-          }
+          Fquarter(i,j,qrts) = Fseason(0,qrts);
+        }
         }else{
 
           if(i <= CminageSeason(qrts)){
@@ -492,7 +492,7 @@ for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
 
 
        for(int i=astart;i<aend;i++){
-          if(Catchobs(i,time,qrts)> 0 & CatchN(i, time, qrts) > 0){ // Log likelihood
+          if((Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0)){ // Log likelihood
             sumx(k,qrts) += log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
             sumx2(k,qrts) += pow(log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
             no(k,qrts)+=1;

@@ -38,8 +38,6 @@
 #' @export
 #'
 #' @examples
-#' get_TMB_parameters(mtrx = mtrx, Surveyobs = Surveyobs, Catchobs = Catchobs, years = 1996:2010)
-#'
 get_TMB_parameters <- function(
   mtrx = NA,
   Surveyobs = NA,
@@ -141,6 +139,7 @@ get_TMB_parameters <- function(
 
   nyear <- length(years)
   # Turn the block into an index
+  effort.in <- matrix(0, nyear, nseason)
 
 
   if(blocks[1] != FALSE){
@@ -159,7 +158,6 @@ get_TMB_parameters <- function(
 
 
     # Change mean effort to 1 (within blocks)
-    effort.in <- matrix(0, nyear, nseason)
     nblocks <- length(blocks.idx)
 
     for(i in 1:nblocks){
@@ -175,8 +173,15 @@ get_TMB_parameters <- function(
     }
 
   }else{
+
+    tmpeffort <- effort
+    Meffort <- mean(tmpeffort[tmpeffort > 0])
+    effort.in<- effort/Meffort
     bidx <- rep(0, nyear)
-    effort.in <- matrix(1, nrow = nyear, ncol = nseason) # Just add ones
+
+
+
+
   }
 
   # Scale effort to 1

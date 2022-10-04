@@ -95,6 +95,8 @@ get_TMB_parameters(
 
 \item{estCV}{vector length 3 of which CVs to determine. 1-survey,2-catch, 3-stock recruitment}
 
+\item{CVmin}{Currently not functional}
+
 \item{betaSR}{breakpoint of SSB}
 
 \item{nllfactor}{vector length 3 of weights of log likelihood. 1-survey, 2-catch,3-stock recruitment}
@@ -104,8 +106,4 @@ list of stuff
 }
 \description{
 Title
-}
-\examples{
-get_TMB_parameters(mtrx = mtrx, Surveyobs = Surveyobs, Catchobs = Catchobs, years = 1996:2010)
-
 }

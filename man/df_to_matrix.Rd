@@ -2,21 +2,18 @@
 % Please edit documentation in R/df_to_matrix.R
 \name{df_to_matrix}
 \alias{df_to_matrix}
-\title{Convert dataframes into matrices}
+\title{Turn data frames into multidimensional matrices for TMB}
 \usage{
-df_to_matrix(df, season = 1:4)
+df_to_matrix(df.in, season = 1:4)
 }
 \arguments{
-\item{df}{data frame containing data}
+\item{df.in}{data frame with info}
 
-\item{season}{number of quarters in model}
+\item{season}{number of seasons to standardize over}
 }
 \value{
-Returns the dataframe as a matrix for tmb
+returns a matrix
 }
 \description{
-Convert dataframes into matrices
-}
-\examples{
-df_to_matrix(df_lol, season = 1:4)
+Turn data frames into multidimensional matrices for TMB
 }

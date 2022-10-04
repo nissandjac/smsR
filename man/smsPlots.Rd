@@ -13,9 +13,6 @@ smsPlots(df.tmb, reps, Fbarage = df.tmb$age[df.tmb$age > 0])
 
 \item{Fbarage}{Fbar age}
 }
-\value{
-
-}
 \description{
 Title
 }

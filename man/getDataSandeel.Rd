@@ -35,9 +35,6 @@ getDataSandeel(
 
 \item{seasons}{seasons to calc}
 }
-\value{
-
-}
 \description{
 Title
 }

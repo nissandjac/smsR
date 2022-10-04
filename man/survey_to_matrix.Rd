@@ -13,9 +13,6 @@ survey_to_matrix(survey, year, season = 1:4)
 
 \item{season}{which seasons  are modeled}
 }
-\value{
-
-}
 \description{
 Title
 }
