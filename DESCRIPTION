@@ -12,9 +12,9 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
-    patchwork
-Depends:
-    utils
+    patchwork,
+    usethis,
+    magrittr
 LinkingTo: TMB, RcppEigen
 Description: Run the single species SMS model
 License: MIT

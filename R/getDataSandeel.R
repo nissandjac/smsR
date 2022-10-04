@@ -34,7 +34,7 @@ getDataSandeel <- function(wd,
   colnames(canum) <- 0:maxage
   canum$year <- rep(years, each = length(seasons))
   canum$Quarter <- rep(seasons, nyears)
-  canum <- canum %>% pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'catchage')
+  canum <- canum %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'catchage')
 
 
   survey <- read.table(file.path(wd, 'fleet_catch.in'), fill = TRUE, col.names = c('effort',paste(1:4, sep = ',')))
@@ -118,7 +118,7 @@ getDataSandeel <- function(wd,
 
   M$year <- rep(years, each = length(seasons))
   M$Quarter <- rep(seasons, nyears)
-  M <- M %>% pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
+  M <- M %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
 
   # Maturity
 
@@ -132,7 +132,7 @@ getDataSandeel <- function(wd,
 
   mat$year <- rep(years, each = length(seasons))
   mat$Quarter <- rep(seasons, nyears)
-  mat <- mat %>% pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
+  mat <- mat %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
 
   # Now west and weca
   weca <- read.table(file.path(wd,'weca.in'),
@@ -145,7 +145,7 @@ getDataSandeel <- function(wd,
 
   weca$year <- rep(years, each = length(seasons))
   weca$Quarter <- rep(seasons, nyears)
-  weca <- weca %>% pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'weca')
+  weca <- weca %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'weca')
 
 
   west <- read.table(file.path(wd,'west.in'),
@@ -158,7 +158,7 @@ getDataSandeel <- function(wd,
 
   west$year <- rep(years, each = length(seasons))
   west$Quarter <- rep(seasons, nyears)
-  west <- west %>% pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'west')
+  west <- west %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'west')
 
 
   # Make them into matrices

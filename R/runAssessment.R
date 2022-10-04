@@ -11,7 +11,6 @@
 #' @export
 #'
 #' @examples
-#' x <- runAssessment(df.tmb)
 runAssessment <- function(df.tmb,
                           lower = -Inf,
                           upper = Inf,
@@ -46,7 +45,7 @@ if(is.list(parms)){
 }
 # Not estimated parameters
 mps <- list(
-  # 'pin' = factor(parms$pin*NA),
+  'pin' = factor(parms$pin*NA),
   'Fyear' = parms$Fyear,
   'SDcatch' = factor(parms$SDcatch*NA),
   'logbeta' = factor(parms$logbeta*NA)
@@ -54,7 +53,7 @@ mps <- list(
 
 
 
-obj <-TMB::MakeADFun(df.tmb,parms,DLL="sms", map = mps)
+obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps)
 x <- obj$report()
 
 system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,

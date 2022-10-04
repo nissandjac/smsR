@@ -14,7 +14,7 @@ mohns_rho(
   Fbarage = c(1, 2),
   plotfigure = TRUE,
   limits = NA,
-  dll = "sms"
+  dll = "smsR"
 )
 }
 \arguments{
@@ -40,7 +40,4 @@ mohns_rho(
 }
 \description{
 Calculate mohns rho.
-}
-\examples{
-x <- mohns_rho(df.tmb, parms = parms, mps = mps, Fbarage = 3:6)
 }

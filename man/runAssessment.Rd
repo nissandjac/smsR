@@ -23,6 +23,3 @@ a list of derived variables
 \description{
 Run the sms model
 }
-\examples{
-x <- runAssessment(df.tmb)
-}

@@ -15,7 +15,6 @@
 #' @export
 #'
 #' @examples
-#' x <- mohns_rho(df.tmb, parms = parms, mps = mps, Fbarage = 3:6)
 mohns_rho <- function(df.tmb,
                       peels = 5,
                       parms ,
@@ -25,7 +24,7 @@ mohns_rho <- function(df.tmb,
                       Fbarage = c(1,2),
                       plotfigure = TRUE,
                       limits = NA,
-                      dll = 'sms'
+                      dll = 'smsR'
                       ){
 
   # Remove the dplyr summarise warning
@@ -207,7 +206,7 @@ mohns_rho <- function(df.tmb,
     limits <- c(min(df.plot$years), max(df.plot$years))
   }
 
-  p1 <- ggplot(df.plot, aes(x = years, y = value, color = factor(peel)))+geom_line()+
+  p1 <- ggplot2::ggplot(df.plot, aes(x = years, y = value, color = factor(peel)))+geom_line()+
     facet_wrap(~name, scales = 'free_y', nrow = 3)+theme_classic()+theme(legend.position = 'none')+
     scale_y_continuous('')+coord_cartesian(xlim = limits)
   if(plotfigure == TRUE){
