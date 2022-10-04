@@ -35,7 +35,7 @@ mohns_rho <- function(df.tmb,
   obj <-TMB::MakeADFun(df.tmb,parms,DLL=dll, map = mps, silent = TRUE)
 
   x <- obj$report()
-  system.time(opt<-nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
+  system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
                           control = list(iter.max = 1e6,
                                          eval.max = 1e6))) #
   system.time(rep<-TMB::sdreport(obj))
@@ -135,7 +135,7 @@ mohns_rho <- function(df.tmb,
   lower[names(lower) == 'logSDrec'] <- log(0.2)
   upper[names(upper) == 'logSDrec'] <- log(2)
 
-  system.time(opt.new<-nlminb(obj.new$par,obj.new$fn,obj.new$gr,lower=lower,upper=upper,
+  system.time(opt.new<-stats::nlminb(obj.new$par,obj.new$fn,obj.new$gr,lower=lower,upper=upper,
                           control = list(iter.max = 1e6,
                                          eval.max = 1e6))) #
 

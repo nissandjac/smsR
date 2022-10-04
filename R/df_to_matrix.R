@@ -9,7 +9,7 @@
 #' df <- canum_to_matrix(df, 1:4)
 #'
 #' @examples
-#' df_to_matrix(df_lol, season = 1:4)
+#' df_to_matrix(df, season = 1:4)
 df_to_matrix <- function(df, season = 1:4){
 
 
