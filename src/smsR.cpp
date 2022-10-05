@@ -43,10 +43,11 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(surveyEnd);
   DATA_VECTOR(surveyStart);
   DATA_VECTOR(surveySeason);
-  DATA_ARRAY(power);
+  DATA_ARRAY(powers);
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
   DATA_IVECTOR(Qidx);
   DATA_IARRAY(Qidx_CV); // survey catchability matrix
+  DATA_IARRAY(Cidx_CV);
 //   // // // Time varying arrays
 //   //DATA_ARRAY(F0);
   DATA_ARRAY(M); // Natural mortality
@@ -69,7 +70,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_ARRAY(Fseason);
   PARAMETER_ARRAY(logFage);
   PARAMETER_VECTOR(SDsurvey); // Survey variation
-  PARAMETER_ARRAY(SDcatch); // Catch SD's
+  PARAMETER_VECTOR(SDcatch); // Catch SD's
 // //
   PARAMETER_VECTOR(logQ);
   PARAMETER(pin);
@@ -92,7 +93,6 @@ array<Type>Fquarter(nage,nyears,nseason);
 array<Type>Fsel(nage,nyears,nseason);
 array<Type>p(nage,nsurvey);
 array<Type>Fagein(nage, nyears);
-array<Type>CVcatch(nage, nyears);
 //array<Type>SDR_catch(nage, nyears);
 
 
@@ -165,15 +165,15 @@ if(useBlocks == 0){
 
         if(isFseason(qrts) == 1){
           if(i < CminageSeason(qrts)){
-          Fquarter(i,j,qrts) = Fseason(i,qrts);
+          Fquarter(i,j,qrts) = 0;//Fseason(i,qrts);
 
         }else{
           Fquarter(i,j,qrts) = Fseason(0,qrts);
         }
         }else{
 
-          if(i <= CminageSeason(qrts)){
-          Fquarter(i,j,qrts) = Type(1);
+          if(i < CminageSeason(qrts)){
+          Fquarter(i,j,qrts) = 0;//Type(1);
           }else{
           Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
           }
@@ -267,7 +267,7 @@ if(useEffort == 1){
 for(int i=0;i<nage;i++){ // Loop over other ages //
   for(int k=0;k<(nsurvey);k++){
     //
-     if(power(i,k) == 1){
+     if(powers(i,k) == 1){
        p(i,k) = pin;
      }else{
        p(i,k) = Type(1.0);
@@ -326,6 +326,10 @@ if(nsurvey>1){
       }
 
     }
+
+
+
+
 // //
 // // // // Set up at Nat age in first Quarter
 Nsave(0,0,0) = 0; // Nothing here in the fist year
@@ -477,34 +481,37 @@ array<Type> sumx2(ncatch,nseason);
 
 REPORT(ncatch)
 
-for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
-//
-   for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
+if(estCV(1) == 2){
+  for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
+  //
+     for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
 
-    astart = catchCV(k,qrts);
-    if(k == (ncatch-1)){
-      aend = nage;
-    }else{
-      aend = catchCV(k+1, qrts);
-    }
+      astart = catchCV(k,qrts);
+      if(k == (ncatch-1)){
+        aend = nage;
+      }else{
+        aend = catchCV(k+1, qrts);
+      }
 
-     for(int time=0;time<(nyears);time++){ // No catches in last year
+       for(int time=0;time<(nyears);time++){ // No catches in last year
 
 
-       for(int i=astart;i<aend;i++){
-          if((Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0)){ // Log likelihood
-            sumx(k,qrts) += log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
-            sumx2(k,qrts) += pow(log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
-            no(k,qrts)+=1;
+         for(int i=astart;i<aend;i++){
+            if((Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0)){ // Log likelihood
+              sumx(k,qrts) += log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
+              sumx2(k,qrts) += pow(log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
+              no(k,qrts)+=1;
+            }
           }
         }
-      }
+       }
      }
    }
 // //
 // // // Now assign SDR to each age
-array<Type>SDR_catch2(nage, nseason);
-SDR_catch2.setZero();
+array<Type>SD_catch2(nage, nseason);
+
+SD_catch2.setZero();
 
 if(estCV(1) == 2){ // Calculate the catch CV
   for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
@@ -519,7 +526,7 @@ if(estCV(1) == 2){ // Calculate the catch CV
 
       for(int i=astart;i<aend;i++){
           if(no(k, qrts)>0){ // Only calculate if there are any observations
-          SDR_catch2(i,qrts) = sqrt(sumx2(k,qrts)/no(k,qrts));
+          SD_catch2(i,qrts) = sqrt(sumx2(k,qrts)/no(k,qrts));
           //SDR_catch2(i, qrts) = (no(k,qrts)*sumx2(k,qrts)-sumx(k,qrts)*sumx(k,qrts))/(no(k,qrts)*no(k,qrts));
           }
         }
@@ -529,20 +536,38 @@ if(estCV(1) == 2){ // Calculate the catch CV
 //
 if(estCV(1) == 0){ // Estimate
   // Fix CV of catches
-  for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
-    for(int qrts=0;qrts<(nseason);qrts++){
 
-      astart = catchCV(k,qrts);
+  if(nseason>1){
+    for(int qrts=0;qrts<(nseason);qrts++){ // Loop over surveys
+      for(int i=0;i<nage;i++){ // Loop over other ages
+          if(i >= CminageSeason(qrts)){
+            SD_catch2(i,qrts) = pow(SDcatch(Cidx_CV(i,qrts)),2);
+          }
+        }
 
-      if(k == (ncatch-1)){
-        aend = nage;
-      }else{
-        aend = catchCV(k+1, qrts);
+      }
+  }else{
+    for(int i=0;i<nage;i++){ // Loop over other ages
+        if(i >= CminageSeason(0)){
+            SD_catch2(i,0) = pow(SDcatch(Cidx_CV(i,0)),2);
+          }
+        }
       }
 
-      for(int i=astart;i<aend;i++){
-          SDR_catch2(i,qrts) = SDcatch(k);
-          }
+  // for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
+  //   for(int qrts=0;qrts<(nseason);qrts++){
+  //
+  //     astart = catchCV(k,qrts);
+  //
+  //     if(k == (ncatch-1)){
+  //       aend = nage;
+  //     }else{
+  //       aend = catchCV(k+1, qrts);
+  //     }
+  //
+  //     for(int i=astart;i<aend;i++){
+  //         SDR_catch2(i,qrts) = SDcatch(k);
+  //         }
 
       // if(i < catchCV(0,qrts)){
       // SDR_catch2(i,qrts) = Type(0.0);
@@ -553,11 +578,11 @@ if(estCV(1) == 0){ // Estimate
       // if(i >= (catchCV(1,qrts))){
       // SDR_catch2(i,qrts) = SDcatch(catchCV(1,qrts),qrts);
       // }
-    }
-  }
+  //   }
+  // }
 }
 // //
-REPORT(SDR_catch2)
+REPORT(SD_catch2)
 // Add survey residuals
 array<Type> resid_survey(nage,nyears,nsurvey); // Save residuals for SDR calculation
 Type sumsurv = 0;
@@ -585,7 +610,7 @@ Type nllC = 0.0; // log likelihood for Catch
      for(int qrts=0;qrts<nseason;qrts++){ // Loop over seasons
        if(Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0){ // Log likelihood
 
-       nllC += -dnorm(log(CatchN(i, time, qrts)),log(Catchobs(i, time, qrts)), sqrt(SDR_catch2(i,qrts)), true);
+       nllC += -dnorm(log(CatchN(i, time, qrts)),log(Catchobs(i, time, qrts)), sqrt(SD_catch2(i,qrts)), true);
        Catchtot(time) += Catch(i,time, qrts);
 
      }
@@ -696,7 +721,6 @@ REPORT(p)
 // //
 // //
 ADREPORT(SSB)
-ADREPORT(SDR_catch2)
 ADREPORT(ansvec)
 ADREPORT(SDrec)
 ADREPORT(F0)
@@ -705,7 +729,7 @@ ADREPORT(CatchN)
 ADREPORT(Qsurv)
 ADREPORT(Surveyout)
 ADREPORT(SDS)
-ADREPORT(SDR_catch2)
+ADREPORT(SD_catch2)
 ADREPORT(Rsave)
 ADREPORT(resid_catch)
 ADREPORT(resid_survey)

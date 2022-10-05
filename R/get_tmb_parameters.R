@@ -1,5 +1,5 @@
 
-#' Title
+#' Organize TMB parameters in a list.
 #'
 #' @param mtrx matrix containing M, Mat, weca, west
 #' @param Surveyobs matrix of survey observations
@@ -24,7 +24,7 @@
 #' @param surveyStart number between 0 and 1 determine the start of the survey within season
 #' @param surveyEnd number between 0 and 1 determine the end of the survey within season
 #' @param surveySeason vector determining which seasons surveys occur
-#' @param power which ages are included in the power law calc
+#' @param powers which ages are included in the power law calc
 #' @param surveyCV list with ages with unique survey CVs. Length = nsurvey
 #' @param catchCV list with ages with unique catch CVs. Length = nseason
 #' @param recmodel chose recruitment model. 2 = hockeystick
@@ -54,6 +54,7 @@ get_TMB_parameters <- function(
   Qlastage = Qmaxage,
   isFseason = rep(1, nseason),
   CminageSeason = rep(0, nseason),
+  CmaxageSeason = rep(max(ages), nseason),
   endFseason = 4,
   nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
   useEffort = 0,
@@ -62,7 +63,7 @@ get_TMB_parameters <- function(
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
-  power = matrix(0, nrow = length(ages), ncol = nsurvey),
+  powers = list(NA),
   surveyCV = matrix(c(0,max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0,max(ages)), nrow = 2, ncol = nseason),
   recmodel = 2,
@@ -200,6 +201,100 @@ get_TMB_parameters <- function(
 
   isFseason[length(isFseason)] <- 0 # This is a weird standard thing in sms
 
+  # Do the power law calcs
+  if(is.na(powers[[1]])){
+    powersexp <- matrix(0, nrow = length(ages), ncol = nsurvey)
+  }else{
+    powersexp <- matrix(0, nrow = length(ages), ncol = nsurvey)
+
+    for(i in 1:nsurvey){
+      if(is.na(powers[[i]]) == 0){
+      powersexp[powers[[i]]+1,i] <-1
+      }
+    }
+  }
+
+
+
+  # Fix the survey CV groups
+  Cidx.CV <- matrix(NA, nage, nseason)
+
+
+  if(length(catchCV) > 1){
+    for(i in 1:nseason){
+
+
+      if(i == 1){
+        no <- 1:length(catchCV[[i]])
+      }else{
+        no <- (max(no)+1):(max(no)+length(catchCV[[i]]))
+      }
+
+
+      Cidx.CV[ages %in% catchCV[[i]],i] <- no
+      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
+      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+
+
+      # Do a loop for NA check
+      for(a in 2:nage){
+        if(is.na(Cidx.CV[a, i])){
+          Cidx.CV[a,i] <- Cidx.CV[a-1,i]
+        }
+      }
+
+
+
+
+      Cidx.CV[ages < CminageSeason[i],i] <- -98
+      Cidx.CV[ages > CmaxageSeason[i],i] <- -98
+
+
+
+
+    }
+
+  }else{
+
+    for(i in 1:nseason){
+
+
+      no <- 1:length(catchCV[[i]])
+
+      Cidx.CV[ages %in% catchCV[[i]],i] <- no
+      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
+      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+
+      Cidx.CV[ages < CminageSeason[i],nseason] <- -98
+      Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
+
+    }
+
+
+
+
+  }
+
+  Cidx.CV <- Cidx.CV - 1 # Convert to C++ idx
+
+  CVgroups <- NA
+
+  for(i in 1:length(catchCV)){
+    CVgroups[i] <- length(catchCV[[i]])
+
+  }
+
+
+  # Do Catch CV for internal CV calcs
+  # CCV.out <- array(unlist(catchCV), dim = c())
+
+  if(length(unique(CVgroups))> 1 & estCV[2] == 2){
+    stop('sms currently doesnt support multiple catch CVs between seasons with internally calculated SD')
+  }
+
+  catchCVout <- matrix(rep(catchCV[[1]], nseason), ncol= nseason)
+
+
 
   df.tmb <- list(
     weca = mtrx$weca,
@@ -217,7 +312,6 @@ get_TMB_parameters <- function(
     effort = effort.in,
     bidx = bidx,
     useBlocks = useBlocks,
-  #  est_sigma = est_sigma,
     Fminage = Fminage,
     Fmaxage = Fmaxage,
     Qminage = Qminage,
@@ -225,6 +319,8 @@ get_TMB_parameters <- function(
     Qlastage = Qlastage,
     Qidx = Qidx,
     Qidx_CV = Qidx.CV,
+    Cidx_CV = Cidx.CV,
+    catchCV = catchCVout,
     isFseason = isFseason, # Fishing mortality in how many quarterS? ,
     endFseason = endFseason,
     CminageSeason = CminageSeason,
@@ -234,8 +330,7 @@ get_TMB_parameters <- function(
     surveyStart = surveyStart,
     surveyEnd = surveyEnd,#c(0.1,1,0.001),
     surveySeason = surveySeason,
-    power = power,
-    catchCV = catchCV,
+    powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estCV = estCV,
     CVmin = CVmin,

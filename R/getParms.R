@@ -10,7 +10,7 @@ getParms <- function(df.tmb){
 
 
   # Try initial parameters in weird spots
-  SDCatch <- array(rep(.6,length(unique(df.tmb$catchCV))), dim = c(length(unique(df.tmb$catchCV)),1))
+  SDCatch <- rep(.6,max(df.tmb$Cidx_CV)+1)
   SDsurvey <- rep(.1, length(unique(df.tmb$Qidx_CV[df.tmb$Qidx_CV > -1])))
   logQ <- sum(df.tmb$Qlastage-df.tmb$Qminage)+length(df.tmb$Qidx)
 
@@ -20,7 +20,7 @@ getParms <- function(df.tmb){
                   Fseason = matrix(0.5, nrow = 1, ncol = length(unique(df.tmb$bidx))),
                   logFage = matrix(1, nrow = df.tmb$Fmaxage+1, ncol = length(unique(df.tmb$bidx))),
                   SDsurvey = SDsurvey,
-                  SDcatch = SDCatch,
+                  SDcatch = as.matrix(SDCatch),
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
                   pin = 1,
                   logalpha = 2,
