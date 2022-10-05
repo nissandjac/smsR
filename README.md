@@ -14,4 +14,4 @@ install_github('https://github.com/nissandjac/smsR', dependencies = TRUE)
 
 ```
 
-See (\examples) folder for an example using sandeel in Area 1r in the North Sea
+See \examples folder for an example using sandeel in Area 1r in the North Sea
