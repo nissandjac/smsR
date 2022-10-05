@@ -15,8 +15,14 @@ runAssessment <- function(df.tmb,
                           lwr = list(NA),
                           upr = list(NA),
                           parms,
-                          mps){
+                          mps = NULL){
 
+
+if(is.null(mps)){
+  # map the parameters that are not estimated in this model
+  mps <- getMPS(df.tmb, parms)
+
+}
 
 
 

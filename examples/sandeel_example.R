@@ -49,16 +49,10 @@ df.tmb <- get_TMB_parameters(
 # Get initial parameter structure
 parms <- getParms(df.tmb)
 
-# Get non-estimated parameters, based on info in df.tmb
-mps <- getMPS(df.tmb, parms)
 
-# Set boundaries
-# This model works best if SDsurvey is mapped
-#parms[names(parms) == 'SDsurvey'][[1]] <- c(0.5, 0.3, 0.3,.3)
+# Run the assessment
 
-# Try initial parameters in weird spots
-sas <- runAssessment(df.tmb, parms = parms, mps = mps)
-
+sas <- runAssessment(df.tmb, parms = parms)
 
 p <- smsPlots(df.tmb, sas$reps, Fbarage = 1:2)
 
