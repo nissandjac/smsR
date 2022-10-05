@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_tmb_parameters.R
 \name{get_TMB_parameters}
 \alias{get_TMB_parameters}
-\title{Title}
+\title{Organize TMB parameters in a list.}
 \usage{
 get_TMB_parameters(
   mtrx = NA,
@@ -20,6 +20,7 @@ get_TMB_parameters(
   Qlastage = Qmaxage,
   isFseason = rep(1, nseason),
   CminageSeason = rep(0, nseason),
+  CmaxageSeason = rep(max(ages), nseason),
   endFseason = 4,
   nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
   useEffort = 0,
@@ -28,7 +29,7 @@ get_TMB_parameters(
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
-  power = matrix(0, nrow = length(ages), ncol = nsurvey),
+  powers = list(NA),
   surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
   recmodel = 2,
@@ -85,7 +86,7 @@ get_TMB_parameters(
 
 \item{surveySeason}{vector determining which seasons surveys occur}
 
-\item{power}{which ages are included in the power law calc}
+\item{powers}{which ages are included in the power law calc}
 
 \item{surveyCV}{list with ages with unique survey CVs. Length = nsurvey}
 
@@ -105,5 +106,5 @@ get_TMB_parameters(
 list of stuff
 }
 \description{
-Title
+Organize TMB parameters in a list.
 }

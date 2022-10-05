@@ -91,6 +91,7 @@ get_TMB_parameters <- function(
   nage <- length(ages)
   Qidx.CV <- matrix(0, nage, nsurvey)
   no <- 1
+  maxage <- max(ages)
 
   for(k in 1:nsurvey){
 
