@@ -4,7 +4,7 @@
 \alias{runAssessment}
 \title{Run the sms model}
 \usage{
-runAssessment(df.tmb, lwr = list(NA), upr = list(NA), parms, mps)
+runAssessment(df.tmb, lwr = list(NA), upr = list(NA), parms, mps = NULL)
 }
 \arguments{
 \item{df.tmb}{list of tmb parameters}
