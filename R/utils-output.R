@@ -83,7 +83,7 @@ getN <- function(df.tmb, sas){
   N$maxSE <- N$N+2*N$SE
   N$ages <- df.tmb$age
   N$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears+1))
-  N$years <- rep(c(years,max(years)+1), each = df.tmb$nseason*df.tmb$nage)
+  N$years <- rep(c(years,max(years)+1), each = df.tmb$nage)
 
   return(N)
 }
@@ -168,27 +168,11 @@ getResidCatch <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
-getEstimatedParms <- function(df.tmb, sas){
+getEstimatedParms <- function(sas){
 
-  reps <- sas$reps
+  parms <- data.frame(parameter = sas$opt$par,
+                      se = sas$reps$sd)
 
-  sdrep <- summary(reps)
-  rep.values<-rownames(sdrep)
-  years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
-
-  tmp <- data.frame(ResidCatch = sdrep[rep.values == 'resid_catch',1])
-  tmp$ResidCatch[tmp$ResidCatch == -99] <- NA
-
-  tmp$SE <- sdrep[rep.values == 'resid_catch',2]
-  tmp$SE[is.na(tmp$ResidCatch)] <- NA
-  tmp$minSE <- tmp$ResidCatch-2*tmp$SE
-  tmp$maxSE <- tmp$ResidCatch+2*tmp$SE
-  tmp$ages <- df.tmb$age
-  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
-  tmp$years <- rep(years, each = df.tmb$nseason*df.tmb$nage)
-
-  Resid_Catch <- tmp
 
   return(Resid_Catch)
 }

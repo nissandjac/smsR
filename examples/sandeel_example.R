@@ -56,3 +56,17 @@ sas <- runAssessment(df.tmb, parms = parms)
 
 p <- smsPlots(df.tmb, sas$reps, Fbarage = 1:2)
 
+
+# Show some other functions
+# Get SSB
+SSB <- getSSB(df.tmb, sas)
+
+# Recruitment
+R <- getR(df.tmb, sas)
+
+# N
+N <- getN(df.tmb, sas)
+
+ggplot2::ggplot(N[N$season == 1,], aes(x = years, y = N, color = factor(ages)))+
+  geom_line()+facet_wrap(~ages, scales = 'free_y')+theme_classic()+theme(legend.position = 'none')
+
