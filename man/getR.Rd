@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getR}
 \alias{getR}
-\title{Get a data frame of recruitment}
+\title{Get a data frame of recruitment from a fitted model}
 \usage{
 getR(df.tmb, sas)
 }
@@ -15,5 +15,9 @@ getR(df.tmb, sas)
 data frame of recruitment. Last year is based on the Stock recruitment relationship. minSE and maxSE is the 95% confidence intervals
 }
 \description{
-Get a data frame of recruitment
+Get a data frame of recruitment from a fitted model
+}
+\examples{
+R <- getR(df.tmb, sas)
+print(R)
 }

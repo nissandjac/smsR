@@ -25,9 +25,7 @@ df_to_matrix <- function(df.in, season = 1:4){
     for(j in 1:length(ages)){
       for(k in 1:length(season)){
 
-
         tmp <- df.in[df.in$Quarter == season[k] & df.in$year == year[i] & df.in$Age == ages[j],4]
-
 
         if(length(tmp)>0){
           cmx[j,i,k] <- tmp[[1]]
@@ -37,7 +35,6 @@ df_to_matrix <- function(df.in, season = 1:4){
       }
     }
   }
-
 
 
   return(cmx)

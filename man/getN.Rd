@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getN}
 \alias{getN}
-\title{Get numbers at age from fitted model}
+\title{Get numbers at age from a fitted model}
 \usage{
 getN(df.tmb, sas)
 }
@@ -15,5 +15,8 @@ getN(df.tmb, sas)
 data frame of Numbers at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
 }
 \description{
-Get numbers at age from fitted model
+Get numbers at age from a fitted model
+}
+\examples{
+N <- getN(df.tmb, sas)
 }

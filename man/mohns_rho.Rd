@@ -8,7 +8,7 @@ mohns_rho(
   df.tmb,
   peels = 5,
   parms,
-  mps,
+  mps = NULL,
   lwr = list(NA),
   upr = list(NA),
   Fbarage = c(1, 2),

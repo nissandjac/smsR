@@ -5,8 +5,6 @@ years <- 1983:2021
 nseason <- 2
 ages <- 0:4
 
-names(sandeel_1r)
-
 Catchobs <- df_to_matrix(sandeel_1r[['canum']], season =1:nseason)
 Surveyobs <- survey_to_matrix(sandeel_1r[['survey']],year = years, season = 1:nseason)
 Feffort <- sandeel_1r[['effort']]
@@ -27,7 +25,7 @@ df.tmb <- get_TMB_parameters(
   Qmaxage = c(1,3),
   isFseason = c(1,0), # Seasons to calculate fishing in
   effort = Feffort,
-  powers =list(NA),
+  powers =list(c(0), NA),
   blocks = c(1983,1989, 1999,2005 ,2010), # Blocks with unique selectivity
   endFseason = 2, # which season does fishing stop in the final year of data
   nocatch = as.matrix(nocatch),
@@ -54,9 +52,12 @@ parms <- getParms(df.tmb)
 
 sas <- runAssessment(df.tmb, parms = parms)
 
+# Plot standard graphs
 p <- smsPlots(df.tmb, sas$reps, Fbarage = 1:2)
 
-
+# See Mohns rho
+m <- mohns_rho(df.tmb,parms, peels = 5, Fbarage = c(1:2), plotfigure = TRUE)
+print(m$mohns)
 # Show some other functions
 require(ggplot2)
 
@@ -71,7 +72,7 @@ N <- getN(df.tmb, sas)
 
 ggplot(N, aes(x = years, y = N, color = factor(season), fill = factor(season)))+
   geom_line()+facet_wrap(~ages, scales = 'free_y')+
-  geom_ribbon(aes(ymin = minSE, ymax = maxSE), fill = 'red', alpha = .2, linetype = 0)+
+  geom_ribbon(aes(ymin = minSE, ymax = maxSE), alpha = .2, linetype = 0)+
   theme_classic()
 #
 
@@ -120,5 +121,7 @@ AIC.sms(sas)
 # Print the negative log likelihood
 sas$opt[['objective']]
 
-
+# Get estimated parameters
+p.est <- getEstimatedParms(sas)
+p.est
 

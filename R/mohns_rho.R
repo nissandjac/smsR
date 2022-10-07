@@ -21,7 +21,7 @@
 mohns_rho <- function(df.tmb,
                       peels = 5,
                       parms ,
-                      mps,
+                      mps = NULL,
                       lwr = list(NA),
                       upr = list(NA),
                       Fbarage = c(1,2),
@@ -125,7 +125,7 @@ mohns_rho <- function(df.tmb,
     mps.new$logRin <- factor(rep(NA, df.new$nyears))
   }
 
-  assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new, lwr = lwr, upr = upr)
+  assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new)
 
   SSB.tmb <- assess.new$reps$value[names(assess.new$reps$value) == 'SSB']
   recruit.tmb <- assess.new$reps$value[names(assess.new$reps$value) == 'Rsave']

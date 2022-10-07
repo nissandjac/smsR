@@ -7,10 +7,12 @@
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of spawning biomass. minSE and maxSE is the 95% confidence intervals, se is the standard error
+#' data frame of spawning biomass and 95th confidence intervals and standard error
 #' @export
 #'
 #' @examples
+#' SSB <- getSSB(df.tmb, sas)
+#' print(SSB)
 getSSB <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -76,6 +78,8 @@ getBiomass <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#' catch <- getCatch(df.tmb, sas)
+#' print(catch)
 getCatch <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -98,7 +102,7 @@ getCatch <- function(df.tmb, sas){
 
 
 
-#' Get a data frame of recruitment
+#' Get a data frame of recruitment from a fitted model
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
@@ -108,6 +112,8 @@ getCatch <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#' R <- getR(df.tmb, sas)
+#' print(R)
 getR <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -127,7 +133,7 @@ getR <- function(df.tmb, sas){
 }
 
 
-#' Get numbers at age from fitted model
+#' Get numbers at age from a fitted model
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
@@ -137,6 +143,7 @@ getR <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#' N <- getN(df.tmb, sas)
 getN <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -167,6 +174,8 @@ getN <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#' CatchN <- getCatchN(df.tmb, sas)
+#' print(CatchN)
 getCatchN <- function(df.tmb, sas){
 
   reps <- sas$reps
