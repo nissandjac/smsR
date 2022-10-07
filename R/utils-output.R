@@ -27,7 +27,76 @@ getSSB <- function(df.tmb, sas){
   SSB$years <- c(years,max(years)+1)
 
   return(SSB)
-  }
+}
+
+#' Get a data frame of the spawning stock biomass
+#'
+#' @param df.tmb list of input parameters
+#' @param sas fitted smsR model
+#'
+#' @return
+#' data frame of spawning biomass. minSE and maxSE is the 95% confidence intervals, se is the standard error
+#' @export
+#'
+#' @examples
+getBiomass <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+
+  N <- array(sdrep[rep.values == 'Nsave',1], dim = c(df.tmb$nage, df.tmb$nyears, df.tmb$nseason),
+             dimnames = list(df.tmb$age, df.tmb$years, 1:df.tmb$nseason))
+  Nse <- array(sdrep[rep.values == 'Nsave',2], dim = c(df.tmb$nage, df.tmb$nyears, df.tmb$nseason),
+               dimnames = list(df.tmb$age, df.tmb$years, 1:df.tmb$nseason))
+
+  Biomass <- N*df.tmb$west
+  BiomassSE <- as.data.frame.table(Nse*df.tmb$west)
+
+  Biomass.df <- as.data.frame.table(Biomass)
+  names(Biomass.df) <- c('ages','years','season','Biomass')
+  Biomass.df$SE <- BiomassSE$Freq
+  Biomass.df$minSE <- Biomass.df$Biomass-2*Biomass.df$SE
+  Biomass.df$maxSE <- Biomass.df$Biomass+2*Biomass.df$SE
+  Biomass.df$ages <- as.numeric(as.character(Biomass.df$ages))
+  Biomass.df$years <- as.numeric(as.character(Biomass.df$years))
+
+  Biomass.df <- Biomass.df %>% dplyr::select(Biomass, SE, minSE, maxSE, ages, season,years)
+
+  return(Biomass.df)
+}
+#' Retrieve the total catch from a fitted smsR object
+#'
+#' @param df.tmb input parameters
+#' @param sas fitted smsR object
+#'
+#' @return returns a data frame
+#' @export
+#'
+#' @examples
+getCatch <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  # Plot SSB, recruitment, catch and fishing mortality
+
+  tmp <- data.frame(Catch = sdrep[rep.values == 'Catchtot',1])
+  tmp$SE <- sdrep[rep.values == 'Catchtot',2]
+  tmp$minSE <- tmp$Catch-2*tmp$SE
+  tmp$maxSE <- tmp$Catch+2*tmp$SE
+  tmp$years <- years
+
+  Catch <- tmp
+
+  return(Catch)
+}
+
+
 
 #' Get a data frame of recruitment
 #'
@@ -89,6 +158,40 @@ getN <- function(df.tmb, sas){
 }
 
 
+#' Get the number of catch individuals per age
+#'
+#' @param df.tmb input parameters
+#' @param sas fitted smsR model
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getCatchN <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  # Plot SSB, recruitment, catch and fishing mortality
+
+  tmp <- data.frame(CatchN = sdrep[rep.values == 'CatchN',1])
+  tmp$SE <- sdrep[rep.values == 'CatchN',2]
+  tmp$minSE <- tmp$CatchN-2*tmp$SE
+  tmp$maxSE <- tmp$CatchN+2*tmp$SE
+  tmp$ages <- df.tmb$age
+  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
+  tmp$years <- rep(years, each = df.tmb$nage)
+  tmp <- tmp[-which(tmp$CatchN == 0),]
+
+  return(tmp)
+}
+
+
+
+
+
 #' Get fishing mortality at age from fitted model
 #'
 #' @param df.tmb list of input parameters
@@ -114,13 +217,45 @@ getF <- function(df.tmb, sas){
   tmp$maxSE <- tmp$F0+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
-  tmp$years <- rep(years, each = df.tmb$nseason*df.tmb$nage)
+  tmp$years <- rep(years, each = df.tmb$nage)
 
   F0 <- tmp
 
   return(F0)
 }
 
+#' Title
+#'
+#' @param df.tmb list of input parameters
+#' @param sas smsR fitted model
+#' @param Fbarage ages to calculate Fbar
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getFbar <- function(df.tmb, sas, Fbarage = NULL){
+
+  if(is.null(Fbarage)){
+    warning('provide ages to calculate Fbar')
+    Fbarage <- df.tmb$age[df.tmb$age > min(df.tmb$CminageSeason)]
+  }
+
+  F0 <- getF(df.tmb, sas)
+  tmp <-  F0[F0$ages %in% Fbarage,] %>%
+    dplyr::group_by(years, ages) %>%
+    dplyr::summarise(Fbar0 = sum(F0),
+                     minSE0 = sum(minSE),
+                     maxSE0 = sum(maxSE)) %>%
+    dplyr::group_by(years) %>%
+    dplyr::summarise(Fbar = mean(Fbar0),
+                     minSE = mean(minSE0),
+                     maxSE = mean(maxSE0)
+    )
+
+
+  return(tmp)
+}
 
 #' Get fishin mortality at age from fitted model
 #'
@@ -309,4 +444,47 @@ AIC.sms <- function(sas, p=2, n=Inf){
     nll = opt[["objective"]]
     aic.sms = p*k + 2*nll + 2*k*(k+1)/(n-k-1)
     return( aic.sms )
-  }
+}
+
+
+#' Get summary of derived variables from fitted smsR object
+#'
+#' @param df.tmb
+#' @param sas
+#' @param Fbarage
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getSummary <-function(df.tmb, sas, Fbarage = NULL){
+
+  SSB <- getSSB(df.tmb,sas)
+  R <- getR(df.tmb, sas)
+  Catch <- getCatch(df.tmb, sas)
+  Fbar <- getFbar(df.tmb,sas, Fbarage)
+
+
+  df.out <- data.frame(
+    years = SSB$years,
+    SSB = SSB$SSB,
+    R = R$R,
+    Catch = c(Catch$Catch,NA),
+    Fbar = c(Fbar$Fbar,NA)
+  )
+
+
+return(df.out)
+}
+
+
+
+
+
+
+
+
+
+
+
+
