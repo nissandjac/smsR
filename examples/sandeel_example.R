@@ -58,6 +58,8 @@ p <- smsPlots(df.tmb, sas$reps, Fbarage = 1:2)
 
 
 # Show some other functions
+require(ggplot2)
+
 # Get SSB
 SSB <- getSSB(df.tmb, sas)
 
@@ -66,7 +68,39 @@ R <- getR(df.tmb, sas)
 
 # N
 N <- getN(df.tmb, sas)
+# ggplot(N, aes(x = years, y = N, color = factor(season)))+
+#   geom_line()+facet_wrap(~ages, scales = 'free_y')+
+#   geom_ribbon(aes(ymin = minSE, ymax = maxSE), fill = 'red', alpha = .2)+
+#   theme_classic()
+#
+# Get the CVs
+surveyCV <- getSurveyCV(sas)
 
-ggplot2::ggplot(N[N$season == 1,], aes(x = years, y = N, color = factor(ages)))+
-  geom_line()+facet_wrap(~ages, scales = 'free_y')+theme_classic()+theme(legend.position = 'none')
+catchCV <- getCatchCV(sas)
+
+
+# Residuals
+
+residualCatch <- getResidCatch(df.tmb, sas)
+
+ggplot(residualCatch, aes(x = years, y = ResidCatch, color = factor(ages)))+
+  geom_col()+facet_grid(season~ages, scales = 'free_y')+
+  theme_classic()+theme(legend.position = 'none')+
+  geom_hline(aes(yintercept = 0), linetype = 2)
+
+residualSurvey <- getResidSurvey(df.tmb, sas)
+
+ggplot(residualSurvey, aes(x = years, y = ResidSurvey, color = factor(ages)))+
+  geom_col()+facet_grid(survey~ages, scales = 'free_y')+
+  theme_classic()+theme(legend.position = 'none')+
+  geom_hline(aes(yintercept = 0), linetype = 2)
+
+
+# Print the AIC of the model
+AIC.sms(sas)
+
+# Print the negative log likelihood
+sas$opt[['objective']]
+
+
 

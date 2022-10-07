@@ -144,13 +144,15 @@ getResidCatch <- function(df.tmb, sas){
   tmp <- data.frame(ResidCatch = sdrep[rep.values == 'resid_catch',1])
   tmp$ResidCatch[tmp$ResidCatch == -99] <- NA
 
-  tmp$SE <- sdrep[rep.values == 'resid_catch',2]
-  tmp$SE[is.na(tmp$ResidCatch)] <- NA
-  tmp$minSE <- tmp$ResidCatch-2*tmp$SE
-  tmp$maxSE <- tmp$ResidCatch+2*tmp$SE
+  # tmp$SE <- sdrep[rep.values == 'resid_catch',2]
+  # tmp$SE[is.na(tmp$ResidCatch)] <- NA
+  # tmp$minSE <- tmp$ResidCatch-2*tmp$SE
+  # tmp$maxSE <- tmp$ResidCatch+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nseason*df.tmb$nage)
+
+  tmp <- tmp[-which(is.na(tmp$ResidCatch)),]
 
   Resid_Catch <- tmp
 
@@ -158,7 +160,7 @@ getResidCatch <- function(df.tmb, sas){
 }
 
 
-#' Get fishin mortality at age from fitted model
+#' Get survey residuals from fitted model
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
@@ -168,18 +170,143 @@ getResidCatch <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+getResidSurvey <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  # Plot SSB, recruitment, catch and fishing mortality
+
+  tmp <- data.frame(ResidSurvey = sdrep[rep.values == 'resid_survey',1])
+  tmp$ResidSurvey[tmp$ResidSurvey == -99] <- NA
+
+  tmp$SE <- sdrep[rep.values == 'resid_survey',2]
+  # tmp$SE[is.na(tmp$ResidSurvey)] <- NA
+  # tmp$minSE <- tmp$ResidSurvey-2*tmp$SE
+  # tmp$maxSE <- tmp$ResidSurvey+2*tmp$SE
+  tmp$ages <- df.tmb$age
+  tmp$years <- rep(years, each = df.tmb$nage)
+  tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage*(df.tmb$nyears))
+  tmp <- tmp[-which(is.na(tmp$ResidSurvey)),]
+
+  Resid_Survey <- tmp
+
+  return(Resid_Survey)
+}
+
+
+#' Retrieve estimated parameters
+#'
+#' @param sas stock assessment output from smsR
+#'
+#' @return
+#' data frame of estimated parameters and their SE
+#' @export
+#'
+#' @examples
+#'
 getEstimatedParms <- function(sas){
 
-  parms <- data.frame(parameter = sas$opt$par,
-                      se = sas$reps$sd)
+  parms.estimated <- data.frame(value = sas$opt$par,
+                      se = sqrt(diag(sas$reps$cov.fixed)),
+                      parameter = names(sas$opt$par))
 
 
-  return(Resid_Catch)
+  return(parms.estimated)
 }
 
 
 
+#' Retrieve estimated parameters
+#'
+#' @param sas stock assessment output from smsR
+#'
+#' @return
+#' data frame of estimated parameters and their SE
+#' @export
+#'
+#' @examples
+#'
+getCatchCV <- function(sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  # Plot SSB, recruitment, catch and fishing mortality
+
+  tmp <- data.frame(catchCV = sqrt(sdrep[rep.values == 'SD_catch2',1]))
+
+  tmp$SE <- sdrep[rep.values == 'SD_catch2',2]
+  tmp$minSE <- tmp$catchCV-2*tmp$SE
+  tmp$maxSE <- tmp$catchCV+2*tmp$SE
+
+  tmp$ages <- df.tmb$age
+
+  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
+
+  tmp <- tmp[-which(tmp$catchCV == 0),] # Remove the ones that are not caught
 
 
+  CatchCV  = tmp
+  return(tmp)
+}
 
 
+#' Retrieve estimated parameters
+#'
+#' @param sas stock assessment output from smsR
+#'
+#' @return
+#' data frame of estimated parameters and their SE
+#' @export
+#'
+#' @examples
+#'
+getSurveyCV <- function(sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  # Plot SSB, recruitment, catch and fishing mortality
+
+  tmp <- data.frame(surveyCV = sdrep[rep.values == 'SDS',1])
+
+  tmp$SE <- sdrep[rep.values == 'SDS',2]
+  tmp$minSE <- tmp$surveyCV-2*tmp$SE
+  tmp$maxSE <- tmp$surveyCV+2*tmp$SE
+
+  tmp$ages <- df.tmb$age
+
+  tmp$season <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
+
+  tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
+
+  surveyCV <- tmp
+  return(surveyCV)
+}
+
+#' Calculate AIC from smsR stock assessment object
+#'
+#' @param sas Stock assesment object from smsR
+#' @param p penalty on number of parameters, default = 2
+#' @param n AICc sample size, default = Inf
+#'
+#' @return
+#' @export
+#'
+#' @examples
+AIC.sms <- function(sas, p=2, n=Inf){
+
+    opt <- sas$opt
+
+    k = length(opt[["par"]])
+    nll = opt[["objective"]]
+    aic.sms = p*k + 2*nll + 2*k*(k+1)/(n-k-1)
+    return( aic.sms )
+  }

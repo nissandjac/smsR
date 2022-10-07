@@ -85,5 +85,6 @@ system.time(reps<-TMB::sdreport(obj))
 
 return(list(x = x,
             opt = opt,
-            reps = reps))
+            reps = reps,
+            obj = obj))
 }

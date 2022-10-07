@@ -2,18 +2,16 @@
 % Please edit documentation in R/utils-output.R
 \name{getEstimatedParms}
 \alias{getEstimatedParms}
-\title{Get fishin mortality at age from fitted model}
+\title{Retrieve estimated parameters}
 \usage{
-getEstimatedParms(df.tmb, sas)
+getEstimatedParms(sas)
 }
 \arguments{
-\item{df.tmb}{list of input parameters}
-
-\item{sas}{fitted smsR model}
+\item{sas}{stock assessment output from smsR}
 }
 \value{
-data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+data frame of estimated parameters and their SE
 }
 \description{
-Get fishin mortality at age from fitted model
+Retrieve estimated parameters
 }
