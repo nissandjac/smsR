@@ -276,6 +276,10 @@ getFbar <- function(df.tmb, sas, Fbarage = NULL){
 #' @export
 #'
 #' @examples
+#'
+#' getResidCatch(df.tmb, sas)
+#' print(getResidCatch)
+#'
 getResidCatch <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -485,14 +489,6 @@ getSummary <-function(df.tmb, sas, Fbarage = NULL){
 
 return(df.out)
 }
-
-
-
-
-
-
-
-
 
 
 
