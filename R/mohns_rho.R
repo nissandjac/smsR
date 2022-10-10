@@ -47,26 +47,17 @@ mohns_rho <- function(df.tmb,
   asses1 <- runAssessment(df.tmb, parms = parms, mps = mps)
 
 
-  SSB.base <- asses1$reps$value[names(asses1$reps$value) == 'SSB']
-  recruit.base <- asses1$reps$value[names(asses1$reps$value) == 'Rsave']
+  SSB.base <- getSSB(df.tmb, asses1)$SSB
+  recruit.base <- getR(df.tmb, asses1)$R
 
 
-  F0base <- data.frame(F0 = asses1$reps$value[names(asses1$reps$value) == 'F0'])
-  F0base$age <- df.tmb$age
-  F0base$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*df.tmb$nyears)
-  F0base$year <- rep(years, each = length(ages))
-
-
-  Fbarbase <- F0base[F0base$age %in% Fbarage,] %>% dplyr::group_by(year, age) %>%
-    dplyr::summarise(Fbar0 = sum(F0)) %>% dplyr::group_by(year) %>%
-    dplyr::summarise(Fmean = mean(Fbar0))
-
+  F0base <- getFbar(df.tmb, sas, Fbarage)
 
 
   df.save <- data.frame(years = df.tmb$years,
                         SSB = SSB.base[1:(length(SSB.base)-1)],
                         R = recruit.base[1:(length(SSB.base)-1)],
-                        Fbar = Fbarbase$Fmean,
+                        Fbar = F0base$Fbar,
                         peel = 0,
                         convergence = asses1$reps$pdHess)
 
@@ -127,25 +118,19 @@ mohns_rho <- function(df.tmb,
 
   assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new)
 
-  SSB.tmb <- assess.new$reps$value[names(assess.new$reps$value) == 'SSB']
-  recruit.tmb <- assess.new$reps$value[names(assess.new$reps$value) == 'Rsave']
+
+  SSB.tmb <- getSSB(df.new, assess.new)$SSB
+  recruit.tmb <- getR(df.new, assess.new)$R
 
 
-  F0 <- data.frame(F0 = assess.new$reps$value[names(assess.new$reps$value) == 'F0'])
-  F0$age <- df.new$age
-  F0$season <- rep(1:df.new$nseason, each = df.new$nage*df.new$nyears)
-  F0$year <- rep(df.new$years, each = length(df.new$age))
+  F0.tmb <- getFbar(df.new, assess.new, Fbarage)
 
-
-  Fbar <- F0[F0$age %in% Fbarage,] %>% dplyr::group_by(year, age) %>%
-    dplyr::summarise(Fbar0 = sum(F0)) %>% dplyr::group_by(year) %>%
-    dplyr::summarise(Fmean = mean(Fbar0))
 
 
   tmp <- data.frame(years = df.new$years,
                                  SSB = SSB.tmb[1:(length(SSB.tmb)-1)],
                                  R = recruit.tmb[1:(length(SSB.tmb)-1)],
-                                 Fbar = Fbar$Fmean,
+                                 Fbar = F0.tmb$Fbar,
                                  peel = i,
                                  convergence = assess.new$reps$pdHess)
 
@@ -158,14 +143,14 @@ mohns_rho <- function(df.tmb,
     mohns <- data.frame(
                       SSB = (SSB.tmb[df.new$nyears]-SSB.base[df.tmb$nyears-i])/SSB.base[df.tmb$nyears-i],
                       R = (tmp$R[df.new$nyears]-recruit.base[df.tmb$nyears-i])/recruit.base[df.tmb$nyears-i],
-                      F0 = (tmp$Fbar[df.new$nyears]-Fbarbase$Fmean[df.tmb$nyears-i])/Fbarbase$Fmean[df.tmb$nyears-i],
+                      F0 = (tmp$Fbar[df.new$nyears]-F0base$Fbar[df.tmb$nyears-i])/F0base$Fbar[df.tmb$nyears-i],
                       row.names = FALSE
                       )
   }else{
     tmp.m <- data.frame(
       SSB = (tmp$SSB[df.new$nyears]-SSB.base[df.tmb$nyears-i])/SSB.base[df.tmb$nyears-i],
       R = (tmp$R[df.new$nyears]-recruit.base[df.tmb$nyears-i])/recruit.base[df.tmb$nyears-i],
-      F0 = (tmp$Fbar[df.new$nyears]-Fbarbase$Fmean[df.tmb$nyears-i])/Fbarbase$Fmean[df.tmb$nyears-i],
+      F0 = (tmp$Fbar[df.new$nyears]-F0base$Fbar[df.tmb$nyears-i])/F0base$Fbar[df.tmb$nyears-i],
       row.names = FALSE
     )
 

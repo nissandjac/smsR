@@ -17,3 +17,9 @@ data frame of fishing mortality at age. Last year is based on the expected survi
 \description{
 Get fishin mortality at age from fitted model
 }
+\examples{
+
+getResidCatch(df.tmb, sas)
+print(getResidCatch)
+
+}

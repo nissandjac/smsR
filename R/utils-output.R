@@ -22,11 +22,16 @@ getSSB <- function(df.tmb, sas){
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  SSB <- data.frame(SSB = sdrep[rep.values == 'SSB',1])
-  SSB$SE <- sdrep[rep.values == 'SSB',2]
+  SSB <- data.frame(SSB = sdrep[rep.values == 'logSSB',1])
+  SSB$SE <- (sdrep[rep.values == 'logSSB',2])
   SSB$minSE <- SSB$SSB-2*SSB$SE
   SSB$maxSE <- SSB$SSB+2*SSB$SE
   SSB$years <- c(years,max(years)+1)
+
+  SSB$SSB <- exp(SSB$SSB)
+  SSB$minSE <- exp(SSB$minSE)
+  SSB$maxSE <- exp(SSB$maxSE)
+
 
   return(SSB)
 }
@@ -49,13 +54,13 @@ getBiomass <- function(df.tmb, sas){
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
 
-  N <- array(sdrep[rep.values == 'Nsave',1], dim = c(df.tmb$nage, df.tmb$nyears, df.tmb$nseason),
+  N <- array(sdrep[rep.values == 'logBiomass',1], dim = c(df.tmb$nage, df.tmb$nyears, df.tmb$nseason),
              dimnames = list(df.tmb$age, df.tmb$years, 1:df.tmb$nseason))
-  Nse <- array(sdrep[rep.values == 'Nsave',2], dim = c(df.tmb$nage, df.tmb$nyears, df.tmb$nseason),
+  Nse <- array(sdrep[rep.values == 'logBiomass',2], dim = c(df.tmb$nage, df.tmb$nyears, df.tmb$nseason),
                dimnames = list(df.tmb$age, df.tmb$years, 1:df.tmb$nseason))
 
-  Biomass <- N*df.tmb$west
-  BiomassSE <- as.data.frame.table(Nse*df.tmb$west)
+  Biomass <- N
+  BiomassSE <- as.data.frame.table(Nse)
 
   Biomass.df <- as.data.frame.table(Biomass)
   names(Biomass.df) <- c('ages','years','season','Biomass')
@@ -66,6 +71,10 @@ getBiomass <- function(df.tmb, sas){
   Biomass.df$years <- as.numeric(as.character(Biomass.df$years))
 
   Biomass.df <- Biomass.df %>% dplyr::select(Biomass, SE, minSE, maxSE, ages, season,years)
+  Biomass.df <- Biomass.df[-which(Biomass.df$Biomass == 0),]
+  Biomass.df$Biomass <- exp(Biomass.df$Biomass)
+  Biomass.df$minSE <- exp(Biomass.df$minSE)
+  Biomass.df$maxSE <- exp(Biomass.df$maxSE)
 
   return(Biomass.df)
 }
@@ -89,13 +98,18 @@ getCatch <- function(df.tmb, sas){
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  tmp <- data.frame(Catch = sdrep[rep.values == 'Catchtot',1])
-  tmp$SE <- sdrep[rep.values == 'Catchtot',2]
+  tmp <- data.frame(Catch = sdrep[rep.values == 'logCatchtot',1])
+  tmp$SE <- sdrep[rep.values == 'logCatchtot',2]
   tmp$minSE <- tmp$Catch-2*tmp$SE
   tmp$maxSE <- tmp$Catch+2*tmp$SE
   tmp$years <- years
 
+  tmp$Catch <- exp(tmp$Catch)
+  tmp$minSE <- exp(tmp$minSE)
+  tmp$maxSE <- exp(tmp$maxSE)
+
   Catch <- tmp
+
 
   return(Catch)
 }
@@ -123,11 +137,18 @@ getR <- function(df.tmb, sas){
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  R <- data.frame(R = sdrep[rep.values == 'Rsave',1])
-  R$SE <- sdrep[rep.values == 'Rsave',2]
+  R <- data.frame(R = sdrep[rep.values == 'logRec',1])
+  R$SE <- sdrep[rep.values == 'logRec',2]
   R$minSE <- R$R-2*R$SE
   R$maxSE <- R$R+2*R$SE
   R$years <- c(years,max(years)+1)
+
+
+  R$R <- exp(R$R)
+  R$minSE <- exp(R$minSE)
+  R$maxSE <- exp(R$maxSE)
+
+
 
   return(R)
 }
@@ -153,16 +174,23 @@ getN <- function(df.tmb, sas){
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  N <- data.frame(N = sdrep[rep.values == 'Nsave',1])
-  N$SE <- sdrep[rep.values == 'Nsave',2]
+  N <- data.frame(N = sdrep[rep.values == 'logN',1])
+  N$SE <- sdrep[rep.values == 'logN',2]
   N$minSE <- N$N-2*N$SE
   N$maxSE <- N$N+2*N$SE
   N$ages <- df.tmb$age
-  N$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears+1))
-  N$years <- rep(c(years,max(years)+1), each = df.tmb$nage)
+  N$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
+  N$years <- rep(years, each = df.tmb$nage)
+  N <- N[-which(N$N == 0),]
+
+  N$N <- exp(N$N)
+  N$minSE <- exp(N$minSE)
+  N$maxSE <- exp(N$maxSE)
+
 
   return(N)
 }
+
 
 
 #' Get the number of catch individuals per age
@@ -185,14 +213,19 @@ getCatchN <- function(df.tmb, sas){
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  tmp <- data.frame(CatchN = sdrep[rep.values == 'CatchN',1])
-  tmp$SE <- sdrep[rep.values == 'CatchN',2]
+  tmp <- data.frame(CatchN = sdrep[rep.values == 'logCatchN',1])
+  tmp$SE <- sdrep[rep.values == 'logCatchN',2]
   tmp$minSE <- tmp$CatchN-2*tmp$SE
   tmp$maxSE <- tmp$CatchN+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
   tmp <- tmp[-which(tmp$CatchN == 0),]
+
+
+  tmp$CatchN <- exp(tmp$CatchN)
+  tmp$minSE <- exp(tmp$minSE)
+  tmp$maxSE <- exp(tmp$maxSE)
 
   return(tmp)
 }
@@ -220,13 +253,19 @@ getF <- function(df.tmb, sas){
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  tmp <- data.frame(F0 = sdrep[rep.values == 'F0',1])
-  tmp$SE <- sdrep[rep.values == 'F0',2]
+  tmp <- data.frame(F0 = sdrep[rep.values == 'logF0',1])
+  tmp$SE <- sdrep[rep.values == 'logF0',2]
   tmp$minSE <- tmp$F0-2*tmp$SE
   tmp$maxSE <- tmp$F0+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
+  tmp$F0[tmp$F0 == 0] <- -Inf
+
+
+  tmp$F0 <- exp(tmp$F0)
+  tmp$minSE <- exp(tmp$minSE)
+  tmp$maxSE <- exp(tmp$maxSE)
 
   F0 <- tmp
 

@@ -676,6 +676,50 @@ for(int time=0;time<(nyears);time++){ // Loop over other years
       ptest(time) = -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
 }
 // // // // // // //
+
+// Do some reporting in log space
+vector<Type>logSSB(nyears+1);
+vector<Type>logCatchtot(nyears);
+array<Type>logF0(nage, nyears, nseason);
+array<Type>logCatch(nage,nyears, nseason);
+array<Type>logCatchN(nage,nyears, nseason);
+array<Type>logN(nage,nyears, nseason);
+array<Type>logBiomass(nage, nyears, nseason);
+
+//
+logSSB.setZero();
+logF0.setZero();
+logN.setZero();
+logCatch.setZero();
+logCatchtot.setZero();
+logCatchN.setZero();
+logBiomass.setZero();
+
+//
+for(int time=0;time<(nyears);time++){ // Loop over other years
+  logSSB(time) = log(SSB(time));
+  logCatchtot(time) = log(Catchtot(time));
+
+}
+
+logSSB(nyears) = log(SSB(nyears));
+//
+for(int time=0;time<nyears;time++){ // Loop over other ages
+  for(int i=0;i<nage;i++){ // Loop over other ages
+      for(int k=0;k<nseason;k++){ // Loop over seasons
+        if(F0(i, time,k) >0){
+          logF0(i,time,k) = log(F0(i,time,k));
+          logCatch(i, time, k) = log(Catch(i,time,k));
+          logCatchN(i,time,k) = log(CatchN(i,time,k));
+        }
+
+        if(Nsave(i,time,k) > 0){
+          logN(i,time,k) = log(Nsave(i,time,k));
+          logBiomass(i,time,k) = log(Nsave(i,time,k)*west(i,time,k));
+        }
+      }
+    }
+  }
 // // // // // prec += pCV;
 // // // // // // //
 // // // // // // //
@@ -720,12 +764,19 @@ REPORT(p)
 // REPORT(nll)
 // //
 // //
-ADREPORT(SSB)
+ADREPORT(logSSB)
+ADREPORT(logF0)
+ADREPORT(logCatch)
+ADREPORT(logCatchN)
+ADREPORT(logN)
 ADREPORT(ansvec)
 ADREPORT(SDrec)
-ADREPORT(F0)
-ADREPORT(Catch)
-ADREPORT(CatchN)
+ADREPORT(logCatchtot)
+ADREPORT(logRec)
+ADREPORT(logBiomass)
+// ADREPORT(F0)
+// ADREPORT(Catch)
+// ADREPORT(CatchN)
 ADREPORT(Qsurv)
 ADREPORT(Nsave)
 ADREPORT(Surveyout)
@@ -736,8 +787,7 @@ ADREPORT(resid_catch)
 ADREPORT(resid_survey)
 ADREPORT(log_exp_pattern)
 ADREPORT(term_logN_next)
-ADREPORT(logRec)
-ADREPORT(Catchtot)
+//ADREPORT(Catchtot)
 ADREPORT(alpha)
 ADREPORT(logbeta)
 ADREPORT(SDrec)

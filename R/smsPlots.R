@@ -1,7 +1,7 @@
 #' Title
 #'
 #' @param df.tmb list of tmb parameters
-#' @param reps estimated model.
+#' @param sas estimated model.
 #' @param Fbarage Fbar age
 #'
 #' @return
@@ -13,7 +13,7 @@
 #' @importFrom ggplot2 ggplot aes geom_bar coord_flip theme_classic geom_line geom_ribbon
 #' @importFrom ggplot2 alpha scale_y_continuous coord_cartesian theme
 #'
- smsPlots <- function(df.tmb, reps, Fbarage = df.tmb$age[df.tmb$age>0]){
+ smsPlots <- function(df.tmb, sas, Fbarage = df.tmb$age[df.tmb$age>0]){
 
 
   # Plot SSB
@@ -22,19 +22,7 @@
   # nseason = 2
   #
 
-
-
-  sdrep <- summary(reps)
-  rep.values<-rownames(sdrep)
-  years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
-
-  SSB <- data.frame(SSB = sdrep[rep.values == 'SSB',1])
-  SSB$SE <- sdrep[rep.values == 'SSB',2]
-  SSB$minSE <- SSB$SSB-2*SSB$SE
-  SSB$maxSE <- SSB$SSB+2*SSB$SE
-  SSB$model <- 'TMB'
-  SSB$years <- c(years,max(years)+1)
+  SSB <- getSSB(df.tmb, sas)
 
   pssb <- function(){
     ggplot(SSB, aes(x = years, y = SSB))+geom_line(size = 1.4)+
@@ -45,46 +33,22 @@
   # Recruitment
 
 
-  rec <- data.frame(rec = sdrep[rep.values == 'Rsave',1])
-  rec$SE <- sdrep[rep.values == 'Rsave',2]
-  rec$minSE <- rec$rec-2*rec$SE
-  rec$maxSE <- rec$rec+2*rec$SE
-  rec$model <- 'TMB'
-  rec$years <- c(years,max(years)+1)
+  rec <- getR(df.tmb,sas)
 
   # take care of crazy recruitment stuff
-  lims <- c(min(rec$rec)/2, max(rec$rec)*2)
+  lims <- c(min(rec$R)/2, max(rec$R)*2)
 
   prec <- function(){
-    ggplot(rec, aes(x = years, y = rec))+geom_line(size = 1.4)+
+    ggplot(rec, aes(x = years, y = R))+geom_line(size = 1.4)+
     theme_classic()+geom_ribbon(aes(ymin = minSE, ymax = maxSE), fill = alpha('red', 0.2), linetype = 0)+
     scale_y_continuous('recruitment')+theme(legend.position = 'none')+coord_cartesian(ylim = lims)
   }
   # Fishing mortality
 
-  quarters <- 1:nseason
-
-  F0 <- data.frame(F0 = sdrep[rep.values == 'F0',1])
-  F0$SE <- sdrep[rep.values == 'F0',2]
-  F0$minSE <- F0$F0-2*F0$SE
-  F0$maxSE <- F0$F0+2*F0$SE
-  F0$age <- df.tmb$age
-  F0$season <- rep(df.tmb$nseason, each = df.tmb$nage*df.tmb$nyears)
-  F0$year <- rep(years, each = length(ages))
-
-  Fbar <- F0[F0$age %in% Fbarage,] %>% dplyr::group_by(year, age) %>%
-    dplyr::summarise(Fbar0 = sum(F0),
-              minSE0 = sum(minSE),
-              maxSE0 = sum(maxSE)
-    ) %>% dplyr::group_by(year) %>%
-    dplyr::summarise(Fmean = mean(Fbar0),
-              minSE = mean(minSE0),
-              maxSE = mean(maxSE0)
-    ) %>% dplyr::mutate(model = 'tmb')
-
+  Fbar <- getFbar(df.tmb, sas, Fbarage = Fbarage)
 
   pF0 <- function(){
-    ggplot(Fbar, aes(x = year, y = Fmean))+geom_line(size = 1.3)+theme_classic()+
+    ggplot(Fbar, aes(x = years, y = Fbar))+geom_line(size = 1.3)+theme_classic()+
     geom_ribbon(aes(ymin = minSE, ymax = maxSE), fill = alpha('red', 0.2), linetype = 0)+
     scale_y_continuous('fishing mortality')+theme(legend.position = 'none')
   }
@@ -95,11 +59,7 @@
   years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
-  Catch <- data.frame(Catch = sdrep[rep.values == 'Catchtot',1])
-  Catch$SE <- sdrep[rep.values == 'Catchtot',2]
-  Catch$minSE <- Catch$Catch-2*Catch$SE
-  Catch$maxSE <- Catch$Catch+2*Catch$SE
-  Catch$model <- 'TMB'
+  Catch <- getCatch(df.tmb,sas)
 
   pCatch <- function(){
     ggplot(Catch, aes(x = years, y = Catch))+geom_line(size = 1.4)+
