@@ -35,7 +35,7 @@ get_TMB_parameters(
   recmodel = 2,
   estCV = c(0, 0, 0),
   CVmin = c(0.2, 0.2, 0.2),
-  betaSR = NA,
+  betaSR = NULL,
   nllfactor = rep(1, 3)
 )
 }

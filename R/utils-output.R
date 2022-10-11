@@ -556,9 +556,9 @@ getSurveyCV <- function(sas){
 #' @export
 #'
 #' @examples
-AIC.sms <- function(sas, p=2, n=Inf){
+AIC.sms <- function(object, p=2, n=Inf, ...){
 
-    opt <- sas$opt
+    opt <- object$opt
 
     k = length(opt[["par"]])
     nll = opt[["objective"]]
