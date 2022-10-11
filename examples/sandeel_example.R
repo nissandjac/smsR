@@ -34,10 +34,10 @@ df.tmb <- get_TMB_parameters(
   surveySeason = c(2,1), # Which seasons do the surveys occur in
   surveyCV =  list(c(0,1), # Add ages for survey CV
                    c(1,2,3)),
-  catchCV = list(c(0,1,3),
-                 c(0,1,3)),
+  catchCV = list(c(0),
+                 c(0)),
   recmodel = 2, # Chose recruitment model (2 = estimated)
-  estCV = c(0,2,0), # Estimate
+  estCV = c(0,0,0), # Estimate
  # betaSR = 110000, # Hockey stick plateau
   nllfactor = c(1,1,1) # Factor for relative strength of log-likelihood
 
