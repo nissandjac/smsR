@@ -87,8 +87,8 @@ system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
 system.time(reps<-TMB::sdreport(obj))
 
 
-return(list(x = x,
+return(structure(list(x = x,
             opt = opt,
             reps = reps,
-            obj = obj))
+            obj = obj), class="sms"))
 }
