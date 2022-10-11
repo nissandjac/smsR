@@ -24,6 +24,10 @@ if(is.null(mps)){
 
 }
 
+if(is.null(df.tmb$betaSR)){
+  df.tmb$betaSR <- NA
+}
+
 
 
 obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps)

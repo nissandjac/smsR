@@ -25,7 +25,7 @@ df.tmb <- get_TMB_parameters(
   Qmaxage = c(1,3),
   isFseason = c(1,0), # Seasons to calculate fishing in
   effort = Feffort,
-  powers =list(c(0), NA),
+  powers =list(NA, NA),
   blocks = c(1983,1989, 1999,2005 ,2010), # Blocks with unique selectivity
   endFseason = 2, # which season does fishing stop in the final year of data
   nocatch = as.matrix(nocatch),
@@ -38,10 +38,11 @@ df.tmb <- get_TMB_parameters(
                  c(0,1,3)),
   recmodel = 2, # Chose recruitment model (2 = estimated)
   estCV = c(0,2,0), # Estimate
-  beta = 110000, # Hockey stick plateau
-  nllfactor = c(1,1,.1) # Factor for relative strength of log-likelihood
+ # betaSR = 110000, # Hockey stick plateau
+  nllfactor = c(1,1,1) # Factor for relative strength of log-likelihood
 
 )
+
 
 
 # Get initial parameter structure

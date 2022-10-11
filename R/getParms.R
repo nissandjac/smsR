@@ -14,6 +14,12 @@ getParms <- function(df.tmb){
   SDsurvey <- rep(.1, length(unique(df.tmb$Qidx_CV[df.tmb$Qidx_CV > -1])))
   logQ <- sum(df.tmb$Qlastage-df.tmb$Qminage)+length(df.tmb$Qidx)
 
+  if(is.null(df.tmb$betaSR)){
+    betaSR <-50000
+  }else{
+    betaSR <- df.tmb$betaSR
+  }
+
   parms <- list(logRin = rep(18, df.tmb$nyears),
                   logNinit = rep(15, df.tmb$nage-1),
                   Fyear = rep(1, df.tmb$nyears), # Mapped out
@@ -24,7 +30,7 @@ getParms <- function(df.tmb){
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
                   pin = 1,
                   logalpha = 2,
-                  logbeta = log(df.tmb$betaSR),
+                  logbeta = log(betaSR),
                   logSDrec = log(0.5))
 
 
