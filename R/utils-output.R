@@ -115,6 +115,72 @@ getCatch <- function(df.tmb, sas){
 }
 
 
+#' Get the survey catchability
+#'
+#' @param df.tmb sms input parameters
+#' @param sas fitted model object
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getCatchability <- function(df.tmb, sas){
+
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  # Plot SSB, recruitment, catch and fishing mortality
+
+  tmp <- data.frame(Q = sdrep[rep.values == 'Qsurv',1])
+  tmp$age <- rep(df.tmb$age, df.tmb$nsurvey)
+  tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
+
+
+
+  return(tmp)
+}
+
+#' #' Retrieve the fishing selectivity
+#' #'
+#' #' @param df.tmb sms input parameters
+#' #' @param sas fitted sms model
+#' #'
+#' #' @return
+#' #' @export
+#' #'
+#' #' @examples
+#' #' ## ' Not Run
+#' #' sel <- getSel(df.tmb, sas)
+#' #'
+#' #' ## End
+#' getSel<- function(df.tmb, sas){
+#'
+#'
+#'   reps <- sas$reps
+#'
+#'   sdrep <- summary(reps)
+#'   rep.values<-rownames(sdrep)
+#'   years <- df.tmb$years
+#'   # Plot SSB, recruitment, catch and fishing mortality
+#'   tmp <- data.frame(Fsel = NA, age = rep(df.tmb$age, df.tmb$nseason*(max(df.tmb$bidx)+1)),
+#'                     block = rep(unique(df.tmb$bidx), each = df.tmb$nage))
+#'
+#'   Fsel = exp(sdrep[rep.values == 'logFage',1])
+#'   tmp$Fsel[tmp$age %in% df.tmb$Fminage] <-
+#'   tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
+#'
+#'
+#'
+#'   return(tmp)
+#' }
+
+
+
+
+
 
 #' Get a data frame of recruitment from a fitted model
 #'
