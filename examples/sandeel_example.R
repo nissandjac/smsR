@@ -39,7 +39,7 @@ df.tmb <- get_TMB_parameters(
   recmodel = 2, # Chose recruitment model (2 = estimated)
   estCV = c(0,2,0), # Estimate
   beta = 110000, # Hockey stick plateau
-  nllfactor = c(1,1,0.05) # Factor for relative strength of log-likelihood
+  nllfactor = c(1,1,1) # Factor for relative strength of log-likelihood
 
 )
 
@@ -53,7 +53,7 @@ parms <- getParms(df.tmb)
 sas <- runAssessment(df.tmb, parms = parms)
 
 # Plot standard graphs
-p <- smsPlots(df.tmb, sas$reps, Fbarage = 1:2)
+p <- smsPlots(df.tmb, sas, Fbarage = 1:2)
 
 # See Mohns rho
 m <- mohns_rho(df.tmb,parms, peels = 5, Fbarage = c(1:2), plotfigure = TRUE)

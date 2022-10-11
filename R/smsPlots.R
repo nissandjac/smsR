@@ -54,10 +54,7 @@
   }
 
   # And catch
-  sdrep <- summary(reps)
-  rep.values<-rownames(sdrep)
-  years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
+   # Plot SSB, recruitment, catch and fishing mortality
 
   Catch <- getCatch(df.tmb,sas)
 

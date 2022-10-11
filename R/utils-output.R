@@ -261,7 +261,8 @@ getF <- function(df.tmb, sas){
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
   tmp$F0[tmp$F0 == 0] <- -Inf
-
+  tmp$minSE[tmp$F0 == -Inf] <- -Inf
+  tmp$maxSE[tmp$F0 == -Inf] <- -Inf
 
   tmp$F0 <- exp(tmp$F0)
   tmp$minSE <- exp(tmp$minSE)
