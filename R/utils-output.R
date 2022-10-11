@@ -484,6 +484,7 @@ getSurveyCV <- function(sas){
 #' @param sas Stock assesment object from smsR
 #' @param p penalty on number of parameters, default = 2
 #' @param n AICc sample size, default = Inf
+#' @aliases AIC AIC.sms
 #'
 #' @return
 #' @export
@@ -497,6 +498,31 @@ AIC.sms <- function(sas, p=2, n=Inf){
     nll = opt[["objective"]]
     aic.sms = p*k + 2*nll + 2*k*(k+1)/(n-k-1)
     return( aic.sms )
+}
+
+# Extract the log likelihood of a sms model
+#
+# @return object of class \code{logLik} with attributes
+# \item{val}{log likelihood}
+# \item{nobs,nall}{number of non NA observations initially supplied to TMB}
+# \item{df}{number of parameters}
+#' @importFrom stats logLik
+#' @export
+logLik.sms <- function(object, ...) {
+  if(object$opt$convergence !=0){
+    val <- NA
+  }else val <- -object$opt$objective
+
+  nobs <- nobs.sms(object)
+  df <- length(object$opt[["par"]])
+  structure(val, nobs = nobs, nall = nobs, df = df,
+            class = "logLik")
+}
+
+#' @importFrom stats nobs
+#' @export
+nobs.sms <- function(object, ...) {
+  sum(object$x$resid_survey !=-99) +sum(object$x$resid_catch !=-99)
 }
 
 
