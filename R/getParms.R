@@ -17,14 +17,14 @@ getParms <- function(df.tmb){
   parms <- list(logRin = rep(18, df.tmb$nyears),
                   logNinit = rep(15, df.tmb$nage-1),
                   Fyear = rep(1, df.tmb$nyears), # Mapped out
-                  Fseason = matrix(0.5, nrow = 1, ncol = length(unique(df.tmb$bidx))),
-                  logFage = matrix(1, nrow = df.tmb$Fmaxage+1, ncol = length(unique(df.tmb$bidx))),
+                  Fseason = matrix(1, nrow = 1, ncol = length(unique(df.tmb$bidx))),
+                  logFage = matrix(1, nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
                   SDsurvey = SDsurvey,
                   SDcatch = as.matrix(SDCatch),
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
                   pin = 1,
                   logalpha = 2,
-                  logbeta = df.tmb$betaSR,
+                  logbeta = log(df.tmb$betaSR),
                   logSDrec = log(0.5))
 
 
@@ -65,6 +65,11 @@ getMPS <- function(df.tmb, parms, mapExtra = NA){
   if(is.numeric(df.tmb$betaSR)){
     mps$logbeta <- factor(parms$logbeta*NA)
   }
+
+  if(df.tmb$nseason == 1){
+    mps$Fseason <- factor(parms$Fseason*NA)
+  }
+
 
   for(i in 1:length(mapExtra)){
 

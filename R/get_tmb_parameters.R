@@ -69,7 +69,7 @@ get_TMB_parameters <- function(
   recmodel = 2,
   estCV = c(0,0,0),
   CVmin = c(0.2,0.2,0.2),
-  betaSR = NA,
+  betaSR = NULL,
   nllfactor = rep(1,3)
 
 ){
@@ -200,8 +200,9 @@ get_TMB_parameters <- function(
   #   useEffort <- 1
   # }
 
+  if(nseason > 1){
   isFseason[length(isFseason)] <- 0 # This is a weird standard thing in sms
-
+  }
   # Do the power law calcs
   if(is.na(powers[[1]])){
     powersexp <- matrix(0, nrow = length(ages), ncol = nsurvey)

@@ -39,7 +39,7 @@ df.tmb <- get_TMB_parameters(
   recmodel = 2, # Chose recruitment model (2 = estimated)
   estCV = c(0,2,0), # Estimate
   beta = 110000, # Hockey stick plateau
-  nllfactor = c(1,1,1) # Factor for relative strength of log-likelihood
+  nllfactor = c(1,1,.1) # Factor for relative strength of log-likelihood
 
 )
 

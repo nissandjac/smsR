@@ -12,9 +12,9 @@
 #'
 #' @examples
 runAssessment <- function(df.tmb,
+                          parms,
                           lwr = list(NA),
                           upr = list(NA),
-                          parms,
                           mps = NULL){
 
 
