@@ -156,26 +156,30 @@ getCatchability <- function(df.tmb, sas){
 #' #' sel <- getSel(df.tmb, sas)
 #' #'
 #' #' ## End
-#' getSel<- function(df.tmb, sas){
-#'
-#'
-#'   reps <- sas$reps
-#'
-#'   sdrep <- summary(reps)
-#'   rep.values<-rownames(sdrep)
-#'   years <- df.tmb$years
-#'   # Plot SSB, recruitment, catch and fishing mortality
-#'   tmp <- data.frame(Fsel = NA, age = rep(df.tmb$age, df.tmb$nseason*(max(df.tmb$bidx)+1)),
-#'                     block = rep(unique(df.tmb$bidx), each = df.tmb$nage))
-#'
-#'   Fsel = exp(sdrep[rep.values == 'logFage',1])
-#'   tmp$Fsel[tmp$age %in% df.tmb$Fminage] <-
-#'   tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
-#'
-#'
-#'
-#'   return(tmp)
-#' }
+getSel<- function(df.tmb, sas){
+
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+  blocks <- unique(df.tmb$bidx)
+  Fage <- df.tmb$Fminage:df.tmb$Fmaxage
+  # Plot SSB, recruitment, catch and fishing mortality
+  tmp <- data.frame(Fsel = 0, age = rep(df.tmb$age, max(df.tmb$bidx)+1),
+                    block = rep(unique(df.tmb$bidx), each = df.tmb$nage))
+
+  Fsel = array(as.numeric(exp(sdrep[rep.values == 'logFage',1])), dim = c(length(Fage), length(blocks)))
+
+  for(i in 1:length(blocks)){
+    tmp$Fsel[tmp$age %in% Fage & tmp$block == blocks[i]] <- Fsel[,i]/max(Fsel[,i])
+    tmp$Fsel[tmp$age > max(Fage) & tmp$block == blocks[i]] <- Fsel[nrow(Fsel),i]/max(Fsel[,i])
+  }
+
+
+  return(tmp)
+}
 
 
 
