@@ -5,6 +5,7 @@
 #' @param upper upper bounds
 #' @param parms optional parameter input
 #' @param mps optional mapping input
+#' @param verbose see tmb output
 #'
 #' @return
 #' a list of derived variables
@@ -15,7 +16,8 @@ runAssessment <- function(df.tmb,
                           parms,
                           lwr = list(NA),
                           upr = list(NA),
-                          mps = NULL){
+                          mps = NULL,
+                          silent = TRUE){
 
 
 if(is.null(mps)){
@@ -30,7 +32,7 @@ if(is.null(df.tmb$betaSR)){
 
 
 
-obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps)
+obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps, silent = silent)
 x <- obj$report()
 
 # Set boundaries
