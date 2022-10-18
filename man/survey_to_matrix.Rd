@@ -4,7 +4,7 @@
 \alias{survey_to_matrix}
 \title{Title}
 \usage{
-survey_to_matrix(survey, year, season = 1:4)
+survey_to_matrix(survey, year)
 }
 \arguments{
 \item{survey}{data frame containing survey}
@@ -17,5 +17,5 @@ survey_to_matrix(survey, year, season = 1:4)
 Title
 }
 \examples{
-survey_to_matrix(x,y, season = 1:2)
+survey_to_matrix(x,y)
 }

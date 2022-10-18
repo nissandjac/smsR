@@ -2,9 +2,9 @@
 % Please edit documentation in R/utils-output.R
 \name{getCatchCV}
 \alias{getCatchCV}
-\title{Retrieve estimated parameters}
+\title{Retrieve estimated catch CV}
 \usage{
-getCatchCV(sas)
+getCatchCV(df.tmb, sas)
 }
 \arguments{
 \item{sas}{stock assessment output from smsR}
@@ -13,5 +13,5 @@ getCatchCV(sas)
 data frame of estimated parameters and their SE
 }
 \description{
-Retrieve estimated parameters
+Retrieve estimated catch CV
 }

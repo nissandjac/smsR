@@ -1,26 +1,27 @@
 #' Title
 #'
 #' @param df.tmb input values for TMB file
+#' @param parms.true data frame of true parameters
 #'
 #' @return
 #' @export
 #'
 #' @examples
-getParms <- function(df.tmb){
+getParms <- function(df.tmb, parms.true = NULL){
 
 
   # Try initial parameters in weird spots
-  SDCatch <- rep(.6,max(df.tmb$Cidx_CV)+1)
-  SDsurvey <- rep(.1, length(unique(df.tmb$Qidx_CV[df.tmb$Qidx_CV > -1])))
-  logQ <- sum(df.tmb$Qlastage-df.tmb$Qminage)+length(df.tmb$Qidx)
+    SDCatch <- rep(.6,max(df.tmb$Cidx_CV)+1)
+    SDsurvey <- rep(.1, length(unique(df.tmb$Qidx_CV[df.tmb$Qidx_CV > -1])))
+    logQ <- sum(df.tmb$Qlastage-df.tmb$Qminage)+length(df.tmb$Qidx)
 
-  if(is.null(df.tmb$betaSR)){
-    betaSR <-50000
-  }else{
-    betaSR <- df.tmb$betaSR
-  }
+    if(is.null(df.tmb$betaSR)){
+      betaSR <-50000
+    }else{
+      betaSR <- df.tmb$betaSR
+    }
 
-  parms <- list(logRin = rep(18, df.tmb$nyears),
+    parms <- list(logRin = rep(18, df.tmb$nyears),
                   logNinit = rep(15, df.tmb$nage-1),
                   Fyear = rep(1, df.tmb$nyears), # Mapped out
                   Fseason = matrix(1, nrow = 1, ncol = length(unique(df.tmb$bidx))),
@@ -35,6 +36,37 @@ getParms <- function(df.tmb){
 
 
 
+    if(!is.null(parms.true)){
+
+      pnames <- unique(parms.true$parameter)
+
+
+      for(i in 1:length(pnames)){
+
+        if(is.null(dim(parms[[i]]))){
+        parms[names(parms) == pnames[i]][[1]] <- parms.true$value[parms.true$parameter == pnames[i]]
+
+        }else{
+
+        if(length(dim(parms[[i]])) == 2){
+          parms[names(parms) == pnames[i]] <- array(parms.true$value[parms.true$parameter == pnames[i]],
+                                                    dim = c(dim(parms[[i]])[1],dim(parms[[i]])[2]
+                                                    )
+                                                    )
+        }
+
+        if(length(dim(parms[[i]])) == 3){
+        parms[names(parms) == pnames[i]] <- array(parms.true$value[parms.true$parameter == pnames[i]],
+                                                  dim = c(dim(parms[[i]])[1],dim(parms[[i]])[2],
+                                                          dim(parms[[i]])[3]
+                                                  )
+        )
+        }
+
+        }
+
+      }
+    }
 
 
   return(parms)

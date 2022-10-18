@@ -8,8 +8,8 @@
 #' @export
 #'
 #' @examples
-#' survey_to_matrix(x,y, season = 1:2)
-survey_to_matrix <- function(survey, year, season = 1:4){
+#' survey_to_matrix(x,y)
+survey_to_matrix <- function(survey, year){
 
 
   ages <- unique(survey$Age)
@@ -34,6 +34,7 @@ survey_to_matrix <- function(survey, year, season = 1:4){
 
         tmp <- survey[survey$year == year[i] & survey$Age == ages[j] &
           survey$Survey == surveys[l],]$cpue
+
 
         if(length(tmp) > 0){
 

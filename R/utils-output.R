@@ -143,19 +143,19 @@ getCatchability <- function(df.tmb, sas){
   return(tmp)
 }
 
-#' #' Retrieve the fishing selectivity
-#' #'
-#' #' @param df.tmb sms input parameters
-#' #' @param sas fitted sms model
-#' #'
-#' #' @return
-#' #' @export
-#' #'
-#' #' @examples
-#' #' ## ' Not Run
-#' #' sel <- getSel(df.tmb, sas)
-#' #'
-#' #' ## End
+#' Retrieve the fishing selectivity
+#'
+#' @param df.tmb sms input parameters
+#' @param sas fitted sms model
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' ## ' Not Run
+#' sel <- getSel(df.tmb, sas)
+#'
+#' ## End
 getSel<- function(df.tmb, sas){
 
 
@@ -180,10 +180,6 @@ getSel<- function(df.tmb, sas){
 
   return(tmp)
 }
-
-
-
-
 
 
 #' Get a data frame of recruitment from a fitted model
@@ -477,7 +473,7 @@ getEstimatedParms <- function(sas){
 
 
 
-#' Retrieve estimated parameters
+#' Retrieve estimated catch CV
 #'
 #' @param sas stock assessment output from smsR
 #'
@@ -487,13 +483,12 @@ getEstimatedParms <- function(sas){
 #'
 #' @examples
 #'
-getCatchCV <- function(sas){
+getCatchCV <- function(df.tmb, sas){
 
   reps <- sas$reps
 
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
-  years <- df.tmb$years
   # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(catchCV = sqrt(sdrep[rep.values == 'SD_catch2',1]))
@@ -506,11 +501,11 @@ getCatchCV <- function(sas){
 
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
 
-  tmp <- tmp[-which(tmp$catchCV == 0),] # Remove the ones that are not caught
+  #tmp <- tmp[-which(tmp$catchCV == 0),] # Remove the ones that are not caught
 
 
-  CatchCV  = tmp
-  return(tmp)
+  CatchCV <- tmp
+  return(CatchCV)
 }
 
 

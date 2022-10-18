@@ -4,10 +4,12 @@
 \alias{getParms}
 \title{Title}
 \usage{
-getParms(df.tmb)
+getParms(df.tmb, parms.true = NULL)
 }
 \arguments{
 \item{df.tmb}{input values for TMB file}
+
+\item{parms.true}{data frame of true parameters}
 }
 \description{
 Title
