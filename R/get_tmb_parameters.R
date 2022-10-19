@@ -295,12 +295,11 @@ get_TMB_parameters <- function(
   }
 
   catchCVout <- matrix(rep(catchCV[[1]], nseason), ncol= nseason)
-
-  if(estCV[2] == 2){
-  catchCVout <- catchCV
-
-
-  }
+#
+#   if(estCV[2] == 2){
+#   catchCVout <- catchCV
+#
+#   }
 
 
   df.tmb <- list(

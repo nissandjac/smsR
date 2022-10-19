@@ -141,7 +141,7 @@ mohns_rho <- function(df.tmb,
   # Calculate mohns rho
   if(i == 1){
     mohns <- data.frame(
-                      SSB = (SSB.tmb[df.new$nyears]-SSB.base[df.tmb$nyears-i])/SSB.base[df.tmb$nyears-i],
+                      SSB = (tmp$SSB[df.new$nyears]-SSB.base[df.tmb$nyears-i])/SSB.base[df.tmb$nyears-i],
                       R = (tmp$R[df.new$nyears]-recruit.base[df.tmb$nyears-i])/recruit.base[df.tmb$nyears-i],
                       F0 = (tmp$Fbar[df.new$nyears]-F0base$Fbar[df.tmb$nyears-i])/F0base$Fbar[df.tmb$nyears-i],
                       row.names = FALSE
