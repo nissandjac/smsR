@@ -44,6 +44,7 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(surveyStart);
   DATA_VECTOR(surveySeason);
   DATA_ARRAY(powers);
+  DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
   DATA_IVECTOR(Qidx);
   DATA_IARRAY(Qidx_CV); // survey catchability matrix
@@ -187,14 +188,14 @@ if(useBlocks == 0){
       for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
 
         if(isFseason(qrts) == 1){
-          if(i <= CminageSeason(qrts)){
+          if(i < CminageSeason(qrts)){
           Fquarter(i,j,qrts) = Type(0.0);
           }else{
           Fquarter(i,j,qrts) = Fseason(qrts,bidx(j));
           }
         }else{
 
-          if(i <= CminageSeason(qrts)){
+          if(i == 0){ // Not sure why this is happening.
           Fquarter(i,j,qrts) = Type(1);
           }else{
           Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
@@ -475,7 +476,7 @@ int ncatch = catchCV.rows();
 int astart = 0;
 int aend = 1;
 // // //
-array<Type> no(ncatch,nseason);
+//array<Type> no(ncatch,nseason);
 array<Type> sumx(ncatch,nseason);
 array<Type> sumx2(ncatch,nseason);
 
@@ -497,10 +498,12 @@ if(estCV(1) == 2){
 
 
          for(int i=astart;i<aend;i++){
-            if((Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0)){ // Log likelihood
-              sumx(k,qrts) += log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
-              sumx2(k,qrts) += pow(log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
-              no(k,qrts)+=1;
+
+            if(Catchobs(i,time,qrts)> 0 && CatchN(i,time,qrts) > 0){ // Log likelihood
+          //      if(i >= CminageSeason(qrts)){
+                sumx(k,qrts) += log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
+                sumx2(k,qrts) += pow(log(CatchN(i,time,qrts))-log(Catchobs(i,time,qrts)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
+            //    }
             }
           }
         }
@@ -541,7 +544,7 @@ if(estCV(1) == 0){ // Estimate
     for(int qrts=0;qrts<(nseason);qrts++){ // Loop over surveys
       for(int i=0;i<nage;i++){ // Loop over other ages
           if(i >= CminageSeason(qrts)){
-            SD_catch2(i,qrts) = pow(SDcatch(Cidx_CV(i,qrts)),2);
+            SD_catch2(i,qrts) = pow(SDcatch(Cidx_CV(i,qrts)),1);
           }
         }
 
@@ -549,7 +552,7 @@ if(estCV(1) == 0){ // Estimate
   }else{
     for(int i=0;i<nage;i++){ // Loop over other ages
         if(i >= CminageSeason(0)){
-            SD_catch2(i,0) = pow(SDcatch(Cidx_CV(i,0)),2);
+            SD_catch2(i,0) = pow(SDcatch(Cidx_CV(i,0)),1);
           }
         }
       }
@@ -610,7 +613,7 @@ Type nllC = 0.0; // log likelihood for Catch
      for(int qrts=0;qrts<nseason;qrts++){ // Loop over seasons
        if(Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0){ // Log likelihood
 
-       nllC += -dnorm(log(CatchN(i, time, qrts)),log(Catchobs(i, time, qrts)), sqrt(SD_catch2(i,qrts)), true);
+       nllC += -dnorm(log(CatchN(i, time, qrts)),log(Catchobs(i, time, qrts)), SD_catch2(i,qrts), true);
        Catchtot(time) += Catch(i,time, qrts);
 
      }
@@ -745,6 +748,7 @@ REPORT(Nsave)
 REPORT(Zsave)
 REPORT(Fyear)
 REPORT(M)
+REPORT(no)
 REPORT(Qsurv)
 REPORT(term_logN_next)
 REPORT(log_exp_pattern)

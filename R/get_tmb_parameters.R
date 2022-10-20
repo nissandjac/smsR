@@ -277,7 +277,7 @@ get_TMB_parameters <- function(
 
   }
 
-  Cidx.CV <- Cidx.CV - 1 # Convert to C++ idx
+  Cidx.CV <- Cidx.CV - 2 # Convert to C++ idx
 
   CVgroups <- NA
 
@@ -301,12 +301,33 @@ get_TMB_parameters <- function(
 #
 #   }
 
+  # Calc the number of catch observations
+
+  no <- matrix(0, nrow = nrow(catchCVout), ncol = nseason)
+
+  for(i in 1:nrow(catchCVout)){
+    for(qrts in 1:nseason){
+      if((i-1) >= CminageSeason[qrts]){
+
+        if(i < nrow(catchCVout)){
+        idx <- catchCVout[i]:(catchCVout[i+1]-1)+1
+        }else{
+        idx <- (catchCVout[i]+1):nage
+        }
+
+        print(idx)
+        no[i,qrts] <- length(Catchobs[idx,,qrts])
+      }
+    }
+  }
+
 
   df.tmb <- list(
     weca = mtrx$weca,
     west = mtrx$west,
     Surveyobs = Surveyobs,
     Catchobs = Catchobs,
+    no = no,
     years = years,
     age = ages,
     nage = length(ages),

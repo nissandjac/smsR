@@ -26,7 +26,7 @@ mohns_rho <- function(df.tmb,
                       upr = list(NA),
                       Fbarage = c(1,2),
                       plotfigure = TRUE,
-                      limits = NA,
+                      limits = NULL,
                       dll = 'smsR'
                       ){
 
@@ -63,7 +63,7 @@ mohns_rho <- function(df.tmb,
 
 
 
-  xx <- data.frame(base = df.save$SSB,
+  xx <- data.frame(base = df.save$R,
                    '-1' = NA,
                    '-2' = NA,
                    '-3' = NA,
@@ -134,7 +134,7 @@ mohns_rho <- function(df.tmb,
                                  peel = i,
                                  convergence = assess.new$reps$pdHess)
 
-  xx[1:(df.new$nyears),i+1] <- tmp$SSB
+  xx[1:(df.new$nyears),i+1] <- tmp$R
 
   df.save <- rbind(df.save, tmp)
 
@@ -164,16 +164,17 @@ mohns_rho <- function(df.tmb,
                                    R = mean(R),
                                    F0 = mean(F0))
 
+  df.save <- df.save %>% arrange(years)
 
 
-  df.plot <- df.save %>% tidyr::pivot_longer(2:4)
+  df.plot <- df.save %>% tidyr::pivot_longer(c(SSB,R,Fbar))
 
   df.plot$name[df.plot$name == 'SSB'] <- paste('SSB, rho = ', round(mohns.tot$SSB,3))
   df.plot$name[df.plot$name == 'Fbar'] <- paste('Fbar, rho = ', round(mohns.tot$F0,3))
   df.plot$name[df.plot$name == 'R'] <- paste('R, rho = ', round(mohns.tot$R,3))
 
 
-  if(is.na(limits)){
+  if(is.null(limits)){
     limits <- c(min(df.plot$years), max(df.plot$years))
   }
 
