@@ -432,6 +432,8 @@ for(int i=0;i<nage;i++){ // Loop over other ages
 // // // // //
 // // // // // Stock recruitment
 vector<Type> SRpred(nyears+1);
+Type xR = 0;
+Type xR2 = 0;
 
 for(int time=0;time<(nyears+1);time++){ // Loop over years
 
@@ -439,6 +441,15 @@ for(int time=0;time<(nyears+1);time++){ // Loop over years
        if(SSB(time) > beta){
           SRpred(time) = alpha+log(beta);
      }
+     //
+     if(SSB(time)<=beta){
+         xR +=log(Rsave(time))-(alpha+log(SSB(time)));
+         xR2 +=pow(log(Rsave(time))-(alpha+log(SSB(time))),2);
+       }else{
+         xR +=log(Rsave(time))-(alpha+log(beta));
+         xR2 +=pow(log(Rsave(time))-(alpha+log(beta)),2);
+       }
+
 
      if(time == nyears){
 
@@ -479,6 +490,7 @@ int aend = 1;
 //array<Type> no(ncatch,nseason);
 array<Type> sumx(ncatch,nseason);
 array<Type> sumx2(ncatch,nseason);
+
 
 REPORT(ncatch)
 
@@ -529,8 +541,8 @@ if(estCV(1) == 2){ // Calculate the catch CV
 
       for(int i=astart;i<aend;i++){
           if(no(k, qrts)>0){ // Only calculate if there are any observations
-          SD_catch2(i,qrts) = sqrt(sumx2(k,qrts)/no(k,qrts));
-          //SDR_catch2(i, qrts) = (no(k,qrts)*sumx2(k,qrts)-sumx(k,qrts)*sumx(k,qrts))/(no(k,qrts)*no(k,qrts));
+          //SD_catch2(i,qrts) = sqrt(sumx2(k,qrts)/no(k,qrts));
+          SD_catch2(i, qrts) = sqrt((no(k,qrts)*sumx2(k,qrts)-pow(sumx(k,qrts),2))/pow(no(k,qrts),2));
           }
         }
       }
@@ -671,13 +683,16 @@ if(estCV(2) == 2){// Calculate the standard deviation of recruitment
 REPORT(SDrec)
 // // //
 Type prec = Type(0.0);
-vector<Type>ptest(nyears);
-//
-// // //
-for(int time=0;time<(nyears);time++){ // Loop over other years
-      prec += -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
-      ptest(time) = -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
-}
+// vector<Type>ptest(nyears);
+// //
+// // // //
+// for(int time=0;time<(nyears);time++){ // Loop over other years
+//       prec += -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
+//       ptest(time) = -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
+// }
+
+// Model recruitment as in original sms
+prec += nyears*log(sqrt(SDrec))+xR2*0.5/SDrec;   // likelihood
 // // // // // // //
 
 // Do some reporting in log space
@@ -738,7 +753,6 @@ ansvec(2) = prec;
 
 REPORT(ansvec)
 REPORT(SRpred)
-REPORT(ptest)
 REPORT(SSB)
 REPORT(F0)
 REPORT(Catch)

@@ -404,7 +404,7 @@ getResidCatch <- function(df.tmb, sas){
   # tmp$maxSE <- tmp$ResidCatch+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
-  tmp$years <- rep(years, each = df.tmb$nseason*df.tmb$nage)
+  tmp$years <- rep(years, each = df.tmb$nage)
 
   tmp <- tmp[-which(is.na(tmp$ResidCatch)),]
 
@@ -491,7 +491,7 @@ getCatchCV <- function(df.tmb, sas){
   rep.values<-rownames(sdrep)
   # Plot SSB, recruitment, catch and fishing mortality
 
-  tmp <- data.frame(catchCV = sqrt(sdrep[rep.values == 'SD_catch2',1]))
+  tmp <- data.frame(catchCV = sdrep[rep.values == 'SD_catch2',1])
 
   tmp$SE <- sdrep[rep.values == 'SD_catch2',2]
   tmp$minSE <- tmp$catchCV-2*tmp$SE

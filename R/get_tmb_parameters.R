@@ -315,8 +315,9 @@ get_TMB_parameters <- function(
         idx <- (catchCVout[i]+1):nage
         }
 
-        print(idx)
-        no[i,qrts] <- length(Catchobs[idx,,qrts])
+        Out <- Catchobs[idx,,qrts]
+
+        no[i,qrts] <- length(Out[Out >0])
       }
     }
   }
