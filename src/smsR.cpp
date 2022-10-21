@@ -432,8 +432,8 @@ for(int i=0;i<nage;i++){ // Loop over other ages
 // // // // //
 // // // // // Stock recruitment
 vector<Type> SRpred(nyears+1);
-Type xR = 0;
-Type xR2 = 0;
+vector<Type> xR(nyears);
+vector<Type> xR2(nyears);
 
 for(int time=0;time<(nyears+1);time++){ // Loop over years
 
@@ -442,14 +442,15 @@ for(int time=0;time<(nyears+1);time++){ // Loop over years
           SRpred(time) = alpha+log(beta);
      }
      //
-     if(SSB(time)<=beta){
-         xR +=log(Rsave(time))-(alpha+log(SSB(time)));
-         xR2 +=pow(log(Rsave(time))-(alpha+log(SSB(time))),2);
-       }else{
-         xR +=log(Rsave(time))-(alpha+log(beta));
-         xR2 +=pow(log(Rsave(time))-(alpha+log(beta)),2);
+     if(time < nyears){
+       if(SSB(time)<=beta){
+           xR(time) = log(Rsave(time))-(alpha+log(SSB(time)));
+           xR2(time) = pow(log(Rsave(time))-(alpha+log(SSB(time))),2);
+         }else{
+           xR(time)  = log(Rsave(time))-(alpha+log(beta));
+           xR2(time) = pow(log(Rsave(time))-(alpha+log(beta)),2);
+         }
        }
-
 
      if(time == nyears){
 
@@ -682,17 +683,23 @@ if(estCV(2) == 2){// Calculate the standard deviation of recruitment
 }
 REPORT(SDrec)
 // // //
-Type prec = Type(0.0);
+//Type prec = Type(0.0);
+Type pXr = Type(0.0);
 // vector<Type>ptest(nyears);
 // //
 // // // //
 // for(int time=0;time<(nyears);time++){ // Loop over other years
 //       prec += -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
-//       ptest(time) = -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
+//   //    ptest(time) = -dnorm(SRpred(time),log(Rsave(time)), SDrec, true);
 // }
 
-// Model recruitment as in original sms
-prec += nyears*log(sqrt(SDrec))+xR2*0.5/SDrec;   // likelihood
+//Model recruitment as in original sms
+for(int i=0;i<nyears;i++){ // Loop over years
+  pXr += xR2(i);
+}
+
+Type prec = nyears*log(sqrt(SDrec))+pXr*0.5/SDrec;   // likelihood
+
 // // // // // // //
 
 // Do some reporting in log space
@@ -753,6 +760,7 @@ ansvec(2) = prec;
 
 REPORT(ansvec)
 REPORT(SRpred)
+REPORT(xR2)
 REPORT(SSB)
 REPORT(F0)
 REPORT(Catch)
