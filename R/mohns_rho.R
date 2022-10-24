@@ -164,7 +164,7 @@ mohns_rho <- function(df.tmb,
                                    R = mean(R),
                                    F0 = mean(F0))
 
-  df.save <- df.save %>% arrange(years)
+  df.save <- df.save %>% dplyr::arrange(years)
 
 
   df.plot <- df.save %>% tidyr::pivot_longer(c(SSB,R,Fbar))
