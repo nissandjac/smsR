@@ -8,6 +8,7 @@
 #' @param nseason number of seasons
 #' @param nsurvey number of surveys
 #' @param ages vector of ages
+#' @param Fbarage vector of min and max ages used in Fbar calculations
 #' @param recseason season where recruitment occurs
 #' @param Fminage First age to start fishing
 #' @param Fmaxage Last age with unique fishing mortality
@@ -46,6 +47,7 @@ get_TMB_parameters <- function(
   nseason = 4,
   nsurvey = 2,
   ages = 0:20,
+  Fbarage = c(1,max(ages)),
   recseason = 1,
   Fminage = 0,
   Fmaxage = max(ages),
@@ -331,6 +333,7 @@ get_TMB_parameters <- function(
     no = no,
     years = years,
     age = ages,
+    Fbarage = Fbarage,
     nage = length(ages),
     nseason = nseason,
     nyears = length(years),

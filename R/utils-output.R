@@ -343,21 +343,16 @@ getF <- function(df.tmb, sas){
 #'
 #' @param df.tmb list of input parameters
 #' @param sas smsR fitted model
-#' @param Fbarage ages to calculate Fbar
 #'
 #' @return
 #' @export
 #'
 #' @examples
-getFbar <- function(df.tmb, sas, Fbarage = NULL){
+getFbar <- function(df.tmb, sas){
 
-  if(is.null(Fbarage)){
-    warning('provide ages to calculate Fbar')
-    Fbarage <- df.tmb$age[df.tmb$age > min(df.tmb$CminageSeason)]
-  }
 
   F0 <- getF(df.tmb, sas)
-  tmp <-  F0[F0$ages %in% Fbarage,] %>%
+  tmp <-  F0[F0$ages > df.tmb$Fbarage[1] & F0$ages < df.tmb$Fbarage[2],] %>%
     dplyr::group_by(years, ages) %>%
     dplyr::summarise(Fbar0 = sum(F0),
                      minSE0 = sum(minSE),
@@ -595,18 +590,17 @@ nobs.sms <- function(object, ...) {
 #'
 #' @param df.tmb
 #' @param sas
-#' @param Fbarage
 #'
 #' @return
 #' @export
 #'
 #' @examples
-getSummary <-function(df.tmb, sas, Fbarage = NULL){
+getSummary <-function(df.tmb, sas){
 
   SSB <- getSSB(df.tmb,sas)
   R <- getR(df.tmb, sas)
   Catch <- getCatch(df.tmb, sas)
-  Fbar <- getFbar(df.tmb,sas, Fbarage)
+  Fbar <- getFbar(df.tmb, sas)
 
 
   df.out <- data.frame(
