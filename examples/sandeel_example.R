@@ -74,7 +74,7 @@ N <- getN(df.tmb, sas)
 
 ggplot(N, aes(x = years, y = N, color = factor(season), fill = factor(season)))+
   geom_line()+facet_wrap(~ages, scales = 'free_y')+
-  geom_ribbon(aes(ymin = minSE, ymax = maxSE), alpha = .2, linetype = 0)+
+  geom_ribbon(aes(ymin = low, ymax = high), alpha = .2, linetype = 0)+
   theme_classic()
 #
 

@@ -23,14 +23,14 @@ getSSB <- function(df.tmb, sas){
   # Plot SSB, recruitment, catch and fishing mortality
 
   SSB <- data.frame(SSB = sdrep[rep.values == 'logSSB',1])
-  SSB$SE <- (sdrep[rep.values == 'logSSB',2])
-  SSB$minSE <- SSB$SSB-2*SSB$SE
-  SSB$maxSE <- SSB$SSB+2*SSB$SE
+  SSB$CV <- (sdrep[rep.values == 'logSSB',2])
+  SSB$low <- SSB$SSB-2*SSB$CV
+  SSB$high <- SSB$SSB+2*SSB$CV
   SSB$years <- c(years,max(years)+1)
 
   SSB$SSB <- exp(SSB$SSB)
-  SSB$minSE <- exp(SSB$minSE)
-  SSB$maxSE <- exp(SSB$maxSE)
+  SSB$low <- exp(SSB$low)
+  SSB$high <- exp(SSB$high)
 
 
   return(SSB)
@@ -42,7 +42,7 @@ getSSB <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of spawning biomass. minSE and maxSE is the 95% confidence intervals, se is the standard error
+#' data frame of spawning biomass. low and high is the 95% confidence intervals, se is the standard error
 #' @export
 #'
 #' @examples
@@ -64,17 +64,17 @@ getBiomass <- function(df.tmb, sas){
 
   Biomass.df <- as.data.frame.table(Biomass)
   names(Biomass.df) <- c('ages','years','season','Biomass')
-  Biomass.df$SE <- BiomassSE$Freq
-  Biomass.df$minSE <- Biomass.df$Biomass-2*Biomass.df$SE
-  Biomass.df$maxSE <- Biomass.df$Biomass+2*Biomass.df$SE
+  Biomass.df$CV <- BiomassSE$Freq
+  Biomass.df$low <- Biomass.df$Biomass-2*Biomass.df$CV
+  Biomass.df$high <- Biomass.df$Biomass+2*Biomass.df$CV
   Biomass.df$ages <- as.numeric(as.character(Biomass.df$ages))
   Biomass.df$years <- as.numeric(as.character(Biomass.df$years))
 
-  Biomass.df <- Biomass.df %>% dplyr::select(Biomass, SE, minSE, maxSE, ages, season,years)
+  Biomass.df <- Biomass.df %>% dplyr::select(Biomass, CV, low, high, ages, season,years)
   Biomass.df <- Biomass.df[-which(Biomass.df$Biomass == 0),]
   Biomass.df$Biomass <- exp(Biomass.df$Biomass)
-  Biomass.df$minSE <- exp(Biomass.df$minSE)
-  Biomass.df$maxSE <- exp(Biomass.df$maxSE)
+  Biomass.df$low <- exp(Biomass.df$low)
+  Biomass.df$high <- exp(Biomass.df$high)
 
   return(Biomass.df)
 }
@@ -99,14 +99,14 @@ getCatch <- function(df.tmb, sas){
   # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(Catch = sdrep[rep.values == 'logCatchtot',1])
-  tmp$SE <- sdrep[rep.values == 'logCatchtot',2]
-  tmp$minSE <- tmp$Catch-2*tmp$SE
-  tmp$maxSE <- tmp$Catch+2*tmp$SE
+  tmp$CV <- sdrep[rep.values == 'logCatchtot',2]
+  tmp$low <- tmp$Catch-2*tmp$CV
+  tmp$high <- tmp$Catch+2*tmp$CV
   tmp$years <- years
 
   tmp$Catch <- exp(tmp$Catch)
-  tmp$minSE <- exp(tmp$minSE)
-  tmp$maxSE <- exp(tmp$maxSE)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
 
   Catch <- tmp
 
@@ -188,7 +188,7 @@ getSel<- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of recruitment. Last year is based on the Stock recruitment relationship. minSE and maxSE is the 95% confidence intervals
+#' data frame of recruitment. Last year is based on the Stock recruitment relationship. low and high is the 95% confidence intervals
 #' @export
 #'
 #' @examples
@@ -204,15 +204,15 @@ getR <- function(df.tmb, sas){
   # Plot SSB, recruitment, catch and fishing mortality
 
   R <- data.frame(R = sdrep[rep.values == 'logRec',1])
-  R$SE <- sdrep[rep.values == 'logRec',2]
-  R$minSE <- R$R-2*R$SE
-  R$maxSE <- R$R+2*R$SE
+  R$CV <- sdrep[rep.values == 'logRec',2]
+  R$low <- R$R-2*R$CV
+  R$high <- R$R+2*R$CV
   R$years <- c(years,max(years)+1)
 
 
   R$R <- exp(R$R)
-  R$minSE <- exp(R$minSE)
-  R$maxSE <- exp(R$maxSE)
+  R$low <- exp(R$low)
+  R$high <- exp(R$high)
 
 
 
@@ -226,7 +226,7 @@ getR <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of Numbers at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+#' data frame of Numbers at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
 #' @export
 #'
 #' @examples
@@ -241,17 +241,17 @@ getN <- function(df.tmb, sas){
   # Plot SSB, recruitment, catch and fishing mortality
 
   N <- data.frame(N = sdrep[rep.values == 'logN',1])
-  N$SE <- sdrep[rep.values == 'logN',2]
-  N$minSE <- N$N-2*N$SE
-  N$maxSE <- N$N+2*N$SE
+  N$CV <- sdrep[rep.values == 'logN',2]
+  N$low <- N$N-2*N$CV
+  N$high <- N$N+2*N$CV
   N$ages <- df.tmb$age
   N$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   N$years <- rep(years, each = df.tmb$nage)
   N <- N[-which(N$N == 0),]
 
   N$N <- exp(N$N)
-  N$minSE <- exp(N$minSE)
-  N$maxSE <- exp(N$maxSE)
+  N$low <- exp(N$low)
+  N$high <- exp(N$high)
 
 
   return(N)
@@ -280,9 +280,9 @@ getCatchN <- function(df.tmb, sas){
   # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(CatchN = sdrep[rep.values == 'logCatchN',1])
-  tmp$SE <- sdrep[rep.values == 'logCatchN',2]
-  tmp$minSE <- tmp$CatchN-2*tmp$SE
-  tmp$maxSE <- tmp$CatchN+2*tmp$SE
+  tmp$CV <- sdrep[rep.values == 'logCatchN',2]
+  tmp$low <- tmp$CatchN-2*tmp$CV
+  tmp$high <- tmp$CatchN+2*tmp$CV
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
@@ -290,8 +290,8 @@ getCatchN <- function(df.tmb, sas){
 
 
   tmp$CatchN <- exp(tmp$CatchN)
-  tmp$minSE <- exp(tmp$minSE)
-  tmp$maxSE <- exp(tmp$maxSE)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
 
   return(tmp)
 }
@@ -306,7 +306,7 @@ getCatchN <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
 #' @export
 #'
 #' @examples
@@ -320,19 +320,19 @@ getF <- function(df.tmb, sas){
   # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(F0 = sdrep[rep.values == 'logF0',1])
-  tmp$SE <- sdrep[rep.values == 'logF0',2]
-  tmp$minSE <- tmp$F0-2*tmp$SE
-  tmp$maxSE <- tmp$F0+2*tmp$SE
+  tmp$CV <- sdrep[rep.values == 'logF0',2]
+  tmp$low <- tmp$F0-2*tmp$CV
+  tmp$high <- tmp$F0+2*tmp$CV
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
   tmp$F0[tmp$F0 == 0] <- -Inf
-  tmp$minSE[tmp$F0 == -Inf] <- -Inf
-  tmp$maxSE[tmp$F0 == -Inf] <- -Inf
+  tmp$low[tmp$F0 == -Inf] <- -Inf
+  tmp$high[tmp$F0 == -Inf] <- -Inf
 
   tmp$F0 <- exp(tmp$F0)
-  tmp$minSE <- exp(tmp$minSE)
-  tmp$maxSE <- exp(tmp$maxSE)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
 
   F0 <- tmp
 
@@ -350,19 +350,24 @@ getF <- function(df.tmb, sas){
 #' @examples
 getFbar <- function(df.tmb, sas){
 
+  reps <- sas$reps
 
-  F0 <- getF(df.tmb, sas)
-  tmp <-  F0[F0$ages > df.tmb$Fbarage[1] & F0$ages < df.tmb$Fbarage[2],] %>%
-    dplyr::group_by(years, ages) %>%
-    dplyr::summarise(Fbar0 = sum(F0),
-                     minSE0 = sum(minSE),
-                     maxSE0 = sum(maxSE)) %>%
-    dplyr::group_by(years) %>%
-    dplyr::summarise(Fbar = mean(Fbar0),
-                     minSE = mean(minSE0),
-                     maxSE = mean(maxSE0)
-    )
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  # Plot SSB, recruitment, catch and fishing mortality
 
+  tmp <- data.frame(Fbar = sdrep[rep.values == 'logFavg',1])
+  tmp$CV <- sdrep[rep.values == 'logFavg',2]
+  tmp$low <- tmp$Fbar-2*tmp$CV
+  tmp$high <- tmp$Fbar+2*tmp$CV
+  tmp$years <- df.tmb$years
+  tmp$Fbar[tmp$Fbar == 0] <- -Inf
+  tmp$low[tmp$Fbar == -Inf] <- -Inf
+  tmp$high[tmp$Fbar == -Inf] <- -Inf
+
+  tmp$Fbar <- exp(tmp$Fbar)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
 
   return(tmp)
 }
@@ -373,7 +378,7 @@ getFbar <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
 #' @export
 #'
 #' @examples
@@ -395,8 +400,8 @@ getResidCatch <- function(df.tmb, sas){
 
   # tmp$SE <- sdrep[rep.values == 'resid_catch',2]
   # tmp$SE[is.na(tmp$ResidCatch)] <- NA
-  # tmp$minSE <- tmp$ResidCatch-2*tmp$SE
-  # tmp$maxSE <- tmp$ResidCatch+2*tmp$SE
+  # tmp$low <- tmp$ResidCatch-2*tmp$SE
+  # tmp$high <- tmp$ResidCatch+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
@@ -415,7 +420,7 @@ getResidCatch <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
 #' @export
 #'
 #' @examples
@@ -433,8 +438,8 @@ getResidSurvey <- function(df.tmb, sas){
 
   tmp$SE <- sdrep[rep.values == 'resid_survey',2]
   # tmp$SE[is.na(tmp$ResidSurvey)] <- NA
-  # tmp$minSE <- tmp$ResidSurvey-2*tmp$SE
-  # tmp$maxSE <- tmp$ResidSurvey+2*tmp$SE
+  # tmp$low <- tmp$ResidSurvey-2*tmp$SE
+  # tmp$high <- tmp$ResidSurvey+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$years <- rep(years, each = df.tmb$nage)
   tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage*(df.tmb$nyears))
@@ -489,8 +494,8 @@ getCatchCV <- function(df.tmb, sas){
   tmp <- data.frame(catchCV = sdrep[rep.values == 'SD_catch2',1])
 
   tmp$SE <- sdrep[rep.values == 'SD_catch2',2]
-  tmp$minSE <- tmp$catchCV-2*tmp$SE
-  tmp$maxSE <- tmp$catchCV+2*tmp$SE
+  tmp$low <- tmp$catchCV-2*tmp$SE
+  tmp$high <- tmp$catchCV+2*tmp$SE
 
   tmp$ages <- df.tmb$age
 
@@ -526,8 +531,8 @@ getSurveyCV <- function(sas){
   tmp <- data.frame(surveyCV = sdrep[rep.values == 'SDS',1])
 
   tmp$SE <- sdrep[rep.values == 'SDS',2]
-  tmp$minSE <- tmp$surveyCV-2*tmp$SE
-  tmp$maxSE <- tmp$surveyCV+2*tmp$SE
+  tmp$low <- tmp$surveyCV-2*tmp$SE
+  tmp$high <- tmp$surveyCV+2*tmp$SE
 
   tmp$ages <- df.tmb$age
 
