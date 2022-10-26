@@ -4,17 +4,25 @@
 \alias{smsPlots}
 \title{Title}
 \usage{
-smsPlots(df.tmb, sas)
+smsPlots(df.tmb, sas, type = "default", Blim = NULL)
 }
 \arguments{
 \item{df.tmb}{list of tmb parameters}
 
 \item{sas}{estimated model.}
+
+\item{type}{default, stack, or wrap}
+
+\item{Blim}{optional value to graph if type is stack or wrap}
+}
+\value{
+
 }
 \description{
 Title
 }
 \examples{
-smsplots(df.tmb, reps)
-
+smsPlots(df.tmb, sas)
+smsPlots(df.tmb, sas, type="stack", Blim=110000)
+smsPlots(df.tmb, sas, type="wrap", Blim=110000)
 }
