@@ -11,7 +11,6 @@ mohns_rho(
   mps = NULL,
   lwr = list(NA),
   upr = list(NA),
-  Fbarage = c(1, 2),
   plotfigure = TRUE,
   limits = NULL,
   dll = "smsR"
@@ -25,8 +24,6 @@ mohns_rho(
 \item{parms}{parameters that are estimated}
 
 \item{mps}{parameters that are mapped}
-
-\item{Fbarage}{ages to calculate Fbar}
 
 \item{plotfigure}{TRUE FALSE of whether to plot figure}
 

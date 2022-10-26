@@ -12,6 +12,7 @@ get_TMB_parameters(
   nseason = 4,
   nsurvey = 2,
   ages = 0:20,
+  Fbarage = c(1, max(ages)),
   recseason = 1,
   Fminage = 0,
   Fmaxage = max(ages),
@@ -53,6 +54,8 @@ get_TMB_parameters(
 \item{nsurvey}{number of surveys}
 
 \item{ages}{vector of ages}
+
+\item{Fbarage}{vector of min and max ages used in Fbar calculations}
 
 \item{recseason}{season where recruitment occurs}
 

@@ -4,14 +4,12 @@
 \alias{smsPlots}
 \title{Title}
 \usage{
-smsPlots(df.tmb, sas, Fbarage = df.tmb$age[df.tmb$age > 0])
+smsPlots(df.tmb, sas)
 }
 \arguments{
 \item{df.tmb}{list of tmb parameters}
 
 \item{sas}{estimated model.}
-
-\item{Fbarage}{Fbar age}
 }
 \description{
 Title

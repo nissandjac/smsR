@@ -12,7 +12,7 @@ getF(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
 }
 \description{
 Get fishing mortality at age from fitted model

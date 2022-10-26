@@ -4,10 +4,10 @@
 \alias{getSummary}
 \title{Get summary of derived variables from fitted smsR object}
 \usage{
-getSummary(df.tmb, sas, Fbarage = NULL)
+getSummary(df.tmb, sas)
 }
 \arguments{
-\item{Fbarage}{}
+\item{sas}{}
 }
 \description{
 Get summary of derived variables from fitted smsR object

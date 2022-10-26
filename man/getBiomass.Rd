@@ -12,7 +12,7 @@ getBiomass(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of spawning biomass. minSE and maxSE is the 95% confidence intervals, se is the standard error
+data frame of spawning biomass. low and high is the 95% confidence intervals, se is the standard error
 }
 \description{
 Get a data frame of the spawning stock biomass

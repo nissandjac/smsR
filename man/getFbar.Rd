@@ -4,14 +4,12 @@
 \alias{getFbar}
 \title{Title}
 \usage{
-getFbar(df.tmb, sas, Fbarage = NULL)
+getFbar(df.tmb, sas)
 }
 \arguments{
 \item{df.tmb}{list of input parameters}
 
 \item{sas}{smsR fitted model}
-
-\item{Fbarage}{ages to calculate Fbar}
 }
 \description{
 Title

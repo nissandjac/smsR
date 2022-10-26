@@ -12,7 +12,7 @@ getR(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of recruitment. Last year is based on the Stock recruitment relationship. minSE and maxSE is the 95% confidence intervals
+data frame of recruitment. Last year is based on the Stock recruitment relationship. low and high is the 95% confidence intervals
 }
 \description{
 Get a data frame of recruitment from a fitted model

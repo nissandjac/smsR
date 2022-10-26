@@ -20,7 +20,7 @@ saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
 
   # Print s
 
-  df.out <- getSummary(df.tmb, sas, Fbarage)
+  df.out <- getSummary(df.tmb, sas)
 
   if(save == TRUE){
     write.table(df.out, file = file.path(wd, paste(name,'.csv', sep = '')))
@@ -41,16 +41,14 @@ saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
   # Autocorrelation of residuals, age 1 and 2
 
   c <- getResidCatch(df.tmb, sas)
-  c1 <- c1[c1$ages == 1,]
+  c1 <- c[c$ages == 1 & c$season == 1,]
 
-  ac1 <- acf(c1$ResidCatch)
+  model <- lm(ResidCatch~years, data = c1)
+  ar_test <- lmtest::dwtest(model)
 
-
-  c2 <- c[c$ages == 2,]
-
-  ac2 <- acf(c1$ResidCatch)
-
-
+  c2 <- c[c$ages == 2 & c$season == 1,]
+  model2 <- lm(ResidCatch~years, data = c2)
+  ar_test2 <- lmtest::dwtest(model2)
 
 
   df.indicators <- data.frame(mohns_r = as.numeric(MR$mohns[2]),
@@ -61,6 +59,8 @@ saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
                    surveyCV_0 = mean(scv$surveyCV[scv$ages == 0]),
                    surveyCV_1 = mean(scv$surveyCV[scv$ages == 1]),
                    SDR = exp(SDR),
+                   ARC1 = as.numeric(ar_test$statistic),
+                   ARC2 = as.numeric(ar_test2$statistic),
                    model = model
                    )
 

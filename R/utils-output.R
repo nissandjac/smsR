@@ -536,7 +536,7 @@ getSurveyCV <- function(sas){
 
   tmp$ages <- df.tmb$age
 
-  tmp$season <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
+  tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
 
   tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
 
@@ -611,8 +611,8 @@ getSummary <-function(df.tmb, sas){
   df.out <- data.frame(
     years = SSB$years,
     SSB = SSB$SSB,
-    minSSB = SSB$minSE,
-    maxSSB = SSB$maxSE,
+    minSSB = SSB$low,
+    maxSSB = SSB$high,
     R = R$R,
     Catch = c(Catch$Catch,NA),
     Fbar = c(Fbar$Fbar,NA)

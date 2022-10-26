@@ -12,7 +12,7 @@ getN(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of Numbers at age. Last year is based on the expected survival from terminal year. minSE and maxSE is the 95% confidence intervals
+data frame of Numbers at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
 }
 \description{
 Get numbers at age from a fitted model
