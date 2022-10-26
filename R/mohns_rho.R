@@ -6,7 +6,6 @@
 #' @param mps parameters that are mapped
 #' @param lower lower boundary of parameters
 #' @param upper upper boundary of parameters
-#' @param Fbarage ages to calculate Fbar
 #' @param plotfigure TRUE FALSE of whether to plot figure
 #' @param limits limits on plot
 #' @param dll which dll to use. Uses 'sms' as standard
@@ -24,7 +23,6 @@ mohns_rho <- function(df.tmb,
                       mps = NULL,
                       lwr = list(NA),
                       upr = list(NA),
-                      Fbarage = c(1,2),
                       plotfigure = TRUE,
                       limits = NULL,
                       dll = 'smsR'
@@ -51,7 +49,7 @@ mohns_rho <- function(df.tmb,
   recruit.base <- getR(df.tmb, asses1)$R
 
 
-  F0base <- getFbar(df.tmb, sas, Fbarage)
+  F0base <- getFbar(df.tmb, sas)
 
 
   df.save <- data.frame(years = df.tmb$years,
@@ -123,7 +121,7 @@ mohns_rho <- function(df.tmb,
   recruit.tmb <- getR(df.new, assess.new)$R
 
 
-  F0.tmb <- getFbar(df.new, assess.new, Fbarage)
+  F0.tmb <- getFbar(df.new, assess.new)
 
 
 
