@@ -20,11 +20,11 @@ runAssessment(
 
 \item{mps}{optional mapping input}
 
+\item{silent}{Supress TMB output}
+
 \item{lower}{lower bounds}
 
 \item{upper}{upper bounds}
-
-\item{verbose}{see tmb output}
 }
 \value{
 a list of derived variables

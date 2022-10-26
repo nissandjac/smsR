@@ -39,6 +39,12 @@ getDataSandeel <- function(wd,
 
   survey <- read.table(file.path(wd, 'fleet_catch.in'), fill = TRUE, col.names = c('effort',paste(1:4, sep = ',')))
 
+
+  # Cut the bottom if there's only one survey
+
+  survey <- survey[1:length(unlist(survey.years)),]
+
+
   ages <- 0:maxage
 
 

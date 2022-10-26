@@ -13,7 +13,7 @@ mohns_rho(
   upr = list(NA),
   Fbarage = c(1, 2),
   plotfigure = TRUE,
-  limits = NA,
+  limits = NULL,
   dll = "smsR"
 )
 }

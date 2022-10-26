@@ -612,6 +612,8 @@ getSummary <-function(df.tmb, sas, Fbarage = NULL){
   df.out <- data.frame(
     years = SSB$years,
     SSB = SSB$SSB,
+    minSSB = SSB$minSE,
+    maxSSB = SSB$maxSE,
     R = R$R,
     Catch = c(Catch$Catch,NA),
     Fbar = c(Fbar$Fbar,NA)
