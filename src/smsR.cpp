@@ -24,6 +24,7 @@ Type objective_function<Type>::operator() ()
 //   // //
 // // // // Age
   DATA_VECTOR(age); // ages
+  DATA_VECTOR(Fbarage); // min and max ages used in Fbar calculations
   DATA_INTEGER(nage); // Number of age groups
   DATA_INTEGER(nseason);
   DATA_INTEGER(nyears); // Number of years
@@ -710,6 +711,8 @@ array<Type>logCatch(nage,nyears, nseason);
 array<Type>logCatchN(nage,nyears, nseason);
 array<Type>logN(nage,nyears, nseason);
 array<Type>logBiomass(nage, nyears, nseason);
+vector<Type>Favg(nyears);
+vector<Type>logFavg(nyears);
 
 //
 logSSB.setZero();
@@ -719,7 +722,7 @@ logCatch.setZero();
 logCatchtot.setZero();
 logCatchN.setZero();
 logBiomass.setZero();
-
+Favg.setZero();
 //
 for(int time=0;time<(nyears);time++){ // Loop over other years
   logSSB(time) = log(SSB(time));
@@ -729,8 +732,8 @@ for(int time=0;time<(nyears);time++){ // Loop over other years
 
 logSSB(nyears) = log(SSB(nyears));
 //
-for(int time=0;time<nyears;time++){ // Loop over other ages
-  for(int i=0;i<nage;i++){ // Loop over other ages
+for(int time=0;time<nyears;time++){ // Loop over years
+  for(int i=0;i<nage;i++){ // Loop over ages
       for(int k=0;k<nseason;k++){ // Loop over seasons
         if(F0(i, time,k) >0){
           logF0(i,time,k) = log(F0(i,time,k));
@@ -742,9 +745,15 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
           logN(i,time,k) = log(Nsave(i,time,k));
           logBiomass(i,time,k) = log(Nsave(i,time,k)*west(i,time,k));
         }
+
+        if((age(i)>=Fbarage(0)) && (age(i)<=Fbarage(1))){
+          Favg(time) +=F0(i,time,k)/(Fbarage(1)-Fbarage(0)+1);
+        }
       }
     }
+    logFavg(time)=log(Favg(time));
   }
+
 // // // // // prec += pCV;
 // // // // // // //
 // // // // // // //
@@ -818,6 +827,7 @@ ADREPORT(alpha)
 ADREPORT(logbeta)
 ADREPORT(SDrec)
 ADREPORT(SRpred)
+ADREPORT(logFavg)
 // //
 // Type ans = 0.0;
 

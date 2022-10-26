@@ -6,7 +6,7 @@ nseason <- 2
 ages <- 0:4
 
 Catchobs <- df_to_matrix(sandeel_1r[['canum']], season =1:nseason)
-Surveyobs <- survey_to_matrix(sandeel_1r[['survey']],year = years, season = 1:nseason)
+Surveyobs <- survey_to_matrix(sandeel_1r[['survey']], year = years)
 Feffort <- sandeel_1r[['effort']]
 nocatch <- sandeel_1r[['nocatch']]
 
@@ -18,6 +18,7 @@ df.tmb <- get_TMB_parameters(
   nseason = nseason, # Number of seasons
   useEffort = 1,
   ages = ages, # Ages of the species
+  Fbarage = 1:2, # min and max age for Fbar calculations
   recseason = 2, # Season where recruitment occurs
   CminageSeason = c(0,0),
   Fmaxage = 3, # Fully selected fishing mortality age
@@ -26,7 +27,7 @@ df.tmb <- get_TMB_parameters(
   isFseason = c(1,0), # Seasons to calculate fishing in
   effort = Feffort,
   powers =list(NA, NA),
-  blocks = c(1983,1989, 1999,2005 ,2010), # Blocks with unique selectivity
+  blocks = c(1983, 1989, 1999, 2005, 2010), # Blocks with unique selectivity
   endFseason = 2, # which season does fishing stop in the final year of data
   nocatch = as.matrix(nocatch),
   surveyStart = c(0, .75),
@@ -34,11 +35,11 @@ df.tmb <- get_TMB_parameters(
   surveySeason = c(2,1), # Which seasons do the surveys occur in
   surveyCV =  list(c(0,1), # Add ages for survey CV
                    c(1,2,3)),
-  catchCV = list(c(0),
-                 c(0)),
+  catchCV = list(c(0,1,3),
+                 c(0,1,3)),
   recmodel = 2, # Chose recruitment model (2 = estimated)
-  estCV = c(0,0,0), # Estimate
- # betaSR = 110000, # Hockey stick plateau
+  estCV = c(0,2,0), # Estimate
+ # betaSR = 110000, # Hockey stick breakpoint (x-axis)
   nllfactor = c(1,1,1) # Factor for relative strength of log-likelihood
 
 )
@@ -54,10 +55,10 @@ parms <- getParms(df.tmb)
 sas <- runAssessment(df.tmb, parms = parms)
 
 # Plot standard graphs
-p <- smsPlots(df.tmb, sas, Fbarage = 1:2)
+p <- smsPlots(df.tmb, sas)
 
 # See Mohns rho
-m <- mohns_rho(df.tmb,parms, peels = 5, Fbarage = c(1:2), plotfigure = TRUE)
+m <- mohns_rho(df.tmb,parms, peels = 5, plotfigure = TRUE)
 print(m$mohns)
 # Show some other functions
 require(ggplot2)
@@ -73,7 +74,7 @@ N <- getN(df.tmb, sas)
 
 ggplot(N, aes(x = years, y = N, color = factor(season), fill = factor(season)))+
   geom_line()+facet_wrap(~ages, scales = 'free_y')+
-  geom_ribbon(aes(ymin = minSE, ymax = maxSE), alpha = .2, linetype = 0)+
+  geom_ribbon(aes(ymin = low, ymax = high), alpha = .2, linetype = 0)+
   theme_classic()
 #
 
@@ -84,13 +85,13 @@ C <- getCatch(df.tmb, sas)
 CN <- getCatchN(df.tmb, sas)
 
 # Get all derived variables
-sms.summary <- getSummary(df.tmb, sas, Fbarage = 1:2)
+sms.summary <- getSummary(df.tmb, sas)
 
 
 
 # Get Fishing mortality
 F0 <- getF(df.tmb, sas)
-Fbar <- getFbar(df.tmb, sas, Fbarage = 1:2)
+Fbar <- getFbar(df.tmb, sas)
 
 
 # Get the CVs
