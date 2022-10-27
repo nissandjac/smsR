@@ -519,7 +519,7 @@ getCatchCV <- function(df.tmb, sas){
 #'
 #' @examples
 #'
-getSurveyCV <- function(sas){
+getSurveyCV <- function(df.tmb,sas){
 
   reps <- sas$reps
 

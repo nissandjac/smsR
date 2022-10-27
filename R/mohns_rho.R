@@ -49,7 +49,7 @@ mohns_rho <- function(df.tmb,
   recruit.base <- getR(df.tmb, asses1)$R
 
 
-  F0base <- getFbar(df.tmb, sas)
+  F0base <- getFbar(df.tmb, asses1)
 
 
   df.save <- data.frame(years = df.tmb$years,
