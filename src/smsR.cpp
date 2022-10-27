@@ -301,7 +301,12 @@ if(nsurvey>1){
 }else{
     for(int i=0;i<nage;i++){
       if(i >= Qminage(0) && i <= Qmaxage(0)){
-        Qsurv(i,0) = Q(Qidx(0)+i-Qminage(0));
+
+        if(i < Qlastage(0)){
+            Qsurv(i,0) = Q(Qidx(0)+i-Qminage(0));
+          }else{
+            Qsurv(i,0) = Q(Qidx(0)+Qlastage(0)-Qminage(0));
+        }
     }
     if(i > Qmaxage(0)){
       Qsurv(i,0) = Type(0.0);

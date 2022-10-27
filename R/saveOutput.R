@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
+saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
                       Fbarage = c(1,2), name = 'summary', wd = getwd()){
 
   # Prepare a table with output stuff
@@ -22,7 +22,7 @@ saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
 
   df.out <- getSummary(df.tmb, sas)
 
-  if(save == TRUE){
+  if(savefile == TRUE){
     write.table(df.out, file = file.path(wd, paste(name,'.csv', sep = '')))
   }
   # add additional diagnostics
@@ -43,12 +43,16 @@ saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
   c <- getResidCatch(df.tmb, sas)
   c1 <- c[c$ages == 1 & c$season == 1,]
 
-  model <- lm(ResidCatch~years, data = c1)
-  ar_test <- lmtest::dwtest(model)
+  lmmodel <- lm(ResidCatch~years, data = c1)
+  ar_test <- lmtest::dwtest(lmmodel)
 
   c2 <- c[c$ages == 2 & c$season == 1,]
-  model2 <- lm(ResidCatch~years, data = c2)
-  ar_test2 <- lmtest::dwtest(model2)
+  lmmodel2 <- lm(ResidCatch~years, data = c2)
+  ar_test2 <- lmtest::dwtest(lmmodel2)
+
+  # Get the proper CV of SSB
+
+  CV.ssb <- sas$reps$sd[names(sas$reps$value) == 'logSSB'][1:df.tmb$nyears]
 
 
   df.indicators <- data.frame(mohns_r = as.numeric(MR$mohns[2]),
@@ -61,11 +65,14 @@ saveOutput <- function(df.tmb, sas, MR = NULL, save = TRUE,
                    SDR = exp(SDR),
                    ARC1 = as.numeric(ar_test$statistic),
                    ARC2 = as.numeric(ar_test2$statistic),
-                   model = model
+                   model = model,
+                   SSB_sd_all = mean(CV.ssb),
+                   SSB_sd_last3 = mean(CV.ssb[(df.tmb$nyears-2):df.tmb$nyears])
+
                    )
 
 
-  if(save == TRUE){
+  if(savefile == TRUE){
     write.table(df.indicators, file = file.path(wd, 'diagnostics.csv'), row.names = FALSE)
   }
 

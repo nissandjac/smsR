@@ -30,6 +30,9 @@ if(is.null(df.tmb$betaSR)){
   df.tmb$betaSR <- NA
 }
 
+if(length(df.tmb$Qidx) > length(parms$logQ)){
+  stop('wrong length of survey ages - redo input parameters')
+}
 
 
 obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps, silent = silent)
