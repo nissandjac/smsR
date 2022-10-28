@@ -27,7 +27,7 @@ saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
   }
   # add additional diagnostics
   ccv <- getCatchCV(df.tmb,sas)
-  scv <- getSurveyCV(sas)
+  scv <- getSurveyCV(df.tmb, sas)
 
   # CV on hockey stick breakpoint??
 
