@@ -324,6 +324,9 @@ get_TMB_parameters <- function(
     }
   }
 
+  Catchobs[Catchobs <= 1] <- 0
+
+
 
   df.tmb <- list(
     weca = mtrx$weca,

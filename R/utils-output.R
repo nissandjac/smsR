@@ -538,7 +538,7 @@ getSurveyCV <- function(df.tmb,sas){
 
   tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
 
-  tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
+  #tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
 
   surveyCV <- tmp
   return(surveyCV)
