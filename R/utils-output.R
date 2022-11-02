@@ -622,6 +622,24 @@ getSummary <-function(df.tmb, sas){
 return(df.out)
 }
 
+#' Make sure no boundaries are overrun in the model
+#'
+#' @param df.tmb
+#' @param parms
+#' @param mps
+#'
+#' @return
+#' @export
+#'
+#' @examples
+checkBoundaries <- function(df.tmb, parms, mps){
 
+
+
+
+
+
+
+}
 
 
