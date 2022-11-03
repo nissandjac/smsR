@@ -7,7 +7,7 @@
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of spawning biomass and 95th confidence intervals.
+#' data frame of spawning stock biomass and 95\% confidence intervals.
 #' SE is standard error of log SSB
 #' @export
 #'
