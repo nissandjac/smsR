@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getBiomass}
 \alias{getBiomass}
-\title{Get a data frame of the spawning stock biomass}
+\title{Get a data frame of the biomass of each age group}
 \usage{
 getBiomass(df.tmb, sas)
 }
@@ -12,8 +12,10 @@ getBiomass(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of spawning biomass. low and high is the 95% confidence intervals, se is the standard error
+data frame containing the biomass of each age group.
+low and hi are the 95\% confidence intervals.
+SE is standard error of log Biomass
 }
 \description{
-Get a data frame of the spawning stock biomass
+Get a data frame of the biomass of each age group
 }

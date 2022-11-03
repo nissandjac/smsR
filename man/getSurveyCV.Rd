@@ -4,7 +4,7 @@
 \alias{getSurveyCV}
 \title{Retrieve estimated parameters}
 \usage{
-getSurveyCV(sas)
+getSurveyCV(df.tmb, sas)
 }
 \arguments{
 \item{sas}{stock assessment output from smsR}

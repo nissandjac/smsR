@@ -11,6 +11,11 @@ getCatchN(df.tmb, sas)
 
 \item{sas}{fitted smsR model}
 }
+\value{
+data frame containing the numbers of individuals by age in the catch each year.
+low and hi are the 95\% confidence intervals.
+SE is standard error of log N
+}
 \description{
 Get the number of catch individuals per age
 }

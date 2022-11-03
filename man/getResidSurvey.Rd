@@ -12,7 +12,7 @@ getResidSurvey(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
+data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and hi are the 95\% confidence intervals
 }
 \description{
 Get survey residuals from fitted model
