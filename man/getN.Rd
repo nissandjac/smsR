@@ -14,7 +14,7 @@ getN(df.tmb, sas)
 \value{
 data frame of Numbers at age.
 Last year is based on the expected survival from terminal year.
-low and hi are the 95\% confidence intervals.
+low and high are the 95\% confidence intervals.
 SE is standard error of log N
 }
 \description{

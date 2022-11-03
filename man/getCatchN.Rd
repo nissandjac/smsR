@@ -13,7 +13,7 @@ getCatchN(df.tmb, sas)
 }
 \value{
 data frame containing the numbers of individuals by age in the catch each year.
-low and hi are the 95\% confidence intervals.
+low and high are the 95\% confidence intervals.
 SE is standard error of log N
 }
 \description{

@@ -43,7 +43,7 @@ getSSB <- function(df.tmb, sas){
 #'
 #' @return
 #' data frame containing the biomass of each age group.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log Biomass
 #' @export
 #'
@@ -87,7 +87,7 @@ getBiomass <- function(df.tmb, sas){
 #'
 #' @return
 #' data frame containing the biomass of catch each year.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log Catch
 #' @export
 #'
@@ -191,7 +191,7 @@ getSel<- function(df.tmb, sas){
 #' @return
 #' data frame of recruitment.
 #' Last year is based on the Stock recruitment relationship.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log R
 
 #' @export
@@ -232,7 +232,7 @@ getR <- function(df.tmb, sas){
 #' @return
 #' data frame of Numbers at age.
 #' Last year is based on the expected survival from terminal year.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log N
 
 #' @export
@@ -273,7 +273,7 @@ getN <- function(df.tmb, sas){
 #'
 #' @return
 #' data frame containing the numbers of individuals by age in the catch each year.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log N
 #' @export
 #'
@@ -317,7 +317,7 @@ getCatchN <- function(df.tmb, sas){
 #' @return
 #' data frame of fishing mortality at age.
 #' Last year is based on the expected survival from terminal year.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log F0
 
 #' @export
@@ -358,7 +358,7 @@ getF <- function(df.tmb, sas){
 #'
 #' @return
 #' data frame containing the average fishing mortality each year.
-#' low and hi are the 95\% confidence intervals.
+#' low and high are the 95\% confidence intervals.
 #' SE is standard error of log Fbar
 #' @export
 #'
@@ -432,7 +432,7 @@ getResidCatch <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and hi are the 95\% confidence intervals
+#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high are the 95\% confidence intervals
 #' @export
 #'
 #' @examples

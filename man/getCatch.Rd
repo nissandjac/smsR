@@ -13,7 +13,7 @@ getCatch(df.tmb, sas)
 }
 \value{
 data frame containing the biomass of catch each year.
-low and hi are the 95\% confidence intervals.
+low and high are the 95\% confidence intervals.
 SE is standard error of log Catch
 }
 \description{

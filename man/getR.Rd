@@ -14,7 +14,7 @@ getR(df.tmb, sas)
 \value{
 data frame of recruitment.
 Last year is based on the Stock recruitment relationship.
-low and hi are the 95\% confidence intervals.
+low and high are the 95\% confidence intervals.
 SE is standard error of log R
 }
 \description{
