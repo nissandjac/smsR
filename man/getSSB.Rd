@@ -12,7 +12,8 @@ getSSB(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of spawning biomass and 95th confidence intervals and standard error
+data frame of spawning stock biomass and 95\% confidence intervals.
+SE is standard error of log SSB
 }
 \description{
 Get a data frame of the spawning stock biomass

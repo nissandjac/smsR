@@ -12,7 +12,9 @@ getCatch(df.tmb, sas)
 \item{sas}{fitted smsR object}
 }
 \value{
-returns a data frame
+data frame containing the biomass of catch each year.
+low and high are the 95\% confidence intervals.
+SE is standard error of log Catch
 }
 \description{
 Retrieve the total catch from a fitted smsR object

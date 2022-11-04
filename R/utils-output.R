@@ -7,7 +7,8 @@
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of spawning biomass and 95th confidence intervals and standard error
+#' data frame of spawning stock biomass and 95\% confidence intervals.
+#' SE is standard error of log SSB
 #' @export
 #'
 #' @examples
@@ -20,12 +21,11 @@ getSSB <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   SSB <- data.frame(SSB = sdrep[rep.values == 'logSSB',1])
-  SSB$CV <- (sdrep[rep.values == 'logSSB',2])
-  SSB$low <- SSB$SSB-2*SSB$CV
-  SSB$high <- SSB$SSB+2*SSB$CV
+  SSB$SE <- (sdrep[rep.values == 'logSSB',2])
+  SSB$low <- SSB$SSB-2*SSB$SE
+  SSB$high <- SSB$SSB+2*SSB$SE
   SSB$years <- c(years,max(years)+1)
 
   SSB$SSB <- exp(SSB$SSB)
@@ -36,13 +36,15 @@ getSSB <- function(df.tmb, sas){
   return(SSB)
 }
 
-#' Get a data frame of the spawning stock biomass
+#' Get a data frame of the biomass of each age group
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of spawning biomass. low and high is the 95% confidence intervals, se is the standard error
+#' data frame containing the biomass of each age group.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log Biomass
 #' @export
 #'
 #' @examples
@@ -64,13 +66,13 @@ getBiomass <- function(df.tmb, sas){
 
   Biomass.df <- as.data.frame.table(Biomass)
   names(Biomass.df) <- c('ages','years','season','Biomass')
-  Biomass.df$CV <- BiomassSE$Freq
-  Biomass.df$low <- Biomass.df$Biomass-2*Biomass.df$CV
-  Biomass.df$high <- Biomass.df$Biomass+2*Biomass.df$CV
+  Biomass.df$SE <- BiomassSE$Freq
+  Biomass.df$low <- Biomass.df$Biomass-2*Biomass.df$SE
+  Biomass.df$high <- Biomass.df$Biomass+2*Biomass.df$SE
   Biomass.df$ages <- as.numeric(as.character(Biomass.df$ages))
   Biomass.df$years <- as.numeric(as.character(Biomass.df$years))
 
-  Biomass.df <- Biomass.df %>% dplyr::select(Biomass, CV, low, high, ages, season,years)
+  Biomass.df <- Biomass.df %>% dplyr::select(Biomass, SE, low, high, ages, season,years)
   Biomass.df <- Biomass.df[-which(Biomass.df$Biomass == 0),]
   Biomass.df$Biomass <- exp(Biomass.df$Biomass)
   Biomass.df$low <- exp(Biomass.df$low)
@@ -83,7 +85,10 @@ getBiomass <- function(df.tmb, sas){
 #' @param df.tmb input parameters
 #' @param sas fitted smsR object
 #'
-#' @return returns a data frame
+#' @return
+#' data frame containing the biomass of catch each year.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log Catch
 #' @export
 #'
 #' @examples
@@ -96,12 +101,11 @@ getCatch <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(Catch = sdrep[rep.values == 'logCatchtot',1])
-  tmp$CV <- sdrep[rep.values == 'logCatchtot',2]
-  tmp$low <- tmp$Catch-2*tmp$CV
-  tmp$high <- tmp$Catch+2*tmp$CV
+  tmp$SE <- sdrep[rep.values == 'logCatchtot',2]
+  tmp$low <- tmp$Catch-2*tmp$SE
+  tmp$high <- tmp$Catch+2*tmp$SE
   tmp$years <- years
 
   tmp$Catch <- exp(tmp$Catch)
@@ -132,13 +136,10 @@ getCatchability <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(Q = sdrep[rep.values == 'Qsurv',1])
   tmp$age <- rep(df.tmb$age, df.tmb$nsurvey)
   tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
-
-
 
   return(tmp)
 }
@@ -166,7 +167,7 @@ getSel<- function(df.tmb, sas){
   years <- df.tmb$years
   blocks <- unique(df.tmb$bidx)
   Fage <- df.tmb$Fminage:df.tmb$Fmaxage
-  # Plot SSB, recruitment, catch and fishing mortality
+
   tmp <- data.frame(Fsel = 0, age = rep(df.tmb$age, max(df.tmb$bidx)+1),
                     block = rep(unique(df.tmb$bidx), each = df.tmb$nage))
 
@@ -188,7 +189,11 @@ getSel<- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of recruitment. Last year is based on the Stock recruitment relationship. low and high is the 95% confidence intervals
+#' data frame of recruitment.
+#' Last year is based on the Stock recruitment relationship.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log R
+
 #' @export
 #'
 #' @examples
@@ -201,12 +206,11 @@ getR <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   R <- data.frame(R = sdrep[rep.values == 'logRec',1])
-  R$CV <- sdrep[rep.values == 'logRec',2]
-  R$low <- R$R-2*R$CV
-  R$high <- R$R+2*R$CV
+  R$SE <- sdrep[rep.values == 'logRec',2]
+  R$low <- R$R-2*R$SE
+  R$high <- R$R+2*R$SE
   R$years <- c(years,max(years)+1)
 
 
@@ -226,7 +230,11 @@ getR <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of Numbers at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
+#' data frame of Numbers at age.
+#' Last year is based on the expected survival from terminal year.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log N
+
 #' @export
 #'
 #' @examples
@@ -238,12 +246,11 @@ getN <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   N <- data.frame(N = sdrep[rep.values == 'logN',1])
-  N$CV <- sdrep[rep.values == 'logN',2]
-  N$low <- N$N-2*N$CV
-  N$high <- N$N+2*N$CV
+  N$SE <- sdrep[rep.values == 'logN',2]
+  N$low <- N$N-2*N$SE
+  N$high <- N$N+2*N$SE
   N$ages <- df.tmb$age
   N$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   N$years <- rep(years, each = df.tmb$nage)
@@ -265,6 +272,9 @@ getN <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
+#' data frame containing the numbers of individuals by age in the catch each year.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log N
 #' @export
 #'
 #' @examples
@@ -277,12 +287,11 @@ getCatchN <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(CatchN = sdrep[rep.values == 'logCatchN',1])
-  tmp$CV <- sdrep[rep.values == 'logCatchN',2]
-  tmp$low <- tmp$CatchN-2*tmp$CV
-  tmp$high <- tmp$CatchN+2*tmp$CV
+  tmp$SE <- sdrep[rep.values == 'logCatchN',2]
+  tmp$low <- tmp$CatchN-2*tmp$SE
+  tmp$high <- tmp$CatchN+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
@@ -306,7 +315,11 @@ getCatchN <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
+#' data frame of fishing mortality at age.
+#' Last year is based on the expected survival from terminal year.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log F0
+
 #' @export
 #'
 #' @examples
@@ -317,12 +330,11 @@ getF <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(F0 = sdrep[rep.values == 'logF0',1])
-  tmp$CV <- sdrep[rep.values == 'logF0',2]
-  tmp$low <- tmp$F0-2*tmp$CV
-  tmp$high <- tmp$F0+2*tmp$CV
+  tmp$SE <- sdrep[rep.values == 'logF0',2]
+  tmp$low <- tmp$F0-2*tmp$SE
+  tmp$high <- tmp$F0+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
@@ -345,6 +357,9 @@ getF <- function(df.tmb, sas){
 #' @param sas smsR fitted model
 #'
 #' @return
+#' data frame containing the average fishing mortality each year.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log Fbar
 #' @export
 #'
 #' @examples
@@ -354,12 +369,11 @@ getFbar <- function(df.tmb, sas){
 
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(Fbar = sdrep[rep.values == 'logFavg',1])
-  tmp$CV <- sdrep[rep.values == 'logFavg',2]
-  tmp$low <- tmp$Fbar-2*tmp$CV
-  tmp$high <- tmp$Fbar+2*tmp$CV
+  tmp$SE <- sdrep[rep.values == 'logFavg',2]
+  tmp$low <- tmp$Fbar-2*tmp$SE
+  tmp$high <- tmp$Fbar+2*tmp$SE
   tmp$years <- df.tmb$years
   tmp$Fbar[tmp$Fbar == 0] <- -Inf
   tmp$low[tmp$Fbar == -Inf] <- -Inf
@@ -372,13 +386,12 @@ getFbar <- function(df.tmb, sas){
   return(tmp)
 }
 
-#' Get fishin mortality at age from fitted model
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
+
 #' @export
 #'
 #' @examples
@@ -393,7 +406,6 @@ getResidCatch <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(ResidCatch = sdrep[rep.values == 'resid_catch',1])
   tmp$ResidCatch[tmp$ResidCatch == -99] <- NA
@@ -420,7 +432,7 @@ getResidCatch <- function(df.tmb, sas){
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high is the 95% confidence intervals
+#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high are the 95\% confidence intervals
 #' @export
 #'
 #' @examples
@@ -431,7 +443,6 @@ getResidSurvey <- function(df.tmb, sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(ResidSurvey = sdrep[rep.values == 'resid_survey',1])
   tmp$ResidSurvey[tmp$ResidSurvey == -99] <- NA
@@ -488,8 +499,7 @@ getCatchCV <- function(df.tmb, sas){
   reps <- sas$reps
 
   sdrep <- summary(reps)
-  rep.values<-rownames(sdrep)
-  # Plot SSB, recruitment, catch and fishing mortality
+  rep.values <- rownames(sdrep)
 
   tmp <- data.frame(catchCV = sdrep[rep.values == 'SD_catch2',1])
 
@@ -526,7 +536,6 @@ getSurveyCV <- function(df.tmb,sas){
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
-  # Plot SSB, recruitment, catch and fishing mortality
 
   tmp <- data.frame(surveyCV = sdrep[rep.values == 'SDS',1])
 
