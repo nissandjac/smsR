@@ -438,27 +438,32 @@ for(int i=0;i<nage;i++){ // Loop over other ages
 // // // // //
 // // // // // Stock recruitment
 vector<Type> SRpred(nyears+1);
-vector<Type> xR(nyears);
-vector<Type> xR2(nyears);
+vector<Type> xR(nyears+1);
+vector<Type> xR2(nyears+1);
 
 for(int time=0;time<(nyears+1);time++){ // Loop over years
 
- SRpred(time) = alpha + log(SSB(time));
-       if(SSB(time) > beta){
-          SRpred(time) = alpha+log(beta);
-     }
+// SRpred(time) = alpha + log(SSB(time));
+     //   if(SSB(time) > beta){
+     //      SRpred(time) = alpha+log(beta);
+     // }
      //
-     if(time < nyears){
+
        if(SSB(time)<=beta){
            xR(time) = log(Rsave(time))-(alpha+log(SSB(time)));
            xR2(time) = pow(log(Rsave(time))-(alpha+log(SSB(time))),2);
+           SRpred(time) = alpha+log(SSB(time));
+
          }else{
            xR(time)  = log(Rsave(time))-(alpha+log(beta));
            xR2(time) = pow(log(Rsave(time))-(alpha+log(beta)),2);
+           SRpred(time) = alpha+log(beta);
          }
-       }
 
      if(time == nyears){
+          xR(time) = 0;
+          xR2(time) = 0;
+
 
        if(recseason == 1){
        term_logN_next(0) = SRpred(time);
