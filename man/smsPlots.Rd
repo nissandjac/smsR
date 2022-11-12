@@ -15,9 +15,6 @@ smsPlots(df.tmb, sas, type = "default", Blim = NULL)
 
 \item{Blim}{optional value to graph if type is stack or wrap}
 }
-\value{
-
-}
 \description{
 Title
 }

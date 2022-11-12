@@ -652,3 +652,53 @@ checkBoundaries <- function(df.tmb, parms, mps){
 }
 
 
+
+#' Get the stock recruitment relationship
+#'
+#' @param df.tmb data frame with input data
+#' @param sas fitted smsR model
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getSR <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+
+  years <- df.tmb$years
+  SSB <- getSSB(df.tmb, sas)
+
+  alpha <-  sdrep[rep.values == 'logalpha',1]
+  SE <- (sdrep[rep.values == 'logalpha',2])
+  low <- alpha-2*SE
+  high <- alpha+2*SE
+  SSBrange <- seq(1, max(SSB$SSB), length.out = 100)
+
+  SR <- exp(alpha)+log(SSBrange)
+  SR[SSBrange > df.tmb$betaSR] <- exp(alpha)+log(df.tmb$betaSR)
+
+  mins <- exp(low)+log(SSBrange)
+  mins[SSBrange > df.tmb$betaSR] <- exp(low)+log(df.tmb$betaSR)
+  maxs <- exp(high)+log(SSBrange)
+  maxs[SSBrange > df.tmb$betaSR] <- exp(high)+log(df.tmb$betaSR)
+
+
+  SR.out <- data.frame(SR = exp(SR), minSR = exp(mins), maxSR = exp(maxs) ,SSB = SSBrange )
+
+  return(SR.out)
+}
+
+
+
+
+
+
+
+
+
+
+

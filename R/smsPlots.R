@@ -57,7 +57,7 @@
     # Plot SSB, recruitment, catch and fishing mortality
     pls <- gridExtra::grid.arrange(pssb(),pCatch(),prec(),  pF0(), ncol = 2)
 
-    pls
+    #pls
 
     return(pls)
   }#end default plot
