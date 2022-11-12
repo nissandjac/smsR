@@ -25,6 +25,8 @@
 #' @param surveyStart number between 0 and 1 determine the start of the survey within season
 #' @param surveyEnd number between 0 and 1 determine the end of the survey within season
 #' @param surveySeason vector determining which seasons surveys occur
+#' @param minSDsurvey minimum allowed for all SDsurvey estimates
+#' @param peneps epsilon used in penalty function for SDsurvey (try 1e-6 to 1e-3)
 #' @param powers which ages are included in the power law calc
 #' @param surveyCV list with ages with unique survey CVs. Length = nsurvey
 #' @param catchCV list with ages with unique catch CVs. Length = nseason
@@ -65,6 +67,8 @@ get_TMB_parameters <- function(
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
+  minSDsurvey = 0.3,
+  peneps = 1e-3,
   powers = list(NA),
   surveyCV = matrix(c(0,max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0,max(ages)), nrow = 2, ncol = nseason),
@@ -364,6 +368,8 @@ get_TMB_parameters <- function(
     surveyStart = surveyStart,
     surveyEnd = surveyEnd,#c(0.1,1,0.001),
     surveySeason = surveySeason,
+    minSDsurvey = minSDsurvey,
+    peneps = peneps,
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estCV = estCV,
