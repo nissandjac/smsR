@@ -2,16 +2,13 @@
 #include <TMB.hpp>
 #include <iostream>
 
-
-template <class Type>
-vector<Type> cumsum(vector<Type> x) {
-  int n = x.size();
-  vector<Type> ans(n);
-  ans[0] = x[0];
-  for (int i = 1; i < n; i++) ans[i] = x[i] + ans[i-1];
-  return ans;
+template<class Type>
+Type posfun(Type x, Type eps, Type &pen) {
+  pen += CppAD::CondExpLt(x,eps,Type(0.01)*pow(x-eps,2),Type(0));
+  Type xp = -(x/eps-1);
+  return CppAD::CondExpGe(x,eps,x,
+    eps*(1/(1+xp+pow(xp,2)+pow(xp,3)+pow(xp,4)+pow(xp,5))));
 }
-
 
 template<class Type>
 Type objective_function<Type>::operator() ()
@@ -44,6 +41,8 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(surveyEnd);
   DATA_VECTOR(surveyStart);
   DATA_VECTOR(surveySeason);
+  DATA_SCALAR(minSDsurvey);
+  DATA_SCALAR(peneps);
   DATA_ARRAY(powers);
   DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
@@ -315,25 +314,31 @@ if(nsurvey>1){
 }
 // // // //
 // // // // //
+Type penSDsurvey;
+penSDsurvey= 0;//penalty if SDsurvey is close to minSDsurvey
+Type tmpdiff; //temporarily store SDsurvey-minSDsurvey
 // // // // // //
 if(nsurvey>1){
   for(int k=0;k<(nsurvey);k++){ // Loop over surveys
     for(int i=0;i<nage;i++){ // Loop over other ages
         if(i >= Qminage(k) && i <= Qmaxage(k)){
+          tmpdiff = SDsurvey(Qidx_CV(i,k))-minSDsurvey;
+          tmpdiff = posfun(tmpdiff, peneps, penSDsurvey);
+          SDsurvey(Qidx_CV(i,k)) = tmpdiff+minSDsurvey;
           SDS(i,k) = SDsurvey(Qidx_CV(i,k));
         }
-      }
-
     }
+  }
 }else{
   for(int i=0;i<nage;i++){ // Loop over other ages
       if(i >= Qminage(0) && i <= Qmaxage(0)){
-          SDS(i,0) = SDsurvey(Qidx_CV(i,0));
-        }
+        tmpdiff = SDsurvey(Qidx_CV(i,0))-minSDsurvey;
+        tmpdiff = posfun(tmpdiff, peneps, penSDsurvey);
+        SDsurvey(Qidx_CV(i,0)) = tmpdiff+minSDsurvey;
+        SDS(i,0) = SDsurvey(Qidx_CV(i,0));
       }
-
-    }
-
+  }
+}
 
 
 
@@ -769,7 +774,7 @@ for(int time=0;time<nyears;time++){ // Loop over years
 // // // // // // //
 Type ans = 0.0;
 //
-ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2);
+ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey;
 // // //
 vector<Type> ansvec(3);
 ansvec(0) = nllsurv;

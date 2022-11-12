@@ -45,7 +45,7 @@ upper <- obj$par+Inf
 # Permanent bounds for realism
 lower[names(lower) == 'Fyear' ] <- 0.001
 lower[names(lower) == 'Fseason'] <- 0.0001
-lower[names(lower) == 'SDsurvey'] <- 0.3 # An sms classic
+lower[names(lower) == 'SDsurvey'] <- 0.0001
 
 upper[names(upper) == 'SDsurvey'] <- 3
 lower[names(lower) == 'logSDrec'] <- log(0.1)
