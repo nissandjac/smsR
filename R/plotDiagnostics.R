@@ -156,7 +156,8 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
   p5 <- ggplot(wdf.p, aes(x = year, y= weca*1000, col = Age))+
     geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
-    scale_y_continuous('weight at age (g)')
+    scale_y_continuous('weight at age (g)')+
+    theme(legend.position = 'top')
 
   Mdf <- as.data.frame(t(df.tmb$M[,,1]))
 
@@ -179,9 +180,23 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
   pM <- ggplot(Mdf.p, aes(x = year, y= M, col = Age))+
     geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
-    scale_y_continuous('Natural mortality \n(per year)')
+    scale_y_continuous('Natural mortality \n(per year)')+
+    theme(legend.position = 'top')
 
   #print(p5)
+  Matdf <- as.data.frame(t(df.tmb$Mat[,,df.tmb$recseason]))
+
+  names(Matdf) <- df.tmb$age
+  Matdf$season <- 1
+  Matdf$year <- df.tmb$years
+
+  Mdf.p <- Matdf %>% pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
+
+  pMat <- ggplot(Mdf.p, aes(x = year, y= M, col = Age))+
+    geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+    scale_y_continuous('Maturity ogive')+
+    theme(legend.position = 'top')
+
 
   # Catch residuals
   CR <- getResidCatch(df.tmb, sas)
@@ -260,7 +275,7 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
    facet_wrap(~survey, nrow = df.tmb$nsurvey)+
    theme_classic() +scale_size(range = ss)+
    scale_color_manual(values = c('red','blue'))+
-   labs(title = 'scaled catch residuals')+
+   labs(title = 'scaled survey residuals')+
    scale_y_discrete('age')
 
  # stock recrurtment
@@ -303,6 +318,7 @@ ls.out <- list(
   agecomp = p4,
   mwa = p5,
   m2 = pM,
+  mat = pMat,
   cresids = p6,
   cresids_scaled = p7,
   sresids = p8,
