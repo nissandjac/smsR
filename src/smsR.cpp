@@ -46,6 +46,7 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(powers);
   DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
+  DATA_ARRAY(scv); // time varying catch cv
   DATA_IVECTOR(Qidx);
   DATA_IARRAY(Qidx_CV); // survey catchability matrix
   DATA_IARRAY(Cidx_CV);
@@ -655,6 +656,7 @@ Type nllC = 0.0; // log likelihood for Catch
 
 Type nllsurv = Type(0.0); // log likelihood for survey observations
 array<Type> Surveyout(nage,nyears,nsurvey); // Save residuals for SDR calculation
+array<Type> SDSout(nyears,nage,nsurvey);// Total SD
 Surveyout.setZero();
 
 for(int time=0;time<nyears;time++){ // Loop over other ages
@@ -665,9 +667,10 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
         if(Surveyobs(i, time,k) > 0){ // Non existent values have a -1 flag
         // Export survey numbers
         Surveyout(i,time,k) = log(survey(i, time,k))*p(i,k)+log(Qsurv(i,k));
+        SDSout(time,i,k) = sqrt(pow(SDS(i,k),2)+pow(scv(time,i,k),2));
 
         //nllsurv += -dnorm(pow(log(survey(i, time, qrts,k),1)),log(Surveyobs(i, time, qrts,k)), SDS(i,k), true);
-        nllsurv += -dnorm(log(survey(i, time,k))*p(i,k)+log(Qsurv(i,k)),log(Surveyobs(i, time,k)), SDS(i,k), true);
+        nllsurv += -dnorm(Surveyout(i,time,k),log(Surveyobs(i, time,k)), SDSout(time,i,k), true);
 
         //nllsurv += -dnorm(log(survey(i, time,k)),log(Surveyobs(i, time,k)), SDS(i,k), true);
 
@@ -834,6 +837,7 @@ ADREPORT(Qsurv)
 ADREPORT(Nsave)
 ADREPORT(Surveyout)
 ADREPORT(SDS)
+ADREPORT(SDSout)
 ADREPORT(SD_catch2)
 ADREPORT(Rsave)
 ADREPORT(resid_catch)

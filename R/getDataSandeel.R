@@ -23,7 +23,8 @@ getDataSandeel <- function(wd,
                            survey.quarter = NA,
                            effort = 0,
                            years,
-                           seasons){
+                           seasons,
+                           scv.tv = 0){
 
 
   nyears <- length(years)
@@ -170,19 +171,23 @@ getDataSandeel <- function(wd,
   # Make them into matrices
 
   # Time varying survey CV
-
-  scv <- read.table(file.path(wd,'survey_cv.in'), sep = ',')
-
   nsurvey <- length(survey.names)
-
-
-  scv.years <- as.numeric(rownames(scv))
-
-
   scv.in <- array(0, dim = c(length(years), length(ages), nsurvey))
 
+  if(scv.tv == 1){
+    scv <- read.table(file.path(wd,'survey_cv.in'), sep = ',')
 
 
+    scv.years <- as.numeric(rownames(scv))
+
+
+
+    for(i in 1:nsurvey){
+      if(i == 1){
+        scv.in[years %in% scv.years,survey.age[[i]]+1,i ] <- as.matrix(scv)
+      }
+    }
+  }
 
   mtrx <- list(M = df_to_matrix(M, season = seasons),
                mat = df_to_matrix(mat, season = seasons),
@@ -196,6 +201,7 @@ getDataSandeel <- function(wd,
   return(list(canum = canum,
               survey = survey,
               effort = effort,
-              mtrx = mtrx)
+              mtrx = mtrx,
+              scv = scv.in)
   )
 }
