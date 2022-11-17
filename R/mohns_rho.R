@@ -211,7 +211,7 @@ mohns_rho <- function(df.tmb,
       ggplot2::labs(title=Fbarname)
 
 
-    p1 <- gridExtra::grid.arrange(x1,x2,x3, nrow =3)
+    p1 <- x1/x2/x3
 
     return(p1)
     }
