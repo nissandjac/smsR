@@ -93,13 +93,13 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   sum.lm <- summary(xmod)
 
   p3 <- ggplot(dredge, ggplot2::aes(x = log(Age0), y = log(Age1), color = year))+ggplot2::geom_point()+
-    geom_smooth(method = 'lm', color = 'black', se = FALSE)+scale_color_viridis_c()+
+    ggplot2::geom_smooth(method = 'lm', color = 'black', se = FALSE)+ggplot2::scale_color_viridis_c()+
     theme(legend.position = 'top')+theme_classic()+
-    annotate('text', x = mean(log(dredge$Age0), na.rm =TRUE), y = log(max(dredge$Age0, na.rm = TRUE)),
+    ggplot2::annotate('text', x = mean(log(dredge$Age0), na.rm =TRUE), y = log(max(dredge$Age0, na.rm = TRUE)),
              label = paste('Rsquare =',round(sum.lm$r.squared,2)))+
     scale_y_continuous('Age 1 (year - 1)')+
     scale_x_continuous('Age 0 (year)')+
-    theme(legend.title = element_blank())
+    theme(legend.title = ggplot2::element_blank())
 
   # Proportion in catch
   catchdf <- as.data.frame(t(df.tmb$Catchobs[,,1]))
@@ -209,10 +209,10 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   p6 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col)))+
     ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch)), alpha = .3)+
     facet_wrap(~season, nrow = df.tmb$nseason)+
-    theme_classic() +scale_size(range = ss)+
-    scale_color_manual(values = c('red','blue'))+
-    labs(title = 'catch residuals')+
-    scale_y_discrete('age')
+    theme_classic() +ggplot2::scale_size(range = ss)+
+    ggplot2::scale_color_manual(values = c('red','blue'))+
+    ggplot2::labs(title = 'catch residuals')+
+    ggplot2::scale_y_discrete('age')
   # Scale CR with cv
 
  catchCV <- getCatchCV(df.tmb, sas)
@@ -235,10 +235,10 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
  p7 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col)))+
    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch)/CV), alpha = .3)+
    facet_wrap(~season, nrow = df.tmb$nseason)+
-   theme_classic() +scale_size(range = ss)+
-   scale_color_manual(values = c('red','blue'))+
-   labs(title = 'scaled catch residuals')+
-   scale_y_discrete('age')
+   theme_classic() +ggplot2::scale_size(range = ss)+
+   ggplot2::scale_color_manual(values = c('red','blue'))+
+   ggplot2::labs(title = 'scaled catch residuals')+
+   ggplot2::scale_y_discrete('age')
 
 
 
@@ -266,18 +266,18 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
  p8 <- ggplot(SR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col)))+
    ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey)), alpha = .3)+
    facet_wrap(~survey, nrow = df.tmb$nsurvey)+
-   theme_classic() +scale_size(range = ss)+
-   scale_color_manual(values = c('red','blue'))+
-   labs(title = 'survey residuals')+
-   scale_y_discrete('age')
+   theme_classic() +ggplot2::scale_size(range = ss)+
+   ggplot2::scale_color_manual(values = c('red','blue'))+
+   ggplot2::labs(title = 'survey residuals')+
+   ggplot2::scale_y_discrete('age')
 
  p9 <- ggplot(SR, ggplot2::aes(x = years, y =as.character(ages), color = factor(col)))+
    ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey)/CV), alpha = .3)+
    facet_wrap(~survey, nrow = df.tmb$nsurvey)+
-   theme_classic() +scale_size(range = ss)+
-   scale_color_manual(values = c('red','blue'))+
-   labs(title = 'scaled survey residuals')+
-   scale_y_discrete('age')
+   theme_classic() +ggplot2::scale_size(range = ss)+
+   ggplot2::scale_color_manual(values = c('red','blue'))+
+   ggplot2::labs(title = 'scaled survey residuals')+
+   ggplot2::scale_y_discrete('age')
 
  # stock recrurtment
 
@@ -292,7 +292,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
 p10 <-  ggplot(SR_pred, ggplot2::aes(x = SSB, y = SR/1e8))+ggplot2::geom_point()+
    ggplot2::geom_ribbon(ggplot2::aes(ymin = minSR/1e8, ymax = maxSR/1e8), fill = 'red', alpha = .2)+
-   theme_classic()+scale_color_viridis_c()+
+   theme_classic()+ggplot2::scale_color_viridis_c()+
    ggplot2::geom_point(data = R, ggplot2::aes(x = SSB, y  = R/1e8, col = years))+
    scale_y_continuous('Recruitment (1e8)')+coord_cartesian(ylim = lims/1e8)
 
