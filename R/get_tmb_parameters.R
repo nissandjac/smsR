@@ -328,7 +328,7 @@ get_TMB_parameters <- function(
     }
   }
 
-  Catchobs[Catchobs <= 1] <- 0
+#  Catchobs[Catchobs <= 1] <- 0
 
 
 

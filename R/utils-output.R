@@ -453,7 +453,7 @@ getResidSurvey <- function(df.tmb, sas){
   # tmp$high <- tmp$ResidSurvey+2*tmp$SE
   tmp$ages <- df.tmb$age
   tmp$years <- rep(years, each = df.tmb$nage)
-  tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage*(df.tmb$nyears))
+  tmp$survey <- rep(dimnames(df.tmb$Surveyobs)$survey, each = df.tmb$nage*(df.tmb$nyears))
   tmp <- tmp[-which(is.na(tmp$ResidSurvey)),]
 
   Resid_Survey <- tmp
@@ -545,7 +545,7 @@ getSurveyCV <- function(df.tmb,sas){
 
   tmp$ages <- df.tmb$age
 
-  tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
+  tmp$survey <- rep(dimnames(df.tmb$Surveyobs)$survey, each = df.tmb$nage)
 
   #tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
 
@@ -555,7 +555,7 @@ getSurveyCV <- function(df.tmb,sas){
 
 #' Calculate AIC from smsR stock assessment object
 #'
-#' @param sas Stock assesment object from smsR
+#' @param object Stock assesment object from smsR
 #' @param p penalty on number of parameters, default = 2
 #' @param n AICc sample size, default = Inf
 #' @aliases AIC AIC.sms
@@ -693,12 +693,96 @@ getSR <- function(df.tmb, sas){
 }
 
 
+#' Get the fisheries selectivity
+#'
+#' @param df.tmb
+#' @param sas
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getSelex <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+
+  tmp <- data.frame(Fsel = sdrep[rep.values == 'Fsel',1])
+  tmp$SE <- sdrep[rep.values == 'Fsel',2]
+  tmp$low <- tmp$Fsel-2*tmp$SE
+  tmp$high <- tmp$Fsel+2*tmp$SE
+  tmp$ages <- df.tmb$age
+  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
+  tmp$years <- rep(years, each = df.tmb$nage)
+  tmp$Fsel[tmp$Fsel == 0] <- -Inf
+  tmp$low[tmp$Fsel == -Inf] <- -Inf
+  tmp$high[tmp$Fsel == -Inf] <- -Inf
+
+  tmp$Fsel <- exp(tmp$Fsel)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
+  tmp$blocks <- NA
+
+  # Add blocks for plotting
+  nblocks <- rep(NA, length(unique(df.tmb$bidx)))
+
+  for(i in 1:length(nblocks)){
+    if(i == 1){
+      y1 <- df.tmb$years[1]
+    }
+
+    if(i == length(nblocks)){
+      y2 <- df.tmb$years[df.tmb$nyears]
+    }else{
+      y2 <- df.tmb$years[which(df.tmb$bidx == i)[1]]
+    }
+
+    nblocks[i] <- paste(y1,y2, sep = '-')
+    tmp$blocks[tmp$years%in% y1:y2] <- nblocks[i]
+
+    y1 <- y2
+
+  }
+
+return(tmp)
+}
 
 
+#' Get the estimated survey
+#'
+#' @param df.tmb
+#' @param sas
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getSurvey <- function(df.tmb, sas){
+
+  # Get the estimated survey
+  reps <- sas$reps
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+
+  tmp <- data.frame(surveyest = sdrep[rep.values == 'Surveyout',1])
+  tmp$SE <- sdrep[rep.values == 'Surveyout',2]
+  tmp$low <- tmp$surveyest-2*tmp$SE
+  tmp$high <- tmp$surveyest+2*tmp$SE
+  tmp$ages <- df.tmb$age
+  tmp$survey <- rep(dimnames(df.tmb$Surveyobs)$survey, each = df.tmb$nage*(df.tmb$nyears))
+  tmp$years <- rep(years, each = df.tmb$nage)
+
+  tmp <- tmp %>% dplyr::filter(surveyest > 0)
+
+  tmp$surveyest <- exp(tmp$surveyest)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
 
 
-
-
-
-
+  return(tmp)
+}
 

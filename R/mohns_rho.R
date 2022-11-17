@@ -45,7 +45,7 @@ mohns_rho <- function(df.tmb,
   asses1 <- runAssessment(df.tmb, parms = parms, mps = mps)
 
 
-  SSB.base <- getSSB(df.tmb, asses1)$SSB
+  SSB.base <- getSSB(df.tmb, asses1)
   recruit.base <- getR(df.tmb, asses1)$R
 
 
@@ -53,8 +53,8 @@ mohns_rho <- function(df.tmb,
 
 
   df.save <- data.frame(years = df.tmb$years,
-                        SSB = SSB.base[1:(length(SSB.base)-1)],
-                        R = recruit.base[1:(length(SSB.base)-1)],
+                        SSB = SSB.base$SSB[1:(nrow(SSB.base)-1)],
+                        R = recruit.base[1:(nrow(SSB.base)-1)],
                         Fbar = F0base$Fbar,
                         peel = 0,
                         convergence = asses1$reps$pdHess)
@@ -180,7 +180,7 @@ mohns_rho <- function(df.tmb,
     ggplot2::ggplot(df.plot, aes(x = years, y = value, color = factor(peel)))+geom_line()+
     ggplot2::facet_wrap(~name, scales = 'free_y', nrow = 3)+theme_classic()+theme(legend.position = 'none')+
     scale_y_continuous('')+coord_cartesian(xlim = limits)
-  }
+    }
 
   if(plotfigure == TRUE){
   print(p1())

@@ -30,6 +30,8 @@ get_TMB_parameters(
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
+  minSDsurvey = 0.3,
+  peneps = 0.001,
   powers = list(NA),
   surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
@@ -88,6 +90,10 @@ get_TMB_parameters(
 \item{surveyEnd}{number between 0 and 1 determine the end of the survey within season}
 
 \item{surveySeason}{vector determining which seasons surveys occur}
+
+\item{minSDsurvey}{minimum allowed for all SDsurvey estimates}
+
+\item{peneps}{epsilon used in penalty function for SDsurvey (try 1e-6 to 1e-3)}
 
 \item{powers}{which ages are included in the power law calc}
 

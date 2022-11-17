@@ -222,6 +222,7 @@ if(useEffort == 1){
           //  if(qrts != (nseason-1)){
               if(nocatch(time, qrts)>0){
               F0(i,time,qrts) = Fquarter(i,time,qrts)*Fagein(i,time)*effort(time, qrts);
+              Fsel(i,time,qrts) = log(Fquarter(i,time,qrts)*Fagein(i,time));
               }
 
 
@@ -245,6 +246,7 @@ if(useEffort == 1){
 
           if(nocatch(time, qrts)>0){
             F0(i,time,qrts) = Fquarter(i,time,qrts)*Fagein(i,time)*Fyear(time);
+            Fsel(i,time,qrts) = log(Fquarter(i,time,qrts)*Fagein(i,time));
           }
 
           if(time == (nyears-1)){
@@ -662,7 +664,7 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
 
         if(Surveyobs(i, time,k) > 0){ // Non existent values have a -1 flag
         // Export survey numbers
-        Surveyout(i,time,k) = exp(log(survey(i, time,k))*p(i,k)+log(Qsurv(i,k)));
+        Surveyout(i,time,k) = log(survey(i, time,k))*p(i,k)+log(Qsurv(i,k));
 
         //nllsurv += -dnorm(pow(log(survey(i, time, qrts,k),1)),log(Surveyobs(i, time, qrts,k)), SDS(i,k), true);
         nllsurv += -dnorm(log(survey(i, time,k))*p(i,k)+log(Qsurv(i,k)),log(Surveyobs(i, time,k)), SDS(i,k), true);
@@ -824,6 +826,7 @@ ADREPORT(SDrec)
 ADREPORT(logCatchtot)
 ADREPORT(logRec)
 ADREPORT(logBiomass)
+ADREPORT(Fsel)
 // ADREPORT(F0)
 // ADREPORT(Catch)
 // ADREPORT(CatchN)

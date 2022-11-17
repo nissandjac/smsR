@@ -8,11 +8,11 @@
 \method{AIC}{sms}(object, p = 2, n = Inf, ...)
 }
 \arguments{
+\item{object}{Stock assesment object from smsR}
+
 \item{p}{penalty on number of parameters, default = 2}
 
 \item{n}{AICc sample size, default = Inf}
-
-\item{sas}{Stock assesment object from smsR}
 }
 \description{
 Calculate AIC from smsR stock assessment object

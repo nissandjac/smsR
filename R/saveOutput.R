@@ -14,7 +14,7 @@
 #'
 #' @examples
 saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
-                      Fbarage = c(1,2), name = 'summary', wd = getwd()){
+                       name = 'summary', wd = getwd()){
 
   # Prepare a table with output stuff
 
@@ -55,6 +55,10 @@ saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
   CV.ssb <- sas$reps$sd[names(sas$reps$value) == 'logSSB'][1:df.tmb$nyears]
 
 
+  scv <- scv %>% filter(surveyCV > 0)
+  ccv <- ccv %>% filter(catchCV > 0)
+
+
   df.indicators <- data.frame(mohns_r = as.numeric(MR$mohns[2]),
                    mohns_ssb = as.numeric(MR$mohns[1]),
                    mohns_F = as.numeric(MR$mohns[3]),
@@ -66,6 +70,8 @@ saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
                    ARC1 = as.numeric(ar_test$statistic),
                    ARC2 = as.numeric(ar_test2$statistic),
                    model = model,
+                   AIC = AIC(sas),
+                   nparm = length(sas$reps$par.fixed),
                    SSB_sd_all = mean(CV.ssb),
                    SSB_sd_last3 = mean(CV.ssb[(df.tmb$nyears-2):df.tmb$nyears])
 

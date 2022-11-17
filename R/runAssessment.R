@@ -49,7 +49,7 @@ lower[names(lower) == 'SDsurvey'] <- 0.0001
 
 upper[names(upper) == 'SDsurvey'] <- 3
 lower[names(lower) == 'logSDrec'] <- log(0.1)
-upper[names(upper) == 'logSDrec'] <- log(2)
+upper[names(upper) == 'logSDrec'] <- log(4)
 
 # Add custom boundaries to parameters
 for(i in 1:length(lwr)){

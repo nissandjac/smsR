@@ -9,7 +9,6 @@ saveOutput(
   sas,
   MR = NULL,
   savefile = TRUE,
-  Fbarage = c(1, 2),
   name = "summary",
   wd = getwd()
 )
