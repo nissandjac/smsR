@@ -169,6 +169,21 @@ getDataSandeel <- function(wd,
 
   # Make them into matrices
 
+  # Time varying survey CV
+
+  scv <- read.table(file.path(wd,'survey_cv.in'), sep = ',')
+
+  nsurvey <- length(survey.names)
+
+
+  scv.years <- as.numeric(rownames(scv))
+
+
+  scv.in <- array(0, dim = c(length(years), length(ages), nsurvey))
+
+
+
+
   mtrx <- list(M = df_to_matrix(M, season = seasons),
                mat = df_to_matrix(mat, season = seasons),
                west = df_to_matrix(west, season = seasons),

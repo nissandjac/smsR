@@ -193,7 +193,7 @@ mohns_rho <- function(df.tmb,
       geom_ribbon(data = df.var, aes(ymin = SSBmin, ymax = SSBmax, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
       scale_x_continuous('')+
-      labs(title=SSBname)
+      ggplot2::labs(title=SSBname)
 
     x2 <- ggplot2::ggplot(df.plot, aes(x = years, y = R, color = factor(peel)))+geom_line()+
       theme_classic()+theme(legend.position = 'none')+
@@ -201,14 +201,14 @@ mohns_rho <- function(df.tmb,
       geom_ribbon(data = df.var, aes(ymin = Rmin, ymax = Rmax, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
       scale_x_continuous('')+
-      labs(title=Rname)
+      ggplot2::labs(title=Rname)
 
     x3 <- ggplot2::ggplot(df.plot, aes(x = years, y = Fbar, color = factor(peel)))+geom_line()+
       theme_classic()+theme(legend.position = 'none')+
       scale_y_continuous('')+coord_cartesian(xlim = limits)+
       geom_ribbon(data = df.var, aes(ymin = Fmin, ymax = Fmax, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
-      labs(title=Fbarname)
+      ggplot2::labs(title=Fbarname)
 
 
     p1 <- gridExtra::grid.arrange(x1,x2,x3, nrow =3)
@@ -222,6 +222,6 @@ mohns_rho <- function(df.tmb,
 
 
   return(list(df.save = df.save,
-              p1 = p1(),
+              p1 = p1,
               mohns = mohns.tot))
 }

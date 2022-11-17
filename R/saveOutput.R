@@ -55,8 +55,8 @@ saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
   CV.ssb <- sas$reps$sd[names(sas$reps$value) == 'logSSB'][1:df.tmb$nyears]
 
 
-  scv <- scv %>% filter(surveyCV > 0)
-  ccv <- ccv %>% filter(catchCV > 0)
+  scv <- scv %>% dplyr::filter(surveyCV > 0)
+  ccv <- ccv %>% dplyr::filter(catchCV > 0)
 
 
   df.indicators <- data.frame(mohns_r = as.numeric(MR$mohns[2]),

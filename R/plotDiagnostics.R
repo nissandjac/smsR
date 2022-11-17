@@ -13,7 +13,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL){
 
 
   surv <- df.tmb$Surveyobs
-  surv.fit <- getSurvey(df.tmb, sas) %>% rename('age' = ages,
+  surv.fit <- getSurvey(df.tmb, sas) %>% dplyr::rename('age' = ages,
                                                 'cpue' = surveyest)
 
   for(i in 1:df.tmb$nsurvey){
@@ -35,19 +35,19 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL){
   surv.fit$age <-as.character(surv.fit$age)
 
 
-  p1 <- ggplot2::ggplot(s.exp, aes(x = year, y = cpue, color = age))+
+  p1 <- ggplot2::ggplot(s.exp, ggplot2::aes(x = year, y = cpue, color = age))+
     ggplot2::geom_point()+ggplot2::facet_wrap(~survey, scales = 'free')+ggplot2::theme_bw()+
     ggplot2::theme(legend.position = 'top')+ggplot2::scale_y_log10('survey index')+
-    geom_line(size = .7, linetype = 2, alpha =.2)+
-    geom_line(data = surv.fit, aes(x = years))+
-    geom_ribbon(data = surv.fit, aes(x = years, ymin = low, ymax = high, fill = age),
+    ggplot2::geom_line(size = .7, linetype = 2, alpha =.2)+
+    ggplot2::geom_line(data = surv.fit, ggplot2::aes(x = years))+
+    ggplot2::geom_ribbon(data = surv.fit, ggplot2::aes(x = years, ymin = low, ymax = high, fill = age),
                 alpha = .1, linetype = 0)
 
 
 
 
 catch <- df.tmb$Catchobs
-catch.fit <- getCatchN(df.tmb, sas) %>% rename('age' = ages)
+catch.fit <- getCatchN(df.tmb, sas) %>% dplyr::rename('age' = ages)
 
 for(i in 1:df.tmb$nseason){
   c.out <- as.data.frame(t(catch[,,i]))
@@ -70,11 +70,11 @@ catch.fit$age <- as.character(catch.fit$age)
 c.exp$CatchN[c.exp$CatchN == 0] <- NA
 catch.fit$CatchN[catch.fit$CatchN == 0]<-NA
 
-p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
+p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   ggplot2::geom_point()+ggplot2::facet_grid(season~age, scales = 'free')+ggplot2::theme_bw()+
   ggplot2::theme(legend.position = 'top')+ggplot2::scale_y_log10('catch (numbers)')+
-  geom_line(data = catch.fit, aes(x = years))+
-  geom_ribbon(data = catch.fit, aes(x = years, ymin = low, ymax = high, fill = age),
+  ggplot2::geom_line(data = catch.fit, ggplot2::aes(x = years))+
+  ggplot2::geom_ribbon(data = catch.fit, ggplot2::aes(x = years, ymin = low, ymax = high, fill = age),
               alpha = .1, linetype = 0)
 
 
@@ -82,8 +82,8 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 # Do the internal dredge survey thing
 
   s.exp$year[s.exp$age == 1] <- s.exp$year[s.exp$age == 1]-1 # Fix 0 and 1 to same cohort
-  dredge <- s.exp[s.exp$survey == 'Dredge',] %>% pivot_wider(values_from = cpue, names_from = age) %>%
-    rename('Age0' = '0',
+  dredge <- s.exp[s.exp$survey == 'Dredge',] %>% tidyr::pivot_wider(values_from = cpue, names_from = age) %>%
+    dplyr::rename('Age0' = '0',
            'Age1' = '1')
 
 
@@ -92,7 +92,7 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
   sum.lm <- summary(xmod)
 
-  p3 <- ggplot(dredge, aes(x = log(Age0), y = log(Age1), color = year))+geom_point()+
+  p3 <- ggplot(dredge, ggplot2::aes(x = log(Age0), y = log(Age1), color = year))+ggplot2::geom_point()+
     geom_smooth(method = 'lm', color = 'black', se = FALSE)+scale_color_viridis_c()+
     theme(legend.position = 'top')+theme_classic()+
     annotate('text', x = mean(log(dredge$Age0), na.rm =TRUE), y = log(max(dredge$Age0, na.rm = TRUE)),
@@ -125,10 +125,10 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
   # `take the average for the plot
 
-  catchdf.plot <- catchdf %>% pivot_longer(paste(0:4), names_to = 'Age', values_to = 'canum') %>%
-    group_by(Age, year) %>% summarise(catch = mean(canum, na.rm =TRUE))
+  catchdf.plot <- catchdf %>% tidyr::pivot_longer(paste(0:4), names_to = 'Age', values_to = 'canum') %>%
+    dplyr::group_by(Age, year) %>% dplyr::summarise(catch = mean(canum, na.rm =TRUE))
 
-  p4 <- ggplot(catchdf.plot, aes(x = year, y = catch, fill = Age))+geom_bar(position = 'fill', stat ='identity')+
+  p4 <- ggplot(catchdf.plot, ggplot2::aes(x = year, y = catch, fill = Age))+geom_bar(position = 'fill', stat ='identity')+
     scale_y_continuous('proportion at age \n in catch')+
     theme_classic()
 
@@ -152,10 +152,10 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
   }
 
-  wdf.p <- wdf %>% pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'weca')
+  wdf.p <- wdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'weca')
 
-  p5 <- ggplot(wdf.p, aes(x = year, y= weca*1000, col = Age))+
-    geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+  p5 <- ggplot(wdf.p, ggplot2::aes(x = year, y= weca*1000, col = Age))+
+    ggplot2::geom_point()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
     scale_y_continuous('weight at age (g)')+
     theme(legend.position = 'top')
 
@@ -176,10 +176,10 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
   }
 
-  Mdf.p <- Mdf %>% pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
+  Mdf.p <- Mdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
 
-  pM <- ggplot(Mdf.p, aes(x = year, y= M, col = Age))+
-    geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+  pM <- ggplot(Mdf.p, ggplot2::aes(x = year, y= M, col = Age))+
+    ggplot2::geom_point()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
     scale_y_continuous('Natural mortality \n(per year)')+
     theme(legend.position = 'top')
 
@@ -190,10 +190,10 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
   Matdf$season <- 1
   Matdf$year <- df.tmb$years
 
-  Mdf.p <- Matdf %>% pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
+  Mdf.p <- Matdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
 
-  pMat <- ggplot(Mdf.p, aes(x = year, y= M, col = Age))+
-    geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+  pMat <- ggplot(Mdf.p, ggplot2::aes(x = year, y= M, col = Age))+
+    ggplot2::geom_point()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
     scale_y_continuous('Maturity ogive')+
     theme(legend.position = 'top')
 
@@ -206,8 +206,8 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
   ss <- c(round(range(abs(CR$ResidCatch))[1]), max(abs(CR$ResidCatch))*1.5)
 
 
-  p6 <- ggplot(CR, aes(x = years, y = as.character(ages), color = factor(col)))+
-    geom_point(aes(size = abs(ResidCatch)), alpha = .3)+
+  p6 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col)))+
+    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch)), alpha = .3)+
     facet_wrap(~season, nrow = df.tmb$nseason)+
     theme_classic() +scale_size(range = ss)+
     scale_color_manual(values = c('red','blue'))+
@@ -228,11 +228,12 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
  }
 
 
+ ss <- c(round(range(abs(CR$ResidCatch))[1]), max(abs(CR$ResidCatch))*1.2)
 
 
 
- p7 <- ggplot(CR, aes(x = years, y = as.character(ages), color = factor(col)))+
-   geom_point(aes(size = abs(ResidCatch)/CV), alpha = .3)+
+ p7 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col)))+
+   ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch)/CV), alpha = .3)+
    facet_wrap(~season, nrow = df.tmb$nseason)+
    theme_classic() +scale_size(range = ss)+
    scale_color_manual(values = c('red','blue'))+
@@ -262,16 +263,16 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
 
  ss <- c(round(range(abs(SR$ResidSurvey))[1]), max(abs(SR$ResidSurvey))*3)
 
- p8 <- ggplot(SR, aes(x = years, y = as.character(ages), color = factor(col)))+
-   geom_point(aes(size = abs(ResidSurvey)), alpha = .3)+
+ p8 <- ggplot(SR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col)))+
+   ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey)), alpha = .3)+
    facet_wrap(~survey, nrow = df.tmb$nsurvey)+
    theme_classic() +scale_size(range = ss)+
    scale_color_manual(values = c('red','blue'))+
    labs(title = 'survey residuals')+
    scale_y_discrete('age')
 
- p9 <- ggplot(SR, aes(x = years, y =as.character(ages), color = factor(col)))+
-   geom_point(aes(size = abs(ResidSurvey)/CV), alpha = .3)+
+ p9 <- ggplot(SR, ggplot2::aes(x = years, y =as.character(ages), color = factor(col)))+
+   ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey)/CV), alpha = .3)+
    facet_wrap(~survey, nrow = df.tmb$nsurvey)+
    theme_classic() +scale_size(range = ss)+
    scale_color_manual(values = c('red','blue'))+
@@ -289,10 +290,10 @@ p2 <- ggplot2::ggplot(c.exp, aes(x = year, y = CatchN, color = age))+
  lims <- c(0, max(R$R)*2)
 
 
-p10 <-  ggplot(SR_pred, aes(x = SSB, y = SR/1e8))+geom_line()+
-   geom_ribbon(aes(ymin = minSR/1e8, ymax = maxSR/1e8), fill = 'red', alpha = .2)+
+p10 <-  ggplot(SR_pred, ggplot2::aes(x = SSB, y = SR/1e8))+ggplot2::geom_point()+
+   ggplot2::geom_ribbon(ggplot2::aes(ymin = minSR/1e8, ymax = maxSR/1e8), fill = 'red', alpha = .2)+
    theme_classic()+scale_color_viridis_c()+
-   geom_point(data = R, aes(x = SSB, y  = R/1e8, col = years))+
+   ggplot2::geom_point(data = R, ggplot2::aes(x = SSB, y  = R/1e8, col = years))+
    scale_y_continuous('Recruitment (1e8)')+coord_cartesian(ylim = lims/1e8)
 
 
@@ -304,9 +305,9 @@ if(is.null(mr)){
   parms <- getParms(df.tmb)
   mr <- smsR::mohns_rho(df.tmb,parms, peels = 5,plotfigure = FALSE)
 
-  p11 <- mr$p1
+  p11 <- mr$p1()
 }else{
-  p11 <- mr$p1
+  p11 <- mr$p1()
   }
 
 
