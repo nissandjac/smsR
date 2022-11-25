@@ -70,7 +70,7 @@ get_TMB_parameters <- function(
   minSDsurvey = 0.3,
   peneps = 1e-3,
   powers = list(NA),
-  scv = array(0, dim = c(length(years), length(ages), nsurvey)),
+  scv = array(0, dim = c(length(ages),length(years), nsurvey)),
   surveyCV = matrix(c(0,max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0,max(ages)), nrow = 2, ncol = nseason),
   recmodel = 2,

@@ -87,6 +87,7 @@ array<Type>Zsave(nage,nyears,nseason);
 array<Type>Nsave(nage,nyears+1,nseason);
 array<Type>survey(nage, nyears,nsurvey);
 array<Type>Qsurv(nage, nsurvey);
+//array<Type>logQsurv(nage, nsurvey);
 array<Type>SDS(nage, nsurvey);
 array<Type>SDC(nage, nseason);
 array<Type>F0(nage, nyears, nseason);
@@ -290,8 +291,10 @@ if(nsurvey>1){
 
             if(i < Qlastage(k)){
               Qsurv(i,k) = Q(Qidx(k)+i-Qminage(k));
+          //    logQsurv(i,k) = log(Qsurv(i,k));
             }else{
               Qsurv(i,k) = Q(Qidx(k)+Qlastage(k)-Qminage(k));
+            //  logQsurv(i,k) = log(Qsurv(i,k));
             }
         }
         if(i > Qmaxage(k)){
@@ -306,8 +309,10 @@ if(nsurvey>1){
 
         if(i < Qlastage(0)){
             Qsurv(i,0) = Q(Qidx(0)+i-Qminage(0));
+            //logQsurv(i,0) = log(Qsurv(i,0));
           }else{
             Qsurv(i,0) = Q(Qidx(0)+Qlastage(0)-Qminage(0));
+        //    logQsurv(i,0) = log(Qsurv(i,0));
         }
     }
     if(i > Qmaxage(0)){
@@ -656,7 +661,7 @@ Type nllC = 0.0; // log likelihood for Catch
 
 Type nllsurv = Type(0.0); // log likelihood for survey observations
 array<Type> Surveyout(nage,nyears,nsurvey); // Save residuals for SDR calculation
-array<Type> SDSout(nyears,nage,nsurvey);// Total SD
+array<Type> SDSout(nage,nyears,nsurvey);// Total SD
 Surveyout.setZero();
 
 for(int time=0;time<nyears;time++){ // Loop over other ages
@@ -667,10 +672,10 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
         if(Surveyobs(i, time,k) > 0){ // Non existent values have a -1 flag
         // Export survey numbers
         Surveyout(i,time,k) = log(survey(i, time,k))*p(i,k)+log(Qsurv(i,k));
-        SDSout(time,i,k) = sqrt(pow(SDS(i,k),2)+pow(scv(time,i,k),2));
+        //SDSout(i,time,k) = sqrt(pow(SDS(i,k),2)+pow(scv(i,time,k),2));
 
         //nllsurv += -dnorm(pow(log(survey(i, time, qrts,k),1)),log(Surveyobs(i, time, qrts,k)), SDS(i,k), true);
-        nllsurv += -dnorm(Surveyout(i,time,k),log(Surveyobs(i, time,k)), SDSout(time,i,k), true);
+        nllsurv += -dnorm(Surveyout(i,time,k),log(Surveyobs(i, time,k)), SDS(i,k), true);
 
         //nllsurv += -dnorm(log(survey(i, time,k)),log(Surveyobs(i, time,k)), SDS(i,k), true);
 
@@ -807,6 +812,7 @@ REPORT(Surveyout)
 REPORT(resid_catch)
 REPORT(resid_survey)
 REPORT(SDS)
+REPORT(SDSout)
 REPORT(p)
 // REPORT(survey)
 // REPORT(ans)
@@ -833,7 +839,7 @@ ADREPORT(Fsel)
 // ADREPORT(F0)
 // ADREPORT(Catch)
 // ADREPORT(CatchN)
-ADREPORT(Qsurv)
+//ADREPORT(logQsurv)
 ADREPORT(Nsave)
 ADREPORT(Surveyout)
 ADREPORT(SDS)

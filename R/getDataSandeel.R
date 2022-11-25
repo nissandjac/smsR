@@ -172,19 +172,27 @@ getDataSandeel <- function(wd,
 
   # Time varying survey CV
   nsurvey <- length(survey.names)
-  scv.in <- array(0, dim = c(length(years), length(ages), nsurvey))
+  scv.in <- array(0, dim = c(length(ages),length(years), nsurvey))
 
   if(scv.tv == 1){
-    scv <- read.table(file.path(wd,'survey_cv.in'), sep = ',')
-
-
-    scv.years <- as.numeric(rownames(scv))
 
 
 
     for(i in 1:nsurvey){
       if(i == 1){
-        scv.in[years %in% scv.years,survey.age[[i]]+1,i ] <- as.matrix(scv)
+        scv <- read.table(file.path(wd,'survey_cv.in'), sep = ',')
+        scv.years <- scv$V1
+        scv <- as.matrix(scv[,2:ncol(scv)])
+
+        scv.in[survey.age[[i]]+1,years %in% scv.years,i ] <- as.matrix(scv)
+      }else{
+        scv <- read.table(file.path(wd,'survey_acoustic.in'), sep = ',')
+        scv.years <- scv$V1
+        scv <- as.matrix(scv[,2:ncol(scv)])
+        scv.in[survey.age[[i]]+1,years %in% scv.years,i ] <- as.matrix(scv)
+
+
+
       }
     }
   }

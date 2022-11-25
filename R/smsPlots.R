@@ -16,7 +16,7 @@
 #' @importFrom ggplot2 alpha scale_x_continuous scale_y_continuous coord_cartesian coord_flip
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #'
- smsPlots <- function(df.tmb, sas, type="default", Blim=NULL){
+ smsPlots <- function(df.tmb, sas, type="default", Blim=NULL, printFig = TRUE){
 
   SSB <- getSSB(df.tmb, sas)
   rec <- getR(df.tmb,sas)
@@ -25,39 +25,36 @@
 
   if(type=="default"){
     # Plot SSB
-    pssb <- function(){
-      ggplot(SSB, aes(x = years, y = SSB))+geom_line(size = 1.4)+
+    pssb <- ggplot(SSB, aes(x = years, y = SSB))+geom_line(size = 1.4)+
         theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
         scale_y_continuous('SSB')+theme(legend.position = c(0.8,.8))
-    }
 
     # Plot Recruitment
     # take care of crazy recruitment stuff
     lims <- c(min(rec$R)/2, max(rec$R)*2)
 
-    prec <- function(){
-      ggplot(rec, aes(x = years, y = R))+geom_line(size = 1.4)+
+    prec <- ggplot(rec, aes(x = years, y = R))+geom_line(size = 1.4)+
         theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
         scale_y_continuous('recruitment')+theme(legend.position = 'none')+coord_cartesian(ylim = lims)
-    }
+
 
     # Plot Fishing mortality
-    pF0 <- function(){
-      ggplot(Fbar, aes(x = years, y = Fbar))+geom_line(size = 1.3)+theme_classic()+
+    pF0 <-  ggplot(Fbar, aes(x = years, y = Fbar))+geom_line(size = 1.3)+theme_classic()+
         geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
         scale_y_continuous('fishing mortality')+theme(legend.position = 'none')
-    }
+
 
     # And catch
-    pCatch <- function(){
-      ggplot(Catch, aes(x = years, y = Catch))+geom_line(size = 1.4)+
+    pCatch <-  ggplot(Catch, aes(x = years, y = Catch))+geom_line(size = 1.4)+
         theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
         scale_y_continuous('Catch')+theme(legend.position = c(0.8,.8))
-    }
     # Plot SSB, recruitment, catch and fishing mortality
-    pls <- gridExtra::grid.arrange(pssb(),pCatch(),prec(),  pF0(), ncol = 2)
+    pls <- (pssb + pCatch)/(prec + pF0)
 
     #pls
+    if(printFig == 1){
+      print(pls)
+    }
 
     return(pls)
   }#end default plot

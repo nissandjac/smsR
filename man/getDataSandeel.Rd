@@ -13,7 +13,8 @@ getDataSandeel(
   survey.quarter = NA,
   effort = 0,
   years,
-  seasons
+  seasons,
+  scv.tv = 0
 )
 }
 \arguments{
