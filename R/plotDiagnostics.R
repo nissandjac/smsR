@@ -155,7 +155,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   wdf.p <- wdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'weca')
 
   p5 <- ggplot(wdf.p, ggplot2::aes(x = year, y= weca*1000, col = Age))+
-    ggplot2::geom_point()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+    ggplot2::geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
     scale_y_continuous('weight at age (g)')+
     theme(legend.position = 'top')
 
@@ -179,7 +179,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   Mdf.p <- Mdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
 
   pM <- ggplot(Mdf.p, ggplot2::aes(x = year, y= M, col = Age))+
-    ggplot2::geom_point()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+    ggplot2::geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
     scale_y_continuous('Natural mortality \n(per year)')+
     theme(legend.position = 'top')
 
@@ -193,7 +193,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   Mdf.p <- Matdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
 
   pMat <- ggplot(Mdf.p, ggplot2::aes(x = year, y= M, col = Age))+
-    ggplot2::geom_point()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+    ggplot2::geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
     scale_y_continuous('Maturity ogive')+
     theme(legend.position = 'top')
 
@@ -290,7 +290,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
  lims <- c(0, max(R$R)*2)
 
 
-p10 <-  ggplot(SR_pred, ggplot2::aes(x = SSB, y = SR/1e8))+ggplot2::geom_point()+
+p10 <-  ggplot(SR_pred, ggplot2::aes(x = SSB, y = SR/1e8))+ggplot2::geom_line()+
    ggplot2::geom_ribbon(ggplot2::aes(ymin = minSR/1e8, ymax = maxSR/1e8), fill = 'red', alpha = .2)+
    theme_classic()+ggplot2::scale_color_viridis_c()+
    ggplot2::geom_point(data = R, ggplot2::aes(x = SSB, y  = R/1e8, col = years))+

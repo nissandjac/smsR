@@ -20,7 +20,7 @@ df.tmb <- get_TMB_parameters(
   ages = ages, # Ages of the species
   Fbarage = 1:2, # min and max age for Fbar calculations
   recseason = 2, # Season where recruitment occurs
-  CminageSeason = c(0,0),
+  CminageSeason = c(1,0),
   Fmaxage = 3, # Fully selected fishing mortality age
   Qminage = c(0,1), # minimum age in surveys
   Qmaxage = c(1,3),
@@ -39,8 +39,8 @@ df.tmb <- get_TMB_parameters(
                  c(0,1,3)),
   recmodel = 2, # Chose recruitment model (2 = estimated)
   estCV = c(0,2,0), # Estimate
- # betaSR = 110000, # Hockey stick breakpoint (x-axis)
-  nllfactor = c(1,1,1) # Factor for relative strength of log-likelihood
+  betaSR = 110000, # Hockey stick breakpoint (x-axis)
+  nllfactor = c(1,1,.05) # Factor for relative strength of log-likelihood
 
 )
 
@@ -95,9 +95,9 @@ Fbar <- getFbar(df.tmb, sas)
 
 
 # Get the CVs
-surveyCV <- getSurveyCV(sas)
+surveyCV <- getSurveyCV(df.tmb,sas)
 
-catchCV <- getCatchCV(sas)
+catchCV <- getCatchCV(df.tmb, sas)
 
 
 # Residuals
@@ -118,7 +118,7 @@ ggplot(residualSurvey, aes(x = years, y = ResidSurvey, color = factor(ages)))+
 
 
 # Print the AIC of the model
-AIC.sms(sas)
+AIC(sas)
 
 # Print the negative log likelihood
 sas$opt[['objective']]
@@ -126,4 +126,7 @@ sas$opt[['objective']]
 # Get estimated parameters
 p.est <- getEstimatedParms(sas)
 p.est
+
+
+
 
