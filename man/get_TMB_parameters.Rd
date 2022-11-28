@@ -25,6 +25,7 @@ get_TMB_parameters(
   endFseason = 4,
   nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
   useEffort = 0,
+  estimateCreep = 0,
   effort = matrix(1, nrow = length(years), ncol = nseason),
   blocks = FALSE,
   surveyStart = rep(0, nsurvey),
@@ -33,7 +34,7 @@ get_TMB_parameters(
   minSDsurvey = 0.3,
   peneps = 0.001,
   powers = list(NA),
-  scv = array(0, dim = c(length(years), length(ages), nsurvey)),
+  scv = array(0, dim = c(length(ages), length(years), nsurvey)),
   surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
   recmodel = 2,
@@ -81,6 +82,8 @@ get_TMB_parameters(
 \item{nocatch}{Matrix size year x season with 1 or 0 showing catch}
 
 \item{useEffort}{1 or 0, use nominal CPUE to tune F}
+
+\item{estimateCreep}{Estimate creep from nominal cpue}
 
 \item{effort}{matrix size year x season that contains nominal CPUE}
 

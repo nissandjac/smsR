@@ -31,6 +31,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(Fmaxage); // Max age to fish
   DATA_INTEGER(useEffort); // use effort or estimate F
   DATA_INTEGER(useBlocks); // Use blocks for species selectivity?
+  DATA_INTEGER(estimateCreep); // Bolean, estimate creep from effort data
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
   DATA_IVECTOR(Qmaxage); // Maximum age in survey
@@ -73,6 +74,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_ARRAY(logFage);
   PARAMETER_VECTOR(SDsurvey); // Survey variation
   PARAMETER_VECTOR(SDcatch); // Catch SD's
+  PARAMETER(creep); // Estimated technical creep
 // //
   PARAMETER_VECTOR(logQ);
   PARAMETER(pin);
@@ -213,6 +215,35 @@ REPORT(Fquarter)
 // REPORT(Fyear)
 //
 // // // // // // Annual contribution of fishing mortality
+array<Type>effort_creep(nyears, nseason);
+// Estimate creep
+if(useEffort == 1){
+  if(estimateCreep == 1){
+      for(int time=0;time<(nyears);time++){ // Loop over years excluding last one
+        for(int qrts=0;qrts<nseason;qrts++){ // Loop over other seasons
+
+          if(time == 0){
+            effort_creep(0,qrts) = 1;
+          }else{
+          effort_creep(time,qrts) = effort(time-1, qrts)*exp(creep);
+        }
+      }
+    }
+  }else{
+
+    if(useEffort == 1){
+      for(int time=0;time<(nyears);time++){ // Loop over years excluding last one
+        for(int qrts=0;qrts<nseason;qrts++){ // Loop over other seasons
+          effort_creep(time,qrts) = effort(time, qrts);
+        }
+      }
+    }
+  }
+}
+
+
+
+
 // F0.setZero();
 // //
 // //
@@ -223,7 +254,7 @@ if(useEffort == 1){
 
           //  if(qrts != (nseason-1)){
               if(nocatch(time, qrts)>0){
-              F0(i,time,qrts) = Fquarter(i,time,qrts)*Fagein(i,time)*effort(time, qrts);
+              F0(i,time,qrts) = Fquarter(i,time,qrts)*Fagein(i,time)*effort_creep(time, qrts);
               Fsel(i,time,qrts) = log(Fquarter(i,time,qrts)*Fagein(i,time));
               }
 
@@ -400,9 +431,9 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 
              if(qrts == (surveySeason(k)-1)){
               if(surveyEnd(k) == 0){
-               survey(i,time,k) = Nsave(i,time,qrts)*Qsurv(i,k);
+               survey(i,time,k) = Nsave(i,time,qrts);//*Qsurv(i,k);
              }else{
-               Type Ntmp = Qsurv(i,k)*Nsave(i,time,qrts)*(exp(-Zsave(i,time,qrts)*surveyStart(k)));
+               Type Ntmp = Nsave(i,time,qrts)*(exp(-Zsave(i,time,qrts)*surveyStart(k)));
                survey(i,time,k) = Ntmp*(1-exp(-Zsave(i,time,qrts)*(surveyEnd(k)-surveyStart(k))))/(Zsave(i,time,qrts)*(surveyEnd(k)-surveyStart(k)));
              }
             }
@@ -428,7 +459,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 
             if(qrts == (surveySeason(k)-1)){
              if(surveyEnd(k) == 0){
-              survey(i,time,k) =  Nsave(i,time,qrts);//*Qsurv(i,k);
+              survey(i,time,k) =  Nsave(i,time,qrts+1);//*Qsurv(i,k);
             }else{
               Type Ntmp = Nsave(i,time,qrts)*(exp(-Zsave(i,time,qrts)*surveyStart(k)));
               survey(i,time,k) = Ntmp*(1-exp(-Zsave(i,time,qrts)*(surveyEnd(k)-surveyStart(k))))/(Zsave(i,time,qrts)*(surveyEnd(k)-surveyStart(k)));//*Qsurv(i,k)*;
@@ -850,6 +881,7 @@ ADREPORT(resid_catch)
 ADREPORT(resid_survey)
 ADREPORT(log_exp_pattern)
 ADREPORT(term_logN_next)
+ADREPORT(effort_creep)
 //ADREPORT(Catchtot)
 ADREPORT(logbeta)
 ADREPORT(SDrec)

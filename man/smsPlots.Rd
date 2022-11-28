@@ -4,7 +4,7 @@
 \alias{smsPlots}
 \title{Title}
 \usage{
-smsPlots(df.tmb, sas, type = "default", Blim = NULL)
+smsPlots(df.tmb, sas, type = "default", Blim = NULL, printFig = TRUE)
 }
 \arguments{
 \item{df.tmb}{list of tmb parameters}

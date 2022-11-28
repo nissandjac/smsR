@@ -20,6 +20,7 @@
 #' @param endFseason  Last season last year with F
 #' @param nocatch  Matrix size year x season with 1 or 0 showing catch
 #' @param useEffort 1 or 0, use nominal CPUE to tune F
+#' @param estimateCreep Estimate creep from nominal cpue
 #' @param effort matrix size year x season that contains nominal CPUE
 #' @param blocks Blocks with unique selectivity for fishing
 #' @param surveyStart number between 0 and 1 determine the start of the survey within season
@@ -62,6 +63,7 @@ get_TMB_parameters <- function(
   endFseason = 4,
   nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
   useEffort = 0,
+  estimateCreep = 0,
   effort = matrix(1, nrow = length(years), ncol = nseason),
   blocks = FALSE,
   surveyStart = rep(0, nsurvey),
@@ -350,6 +352,7 @@ get_TMB_parameters <- function(
     nsurvey = dim(Surveyobs)[3],
     recseason = recseason,
     useEffort = useEffort,
+    estimateCreep = estimateCreep,
     effort = effort.in,
     bidx = bidx,
     useBlocks = useBlocks,

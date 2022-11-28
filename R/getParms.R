@@ -30,9 +30,11 @@ getParms <- function(df.tmb, parms.true = NULL){
                   SDcatch = as.matrix(SDCatch),
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
                   pin = 1,
+                  creep = 0,
                   logalpha = 2,
                   logbeta = log(betaSR),
-                  logSDrec = log(0.5))
+                  logSDrec = log(0.5)
+                  )
 
 
 
@@ -107,6 +109,12 @@ getMPS <- function(df.tmb, parms, mapExtra = NA){
   if(df.tmb$nseason == 1){
     mps$Fseason <- factor(parms$Fseason*NA)
   }
+
+  if(df.tmb$estimateCreep == 0){
+    mps$creep <- factor(parms$creep*NA)
+  }
+
+
 
 
   for(i in 1:length(mapExtra)){

@@ -49,7 +49,6 @@ getDataSandeel <- function(wd,
   ages <- 0:maxage
 
 
-
   survey.out <- matrix(NA, nrow = nrow(survey), ncol = length(ages) + 4) # Plus efficiency, name, quarter and years
   survey.out <- as.data.frame(survey.out)
   colnames(survey.out) <- c('eff', ages, 'Survey','Quarter','year')
