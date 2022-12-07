@@ -272,9 +272,9 @@ get_TMB_parameters <- function(
 
       no <- 1:length(catchCV[[i]])
 
-      Cidx.CV[ages %in% catchCV[[i]],i] <- no
-      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
-      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+      Cidx.CV[ages %in% catchCV[[i]],i] <- no+1
+      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)+1
+      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)+1
 
       Cidx.CV[ages < CminageSeason[i],nseason] <- -98
       Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
@@ -329,6 +329,10 @@ get_TMB_parameters <- function(
         no[i,qrts] <- length(Out[Out >0])
       }
     }
+  }
+
+  if(nrow(catchCVout) == 1 & nseason == 1){
+    no[i,qrts] <- length(Catchobs[Catchobs > 0])
   }
 
 #  Catchobs[Catchobs <= 1] <- 0

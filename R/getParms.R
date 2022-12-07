@@ -25,7 +25,7 @@ getParms <- function(df.tmb, parms.true = NULL){
                   logNinit = rep(15, df.tmb$nage-1),
                   Fyear = rep(1, df.tmb$nyears), # Mapped out
                   Fseason = matrix(1, nrow = df.tmb$nseason-1, ncol = length(unique(df.tmb$bidx))),
-                  logFage = matrix(1, nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
+                  logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
                   SDsurvey = SDsurvey,
                   SDcatch = as.matrix(SDCatch),
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
@@ -36,6 +36,9 @@ getParms <- function(df.tmb, parms.true = NULL){
                   logSDrec = log(0.5)
                   )
 
+    if(df.tmb$nseason == 1){
+      parms$Fseason <- matrix(1)
+    }
 
 
     if(!is.null(parms.true)){

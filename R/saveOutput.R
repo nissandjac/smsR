@@ -32,7 +32,7 @@ saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
   # CV on hockey stick breakpoint??
 
 
-  SDR<- sas$reps$par.fixed[names(sas$reps$par.fixed) == 'logSDrec']
+  SDR<- as.numeric(sas$reps$par.fixed[names(sas$reps$par.fixed) == 'logSDrec'])
 
 
   model <- strsplit(wd, split = '/')[[1]]
@@ -76,7 +76,7 @@ saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
                    SSB_sd_last3 = mean(CV.ssb[(df.tmb$nyears-2):df.tmb$nyears])
 
                    )
-
+  row.names(df.indicators) <- NULL
 
   if(savefile == TRUE){
     write.table(df.indicators, file = file.path(wd, 'diagnostics.csv'), row.names = FALSE)
