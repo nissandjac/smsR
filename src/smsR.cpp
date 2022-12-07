@@ -89,7 +89,7 @@ array<Type>Zsave(nage,nyears,nseason);
 array<Type>Nsave(nage,nyears+1,nseason);
 array<Type>survey(nage, nyears,nsurvey);
 array<Type>Qsurv(nage, nsurvey);
-//array<Type>logQsurv(nage, nsurvey);
+array<Type>logQsurv(nage, nsurvey);
 array<Type>SDS(nage, nsurvey);
 array<Type>SDC(nage, nseason);
 array<Type>F0(nage, nyears, nseason);
@@ -123,6 +123,7 @@ survey.setZero();
 SDC.setZero();
 SDS.setZero();
 Qsurv.setZero();
+logQsurv.setZero();
 Fsel.setZero();
 log_exp_pattern.setZero();
 
@@ -322,10 +323,10 @@ if(nsurvey>1){
 
             if(i < Qlastage(k)){
               Qsurv(i,k) = Q(Qidx(k)+i-Qminage(k));
-          //    logQsurv(i,k) = log(Qsurv(i,k));
+              logQsurv(i,k) = log(Qsurv(i,k));
             }else{
               Qsurv(i,k) = Q(Qidx(k)+Qlastage(k)-Qminage(k));
-            //  logQsurv(i,k) = log(Qsurv(i,k));
+              logQsurv(i,k) = log(Qsurv(i,k));
             }
         }
         if(i > Qmaxage(k)){
@@ -340,10 +341,10 @@ if(nsurvey>1){
 
         if(i < Qlastage(0)){
             Qsurv(i,0) = Q(Qidx(0)+i-Qminage(0));
-            //logQsurv(i,0) = log(Qsurv(i,0));
+            logQsurv(i,0) = log(Qsurv(i,0));
           }else{
             Qsurv(i,0) = Q(Qidx(0)+Qlastage(0)-Qminage(0));
-        //    logQsurv(i,0) = log(Qsurv(i,0));
+            logQsurv(i,0) = log(Qsurv(i,0));
         }
     }
     if(i > Qmaxage(0)){
@@ -870,7 +871,7 @@ ADREPORT(Fsel)
 // ADREPORT(F0)
 // ADREPORT(Catch)
 // ADREPORT(CatchN)
-//ADREPORT(logQsurv)
+ADREPORT(logQsurv)
 ADREPORT(Nsave)
 ADREPORT(Surveyout)
 ADREPORT(SDS)

@@ -137,7 +137,9 @@ getCatchability <- function(df.tmb, sas){
   rep.values<-rownames(sdrep)
   years <- df.tmb$years
 
-  tmp <- data.frame(Q = sdrep[rep.values == 'Qsurv',1])
+  tmp <- data.frame(Q = sdrep[rep.values == 'logQsurv',1])
+  tmp$Q[tmp$Q == 0] <- NA
+  tmp <- exp(tmp)
   tmp$age <- rep(df.tmb$age, df.tmb$nsurvey)
   tmp$survey <- rep(1:df.tmb$nsurvey, each = df.tmb$nage)
 
