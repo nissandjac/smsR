@@ -185,6 +185,8 @@ mohns_rho <- function(df.tmb,
     limits <- c(min(df.plot$years), max(df.plot$years))
   }
 
+  Rlims <- c(min(df.var$Rmin), max(df.plot$R)*1.5)
+
   p1 <- function(){
 
     x1 <- ggplot2::ggplot(df.plot, aes(x = years, y = SSB, color = factor(peel)))+geom_line()+
@@ -197,7 +199,7 @@ mohns_rho <- function(df.tmb,
 
     x2 <- ggplot2::ggplot(df.plot, aes(x = years, y = R, color = factor(peel)))+geom_line()+
       theme_classic()+theme(legend.position = 'none')+
-      scale_y_continuous('')+coord_cartesian(xlim = limits)+
+      scale_y_continuous('')+coord_cartesian(xlim = limits, ylim = Rlims)+
       geom_ribbon(data = df.var, aes(ymin = Rmin, ymax = Rmax, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
       scale_x_continuous('')+
