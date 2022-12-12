@@ -30,6 +30,10 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL){
     }else{
       s.exp <- rbind(s.out, s.exp)
     }
+
+    if(df.tmb$nsurvey == 1){
+      s.exp$survey <- dimnames(surv)[[3]]
+    }
   }
 
   surv.fit$age <-as.character(surv.fit$age)
@@ -80,11 +84,16 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
 
 # Do the internal dredge survey thing
+  snames <- unique(s.exp$survey[1])
+
+  # minimum ages
+  minnames <- as.character(unique(s.exp$age)[1:2])
+
 
   s.exp$year[s.exp$age == 1] <- s.exp$year[s.exp$age == 1]-1 # Fix 0 and 1 to same cohort
-  dredge <- s.exp[s.exp$survey == 'Dredge',] %>% tidyr::pivot_wider(values_from = cpue, names_from = age) %>%
-    dplyr::rename('Age0' = '0',
-           'Age1' = '1')
+  dredge <- s.exp[s.exp$survey == snames,] %>% tidyr::pivot_wider(values_from = cpue, names_from = age) %>%
+    dplyr::rename('Age0' = minnames[1],
+           'Age1' = minnames[2])
 
 
 
@@ -107,22 +116,24 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   names(catchdf) <- df.tmb$age
   catchdf$season <- 1
   catchdf$year <- df.tmb$years
-  catchdf[,1:df.tmb$nage] <- catchdf[,1:df.tmb$nage]/rowSums(catchdf[,1:df.tmb$nage])
+  catchdf[,1:df.tmb$nage] <- catchdf[,1:df.tmb$nage]/rowSums(catchdf[,1:df.tmb$nage], na.rm = TRUE)
 
-  for(i in 2:df.tmb$nseason){
+  if(nseason > 1){
 
-    tmp <- as.data.frame(t(df.tmb$Catchobs[,,i]))
-    names(tmp) <- df.tmb$age
-    tmp$season <- i
-    tmp$year <- df.tmb$years
-    tmp[,1:df.tmb$nage] <- tmp[,1:df.tmb$nage]/rowSums(tmp[,1:df.tmb$nage])
+    for(i in 2:df.tmb$nseason){
+
+      tmp <- as.data.frame(t(df.tmb$Catchobs[,,i]))
+      names(tmp) <- df.tmb$age
+      tmp$season <- i
+      tmp$year <- df.tmb$years
+      tmp[,1:df.tmb$nage] <- tmp[,1:df.tmb$nage]/rowSums(tmp[,1:df.tmb$nage])
 
 
-    catchdf <- rbind(catchdf, tmp)
+      catchdf <- rbind(catchdf, tmp)
+
+    }
 
   }
-
-
   # `take the average for the plot
 
   catchdf.plot <- catchdf %>% tidyr::pivot_longer(paste(0:4), names_to = 'Age', values_to = 'canum') %>%
@@ -140,18 +151,19 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   names(wdf) <- df.tmb$age
   wdf$season <- 1
   wdf$year <- df.tmb$years
+  if(nseason > 1){
 
-  for(i in 2:df.tmb$nseason){
+    for(i in 2:df.tmb$nseason){
 
-    tmp <- as.data.frame(t(df.tmb$weca[,,i]))
-    names(tmp) <- df.tmb$age
-    tmp$season <- i
-    tmp$year <- df.tmb$years
+      tmp <- as.data.frame(t(df.tmb$weca[,,i]))
+      names(tmp) <- df.tmb$age
+      tmp$season <- i
+      tmp$year <- df.tmb$years
 
-    wdf <- rbind(wdf, tmp)
+      wdf <- rbind(wdf, tmp)
 
-  }
-
+    }
+}
   wdf.p <- wdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'weca')
 
   p5 <- ggplot(wdf.p, ggplot2::aes(x = year, y= weca*1000, col = Age))+
@@ -165,17 +177,20 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   Mdf$season <- 1
   Mdf$year <- df.tmb$years
 
-  for(i in 2:df.tmb$nseason){
+  if(nseason > 1){
 
-    tmp <- as.data.frame(t(df.tmb$M[,,i]))
-    names(tmp) <- df.tmb$age
-    tmp$season <- i
-    tmp$year <- df.tmb$years
+    for(i in 2:df.tmb$nseason){
 
-    Mdf <- rbind(Mdf, tmp)
+      tmp <- as.data.frame(t(df.tmb$M[,,i]))
+      names(tmp) <- df.tmb$age
+      tmp$season <- i
+      tmp$year <- df.tmb$years
+
+      Mdf <- rbind(Mdf, tmp)
+
+    }
 
   }
-
   Mdf.p <- Mdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
 
   pM <- ggplot(Mdf.p, ggplot2::aes(x = year, y= M, col = Age))+
@@ -246,10 +261,18 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
  SR$col <- 'Positive'
  SR$col[SR$ResidSurvey < 0] <- 'Negative'
 
+
  surveyCV <- getSurveyCV(df.tmb, sas)
  SR$CV <- NA
 
- snames <- dimnames(df.tmb$Surveyobs)$survey
+ if(df.tmb$nsurvey == 1){
+   SR$survey <- dimnames(df.tmb$Surveyobs)[[3]]
+   surveyCV$survey <- dimnames(df.tmb$Surveyobs)[[3]]
+ }
+
+
+
+ snames <- dimnames(df.tmb$Surveyobs)[[3]]
 
  for(i in 1:df.tmb$nsurvey){
    svtmp <- surveyCV[surveyCV$survey == snames[i],]
