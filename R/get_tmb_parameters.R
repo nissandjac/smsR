@@ -235,9 +235,14 @@ get_TMB_parameters <- function(
   Cidx.CV <- matrix(NA, nage, nseason)
 
 
-  if(length(catchCV) > 1){
+
+
+  #if(length(catchCV) > 1){
     for(i in 1:nseason){
 
+      if(min(catchCV[[i]]) != 0){
+        catchCV[[i]] <- c(0,catchCV[[i]])
+      }
 
       if(i == 1){
         no <- 1:length(catchCV[[i]])
@@ -258,7 +263,9 @@ get_TMB_parameters <- function(
         }
       }
 
-
+      if(CminageSeason[i] < Fminage){
+        CminageSeason[i] <- Fminage
+      }
 
 
       Cidx.CV[ages < CminageSeason[i],i] <- -98
@@ -268,33 +275,33 @@ get_TMB_parameters <- function(
 
 
     }
-
-  }else{
-
-    for(i in 1:nseason){
-
-
-      no <- 1:length(catchCV[[i]])
-
-      Cidx.CV[ages %in% catchCV[[i]],i] <- no
-      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
-      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
-
-      for(a in 2:nage){
-        if(is.na(Cidx.CV[a, i])){
-          Cidx.CV[a,i] <- Cidx.CV[a-1,i]
-        }
-      }
-
-      Cidx.CV[ages < CminageSeason[i],nseason] <- -98
-      Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
-
-    }
-
-
-
-
-  }
+#
+#   }else{
+#
+#     for(i in 1:nseason){
+#
+#
+#       no <- 1:length(catchCV[[i]])
+#
+#       Cidx.CV[ages %in% catchCV[[i]],i] <- no
+#       Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
+#       Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+#
+#       for(a in 2:nage){
+#         if(is.na(Cidx.CV[a, i])){
+#           Cidx.CV[a,i] <- Cidx.CV[a-1,i]
+#         }
+#       }
+#
+#       Cidx.CV[ages < CminageSeason[i],nseason] <- -98
+#       Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
+#
+#     }
+#
+#
+#
+#
+#   }
 
   Cidx.CV <- Cidx.CV - 2 # Convert to C++ idx
 
