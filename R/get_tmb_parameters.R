@@ -276,9 +276,15 @@ get_TMB_parameters <- function(
 
       no <- 1:length(catchCV[[i]])
 
-      Cidx.CV[ages %in% catchCV[[i]],i] <- no+1
-      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)+1
-      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)+1
+      Cidx.CV[ages %in% catchCV[[i]],i] <- no
+      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
+      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+
+      for(a in 2:nage){
+        if(is.na(Cidx.CV[a, i])){
+          Cidx.CV[a,i] <- Cidx.CV[a-1,i]
+        }
+      }
 
       Cidx.CV[ages < CminageSeason[i],nseason] <- -98
       Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
@@ -343,11 +349,11 @@ get_TMB_parameters <- function(
 
 
   if(is.null(propM)){
-    propM <- matrix(0, nage , nyear, nseason)
+    propM <- array(0, dim = c( nage , nyear, nseason))
   }
 
   if(is.null(propF)){
-    propF <- matrix(0, nage , nyear, nseason)
+    propF <- array(0, dim = c( nage , nyear, nseason))
   }
 
   if(sum(dim(propM) == c(nage, nyear, nseason)) != 3){
