@@ -4,6 +4,8 @@
 #' @param mtrx matrix containing M, Mat, weca, west
 #' @param Surveyobs matrix of survey observations
 #' @param Catchobs matrix of catch observations
+#' @param propM Proportion of natural mortality before fishing
+#' @param propF Proportion of fishing mortality before fishing
 #' @param years vector of years
 #' @param nseason number of seasons
 #' @param nsurvey number of surveys
@@ -43,9 +45,11 @@
 #'
 #' @examples
 get_TMB_parameters <- function(
-  mtrx = NA,
-  Surveyobs = NA,
-  Catchobs = NA,
+  mtrx = NULL,
+  Surveyobs = NULL,
+  Catchobs = NULL,
+  propM = NULL,
+  propF = NULL,
   years,
   nseason = 4,
   nsurvey = 2,
@@ -338,7 +342,21 @@ get_TMB_parameters <- function(
 #  Catchobs[Catchobs <= 1] <- 0
 
 
+  if(is.null(propM)){
+    propM <- matrix(0, nage , nyear, nseason)
+  }
 
+  if(is.null(propF)){
+    propF <- matrix(0, nage , nyear, nseason)
+  }
+
+  if(sum(dim(propM) == c(nage, nyear, nseason)) != 3){
+    stop('wrong size of propM matrix')
+  }
+
+  if(sum(dim(propF) == c(nage, nyear, nseason)) != 3){
+    stop('wrong size of propF matrix')
+  }
 
 
   df.tmb <- list(
@@ -346,6 +364,8 @@ get_TMB_parameters <- function(
     west = mtrx$west,
     Surveyobs = Surveyobs,
     Catchobs = Catchobs,
+    propM = propM,
+    propF = propF,
     no = no,
     years = years,
     age = ages,

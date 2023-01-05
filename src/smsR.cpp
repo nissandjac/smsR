@@ -54,6 +54,8 @@ Type objective_function<Type>::operator() ()
 //   // // // Time varying arrays
 //   //DATA_ARRAY(F0);
   DATA_ARRAY(M); // Natural mortality
+  DATA_ARRAY(propM); // Proportion of M before spawning
+  DATA_ARRAY(propF); // Proportion of F before spawning
   DATA_ARRAY(Mat); // Maturity
   DATA_ARRAY(effort); // Effort input
 // //
@@ -398,7 +400,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
   for(int qrts=0; qrts<(nseason);qrts++){
       if(qrts == 0){ // Spawning stock biomass is from season 1
         for(int i=0;i<nage;i++){ // Loop over other ages
-             SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0); // Fix SSB
+             SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0)*exp(M(i,time,qrts)*propM(i,time)+F0(i,time,qrts)*propF(i,time)); // Fix SSB
           }
       }
       if(qrts == (recseason-1)){ // Recruitment season
@@ -477,7 +479,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 // // // Calculate SSB and recruitment in the new year
 // //
 for(int i=0;i<nage;i++){ // Loop over other ages
-     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears-1,0)*Mat(i,nyears-1,0); //
+     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears-1,0)*Mat(i,nyears-1,0)*exp(M(i,nyears-1,0)*propM(i,nyears-1)+F0(i,nyears-1,0)*propF(i,nyears-1)); //
      term_logN_next(i) = log(Nsave(i, nyears,0));
 }
 // // // // //
