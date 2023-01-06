@@ -4,6 +4,8 @@
 #' @param mtrx matrix containing M, Mat, weca, west
 #' @param Surveyobs matrix of survey observations
 #' @param Catchobs matrix of catch observations
+#' @param propM Proportion of natural mortality before fishing
+#' @param propF Proportion of fishing mortality before fishing
 #' @param years vector of years
 #' @param nseason number of seasons
 #' @param nsurvey number of surveys
@@ -43,9 +45,11 @@
 #'
 #' @examples
 get_TMB_parameters <- function(
-  mtrx = NA,
-  Surveyobs = NA,
-  Catchobs = NA,
+  mtrx = NULL,
+  Surveyobs = NULL,
+  Catchobs = NULL,
+  propM = NULL,
+  propF = NULL,
   years,
   nseason = 4,
   nsurvey = 2,
@@ -231,9 +235,14 @@ get_TMB_parameters <- function(
   Cidx.CV <- matrix(NA, nage, nseason)
 
 
-  if(length(catchCV) > 1){
+
+
+  #if(length(catchCV) > 1){
     for(i in 1:nseason){
 
+      if(min(catchCV[[i]]) != 0){
+        catchCV[[i]] <- c(0,catchCV[[i]])
+      }
 
       if(i == 1){
         no <- 1:length(catchCV[[i]])
@@ -254,7 +263,9 @@ get_TMB_parameters <- function(
         }
       }
 
-
+      if(CminageSeason[i] < Fminage){
+        CminageSeason[i] <- Fminage
+      }
 
 
       Cidx.CV[ages < CminageSeason[i],i] <- -98
@@ -264,27 +275,33 @@ get_TMB_parameters <- function(
 
 
     }
-
-  }else{
-
-    for(i in 1:nseason){
-
-
-      no <- 1:length(catchCV[[i]])
-
-      Cidx.CV[ages %in% catchCV[[i]],i] <- no+1
-      Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)+1
-      Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)+1
-
-      Cidx.CV[ages < CminageSeason[i],nseason] <- -98
-      Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
-
-    }
-
-
-
-
-  }
+#
+#   }else{
+#
+#     for(i in 1:nseason){
+#
+#
+#       no <- 1:length(catchCV[[i]])
+#
+#       Cidx.CV[ages %in% catchCV[[i]],i] <- no
+#       Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
+#       Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+#
+#       for(a in 2:nage){
+#         if(is.na(Cidx.CV[a, i])){
+#           Cidx.CV[a,i] <- Cidx.CV[a-1,i]
+#         }
+#       }
+#
+#       Cidx.CV[ages < CminageSeason[i],nseason] <- -98
+#       Cidx.CV[ages > CmaxageSeason[i],nseason] <- -98
+#
+#     }
+#
+#
+#
+#
+#   }
 
   Cidx.CV <- Cidx.CV - 2 # Convert to C++ idx
 
@@ -338,7 +355,21 @@ get_TMB_parameters <- function(
 #  Catchobs[Catchobs <= 1] <- 0
 
 
+  if(is.null(propM)){
+    propM <- array(0, dim = c( nage , nyear, nseason))
+  }
 
+  if(is.null(propF)){
+    propF <- array(0, dim = c( nage , nyear, nseason))
+  }
+
+  if(sum(dim(propM) == c(nage, nyear, nseason)) != 3){
+    stop('wrong size of propM matrix')
+  }
+
+  if(sum(dim(propF) == c(nage, nyear, nseason)) != 3){
+    stop('wrong size of propF matrix')
+  }
 
 
   df.tmb <- list(
@@ -346,6 +377,8 @@ get_TMB_parameters <- function(
     west = mtrx$west,
     Surveyobs = Surveyobs,
     Catchobs = Catchobs,
+    propM = propM,
+    propF = propF,
     no = no,
     years = years,
     age = ages,

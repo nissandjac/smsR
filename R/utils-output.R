@@ -787,3 +787,36 @@ getSurvey <- function(df.tmb, sas){
 
   return(tmp)
 }
+
+
+getSelectivity <- function(df.tmb, sas){
+
+  # Get the estimated survey
+  reps <- sas$reps
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+
+  tmp <- data.frame(selec = sdrep[rep.values == 'log_exp_pattern',1])
+  tmp$SE <- sdrep[rep.values == 'log_exp_pattern',2]
+  tmp$low <- tmp$selec-2*tmp$SE
+  tmp$high <- tmp$selec+2*tmp$SE
+  tmp$ages <- df.tmb$age
+
+  tmp$selec[tmp$selec < -100] <- -Inf
+
+  tmp$selec <- exp(tmp$selec)
+  tmp$low <- exp(tmp$low)
+  tmp$high <- exp(tmp$high)
+
+
+  return(tmp)
+}
+
+
+
+
+
+
+
+
