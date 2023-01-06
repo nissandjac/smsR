@@ -37,7 +37,7 @@ getParms <- function(df.tmb, parms.true = NULL){
                   )
 
     if(df.tmb$nseason == 1){
-      parms$Fseason <- matrix(1)
+      parms$Fseason <- matrix(1, nrow = 1, ncol = max(df.tmb$bidx)+1)
     }
 
 
