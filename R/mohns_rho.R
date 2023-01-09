@@ -105,7 +105,7 @@ mohns_rho <- function(df.tmb,
 
   parms.new <- parms
   parms.new$logRin <- parms.new$logRin[1:df.new$nyears]
-  parms.new$Fyear <- parms.new$logRin[1:df.new$nyears]
+  parms.new$Fyear <- parms.new$Fyear[1:df.new$nyears]
 
   if(max(df.new$bidx) > 0){
     if(max(df.new$years) < max(df.new$years[df.new$bidx])){
