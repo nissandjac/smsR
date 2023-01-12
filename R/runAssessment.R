@@ -47,7 +47,7 @@ lower[names(lower) == 'Fyear' ] <- 0.001
 lower[names(lower) == 'Fseason'] <- 0.0001
 lower[names(lower) == 'SDsurvey'] <- 0.0001
 lower[names(lower) == 'logSDrec'] <- log(0.1)
-lower[names(lower) == 'SDcatch'] <- 0.0001
+lower[names(lower) == 'SDcatch'] <- 0.1
 
 upper[names(upper) == 'SDsurvey'] <- 3
 upper[names(upper) == 'logSDrec'] <- log(4)
