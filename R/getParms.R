@@ -28,9 +28,9 @@ getParms <- function(df.tmb, parms.true = NULL){
                   logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
                   SDsurvey = SDsurvey,
                   SDcatch = as.matrix(SDCatch),
+                  creep = 0,
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
                   pin = 1,
-                  creep = 0,
                   logalpha = 2,
                   logbeta = log(betaSR),
                   logSDrec = log(0.5)
