@@ -5,9 +5,11 @@
 \title{Organize TMB parameters in a list.}
 \usage{
 get_TMB_parameters(
-  mtrx = NA,
-  Surveyobs = NA,
-  Catchobs = NA,
+  mtrx = NULL,
+  Surveyobs = NULL,
+  Catchobs = NULL,
+  propM = NULL,
+  propF = NULL,
   years,
   nseason = 4,
   nsurvey = 2,
@@ -50,6 +52,10 @@ get_TMB_parameters(
 \item{Surveyobs}{matrix of survey observations}
 
 \item{Catchobs}{matrix of catch observations}
+
+\item{propM}{Proportion of natural mortality before fishing}
+
+\item{propF}{Proportion of fishing mortality before fishing}
 
 \item{years}{vector of years}
 

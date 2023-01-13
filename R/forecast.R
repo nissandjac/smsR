@@ -1,10 +1,10 @@
 
 #' Forecast an sms model
 #'
-#' @param df.tmb sms
-#' @param sas
-#' @param recruitment
-#' @param HCR
+#' @param df.tmb sms dataframe
+#' @param sas fitted sms model
+#' @param recruitment hockey, long_mean or short_mean
+#' @param HCR Fmsy or Bescape
 #' @param avg_years years to average weca, M, west, and mat
 #' @param method
 #'
@@ -186,6 +186,15 @@ calcFTAC <- function(TAC , df.tmb, bios , Ncurrent, findTAC = TRUE){
 }
 
 
+#' Optimizer for finding the fishing mortality that leads to TAC
+#'
+#' @param data
+#' @param par
+#'
+#' @return
+#' @export
+#'
+#' @examples
 optTAC <- function(data, par){
 
   df.tmb <- data$df.tmb
