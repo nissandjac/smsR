@@ -1,4 +1,4 @@
-#' Title
+#' Read data from an SMS model
 #'
 #' @param wd working directory
 #' @param maxage maxage
@@ -15,13 +15,13 @@
 #'
 #' @examples
 #' x <- getDataSandeel # Not run
-getDataSandeel <- function(wd,
+getDataSMS <- function(wd,
                            maxage = NA,
                            survey.age = list(),
                            survey.years = list(),
                            survey.names = NA,
                            survey.quarter = NA,
-                           effort = 0,
+                           effort = FALSE,
                            years,
                            seasons,
                            scv.tv = 0){
