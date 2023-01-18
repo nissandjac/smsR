@@ -370,18 +370,18 @@ get_TMB_parameters <- function(
 
 
   if(is.null(propM)){
-    propM <- array(0, dim = c( nage , nyear, nseason))
+    propM <- array(0, dim = c( nage , nyear+1, nseason))
   }
 
   if(is.null(propF)){
-    propF <- array(0, dim = c( nage , nyear, nseason))
+    propF <- array(0, dim = c( nage , nyear+1, nseason))
   }
 
-  if(sum(dim(propM) == c(nage, nyear, nseason)) != 3){
+  if(sum(dim(propM) == c(nage, nyear+1, nseason)) != 3){
     stop('wrong size of propM matrix')
   }
 
-  if(sum(dim(propF) == c(nage, nyear, nseason)) != 3){
+  if(sum(dim(propF) == c(nage, nyear+1, nseason)) != 3){
     stop('wrong size of propF matrix')
   }
 

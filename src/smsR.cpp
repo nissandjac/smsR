@@ -178,16 +178,24 @@ if(useBlocks == 0){
           Fquarter(i,j,qrts) = Type(0.0);
 
         }else{
-          if(i < Fmaxage){
+
+          if(useEffort == 0){
           Fquarter(i,j,qrts) = Fseason(qrts,i);
-          }
+        }else{
+          Fquarter(i,j,qrts) = Fseason(qrts,bidx(j));
+        }
+
         }
         }else{
 
           if(i < CminageSeason(qrts)){
           Fquarter(i,j,qrts) = 0;//Type(1);
           }else{
-          Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
+          if(i == 0){
+            Fquarter(i,j,qrts) = Type(1.0);
+            }else{
+            Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
+            }
           }
         }
       }
@@ -485,7 +493,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 // // // Calculate SSB and recruitment in the new year
 // //
 for(int i=0;i<nage;i++){ // Loop over other ages
-     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears-1,0)*Mat(i,nyears-1,0)*exp(M(i,nyears-1,0)*propM(i,nyears-1,0)+F0(i,nyears-1,0)*propF(i,nyears-1,0)); //
+     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears,0)*propF(i,nyears,0)); //
      term_logN_next(i) = log(Nsave(i, nyears,0));
 }
 // // // // //
@@ -800,7 +808,7 @@ for(int i=0;i<nyears;i++){ // Loop over years
   pXr += xR2(i);
 }
 
-Type prec = nyears*log(sqrt(SDrec))+pXr*0.5/SDrec;   // likelihood
+Type prec = nyears*log(sqrt(SDrec2))+pXr*0.5/SDrec2;   // likelihood
 
 // // // // // // //
 

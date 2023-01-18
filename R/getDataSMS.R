@@ -119,11 +119,11 @@ getDataSMS <- function(wd,
 
   colnames(M) <- 0:maxage
 
-  # Remove the last couple of years (it goes to 2023)
-  M <- M[1:(nyears*max(seasons)),]
+  # Remove the last couple of years
+  M <- M[1:(nyears*max(seasons)+max(seasons)),]
 
-  M$year <- rep(years, each = length(seasons))
-  M$Quarter <- rep(seasons, nyears)
+  M$year <- rep(c(years,max(years)+1), each = length(seasons))
+  M$Quarter <- rep(seasons, nyears+1)
   M <- M %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
 
   # Maturity
@@ -134,10 +134,10 @@ getDataSMS <- function(wd,
   colnames(mat) <- 0:maxage
 
   # Remove the last couple of years (it goes to 2023)
-  mat <- mat[1:(nyears*max(seasons)),]
+  mat <- mat[1:(nyears*max(seasons)+max(seasons)),]
 
-  mat$year <- rep(years, each = length(seasons))
-  mat$Quarter <- rep(seasons, nyears)
+  mat$year <- rep(c(years,max(years)+1), each = length(seasons))
+  mat$Quarter <- rep(seasons, nyears+1)
   mat <- mat %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
 
   # Now west and weca
@@ -147,10 +147,10 @@ getDataSMS <- function(wd,
   colnames(weca) <- 0:maxage
 
   # Remove the last couple of years (it goes to 2023)
-  weca <- weca[1:(nyears*max(seasons)),]
+  weca <- weca[1:(nyears*max(seasons)+max(seasons)),]
 
-  weca$year <- rep(years, each = length(seasons))
-  weca$Quarter <- rep(seasons, nyears)
+  weca$year <- rep(c(years, max(years)+1), each = length(seasons))
+  weca$Quarter <- rep(seasons, nyears+1)
   weca <- weca %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'weca')
 
 
@@ -160,10 +160,10 @@ getDataSMS <- function(wd,
   colnames(west) <- 0:maxage
 
   # Remove the last couple of years (it goes to 2023)
-  west <- west[1:(nyears*max(seasons)),]
+  west <- west[1:(nyears*max(seasons)+max(seasons)),]
 
-  west$year <- rep(years, each = length(seasons))
-  west$Quarter <- rep(seasons, nyears)
+  west$year <- rep(c(years, max(years)+1), each = length(seasons))
+  west$Quarter <- rep(seasons, nyears+1)
   west <- west %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'west')
 
 

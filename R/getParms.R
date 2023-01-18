@@ -22,7 +22,7 @@ getParms <- function(df.tmb, parms.true = NULL){
     }
 
 
-    if(df.tmb$useBlocks == 1){
+    if(df.tmb$useEffort == 1){
       Fseason <- matrix(1, nrow = df.tmb$nseason-1, ncol = length(unique(df.tmb$bidx)))
     }else{
       Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(df.tmb$Fminage:df.tmb$Fmaxage))
