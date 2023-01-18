@@ -29,14 +29,16 @@
 #' @param surveyEnd number between 0 and 1 determine the end of the survey within season
 #' @param surveySeason vector determining which seasons surveys occur
 #' @param minSDsurvey minimum allowed for all SDsurvey estimates
+#' @param minSDcatch minimum SD catch estimates allowed.
 #' @param peneps epsilon used in penalty function for SDsurvey (try 1e-6 to 1e-3)
+#' @param penepsC epsilon used in penalty function for SDcatch (try 1e-6 to 1e-3)
 #' @param powers which ages are included in the power law calc
 #' @param surveyCV list with ages with unique survey CVs. Length = nsurvey
 #' @param catchCV list with ages with unique catch CVs. Length = nseason
 #' @param recmodel chose recruitment model. 2 = hockeystick
 #' @param estCV vector length 3 of which CVs to determine. 1-survey,2-catch, 3-stock recruitment
 #' @param CVmin Currently not functional
-#' @param betaSR breakpoint of SSB
+#' @param betaSR breakpoint of SSB in hockey stick curve
 #' @param nllfactor vector length 3 of weights of log likelihood. 1-survey, 2-catch,3-stock recruitment
 #'
 #' @return
@@ -74,7 +76,9 @@ get_TMB_parameters <- function(
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
   minSDsurvey = 0.3,
+  minSDcatch = 0.2,
   peneps = 1e-3,
+  penepsC = 1e-3,
   powers = list(NA),
   scv = array(0, dim = c(length(ages),length(years), nsurvey)),
   surveyCV = matrix(c(0,max(ages)), nrow = 2, ncol = nsurvey),
@@ -244,11 +248,17 @@ get_TMB_parameters <- function(
         catchCV[[i]] <- c(0,catchCV[[i]])
       }
 
+
       if(i == 1){
+
+#        if(min(catchCV[[i]])>0){
         no <- 1:length(catchCV[[i]])
-      }else{
-        no <- (max(no)+1):(max(no)+length(catchCV[[i]]))
-      }
+        # }else{
+        # no <- 0:(length(catchCV[[i]])-1)
+        # }
+        }else{
+          no <- (max(no)+1):(max(no)+length(catchCV[[i]]))
+        }
 
 
       Cidx.CV[ages %in% catchCV[[i]],i] <- no
@@ -302,6 +312,10 @@ get_TMB_parameters <- function(
 #
 #
 #   }
+
+  if(catchCV[[1]][1] == 0){ # Do some index fixing
+    Cidx.CV <- Cidx.CV + 1
+  }
 
   Cidx.CV <- Cidx.CV - 2 # Convert to C++ idx
 
@@ -413,7 +427,9 @@ get_TMB_parameters <- function(
     surveyEnd = surveyEnd,#c(0.1,1,0.001),
     surveySeason = surveySeason,
     minSDsurvey = minSDsurvey,
+    minSDcatch = minSDcatch,
     peneps = peneps,
+    penepsC = penepsC,
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estCV = estCV,

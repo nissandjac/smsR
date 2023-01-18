@@ -43,7 +43,9 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(surveyStart);
   DATA_VECTOR(surveySeason);
   DATA_SCALAR(minSDsurvey);
-  DATA_SCALAR(peneps);
+  DATA_SCALAR(minSDcatch); // minium catch CV
+  DATA_SCALAR(peneps); // Tuning parameters for min catch and survey CV
+  DATA_SCALAR(penepsC);
   DATA_ARRAY(powers);
   DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
@@ -173,10 +175,12 @@ if(useBlocks == 0){
 
         if(isFseason(qrts) == 1){
           if(i < CminageSeason(qrts)){
-          Fquarter(i,j,qrts) = 0;//Fseason(i,qrts);
+          Fquarter(i,j,qrts) = Type(0.0);
 
         }else{
-          Fquarter(i,j,qrts) = Fseason(0,qrts);
+          if(i < Fmaxage){
+          Fquarter(i,j,qrts) = Fseason(qrts,i);
+          }
         }
         }else{
 
@@ -381,6 +385,8 @@ if(nsurvey>1){
       }
   }
 }
+
+
 
 
 
@@ -608,8 +614,34 @@ if(estCV(1) == 2){ // Calculate the catch CV
     }
 }
 //
+Type penSDcatch;
+penSDcatch= 0;//penalty if SDsurvey is close to minSDsurvey
+
+
 if(estCV(1) == 0){ // Estimate
   // Fix CV of catches
+  // Type tmpdiffC; //temporarily store SDsurvey-minSDsurvey
+  // // // // // // //
+  // if(nseason>1){
+  //   for(int k=0;k<(nseason);k++){ // Loop over surveys
+  //     for(int i=0;i<nage;i++){ // Loop over other ages
+  //         if(i >= CminageSeason(k)){
+  //           tmpdiffC = SDcatch(Cidx_CV(i,k))-minSDcatch;
+  //           tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
+  //           SDcatch(Cidx_CV(i,k)) = tmpdiffC+minSDcatch;
+  //         }
+  //     }
+  //   }
+  // }else{
+  //   for(int i=0;i<nage;i++){ // Loop over other ages
+  //       if(i >= CminageSeason(0)){
+  //         tmpdiffC = SDcatch(Qidx_CV(i,0))-minSDcatch;
+  //         tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
+  //         SDcatch(Cidx_CV(i,0)) = tmpdiffC+minSDcatch;
+  //       //  SDS(i,0) = SDsurvey(Qidx_CV(i,0));
+  //       }
+  //   }
+  // }
 
   if(nseason>1){
     for(int qrts=0;qrts<(nseason);qrts++){ // Loop over surveys
@@ -655,6 +687,13 @@ if(estCV(1) == 0){ // Estimate
   //   }
   // }
 }
+
+
+
+
+
+
+
 // //
 REPORT(SD_catch2)
 // Add survey residuals
@@ -737,9 +776,12 @@ for(int i=0;i<nyears;i++){ // Loop over years
 //
 
 // //
+Type SDrec2;
 
 if(estCV(2) == 2){// Calculate the standard deviation of recruitment
-  SDrec = (nyears*pow(resid_x, 2)-pow(resid_x,2))/sqrt(nyears);
+  SDrec2 = ((nyears*pow(resid_x, 2)-pow(resid_x,2))/pow(nyears,2))*SDrec;
+}else{
+  SDrec2 = SDrec;
 }
 REPORT(SDrec)
 // // //
@@ -818,7 +860,7 @@ for(int time=0;time<nyears;time++){ // Loop over years
 // // // // // // //
 Type ans = 0.0;
 //
-ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey;
+ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch;
 // // //
 vector<Type> ansvec(3);
 ansvec(0) = nllsurv;
@@ -887,7 +929,7 @@ ADREPORT(term_logN_next)
 ADREPORT(effort_creep)
 //ADREPORT(Catchtot)
 ADREPORT(logbeta)
-ADREPORT(SDrec)
+ADREPORT(SDrec2)
 ADREPORT(SRpred)
 ADREPORT(logFavg)
 // //
