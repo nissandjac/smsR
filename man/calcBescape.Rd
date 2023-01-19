@@ -11,11 +11,11 @@ calcBescape(Bpa, df.tmb, N_current, Fsel, Fcap = 2)
 
 \item{N_current}{numbers at age at the beginning of the year}
 
+\item{Fsel}{Current selectivity}
+
+\item{Fcap}{maximum fishing mortality}
+
 \item{TAC}{TAC were are trying to achieve}
-
-\item{bios}{list of bioparams}
-
-\item{findTAC}{Look for TAC or SSB}
 }
 \description{
 Calculate the fishing mortality required to get the assigned TAC

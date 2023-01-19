@@ -25,7 +25,9 @@ calcTAC(
 
 \item{avg_R}{years to average R}
 
-\item{method}{}
+\item{Bpa}{SSB value for Bpa}
+
+\item{Fcap}{Maximum possible fishing mortality}
 }
 \description{
 Forecast an sms model

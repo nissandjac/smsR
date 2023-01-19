@@ -4,18 +4,18 @@
 \alias{calcFTAC}
 \title{Calculate the fishing mortality required to get the assigned TAC}
 \usage{
-calcFTAC(TAC, df.tmb)
+calcFTAC(TAC, df.tmb, N_current, Fsel, Fcap = 2)
 }
 \arguments{
 \item{TAC}{TAC were are trying to achieve}
 
 \item{df.tmb}{SMS input list}
 
-\item{bios}{list of bioparams}
-
 \item{N_current}{numbers at age at the beginning of the year}
 
-\item{findTAC}{Look for TAC or SSB}
+\item{Fsel}{Selectivity}
+
+\item{Fcap}{maximum fishing mortality allowed}
 }
 \description{
 Calculate the fishing mortality required to get the assigned TAC

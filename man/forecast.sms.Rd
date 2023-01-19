@@ -7,7 +7,7 @@
 forecast.sms(df.tmb, N_current, F0)
 }
 \arguments{
-\item{bios}{}
+\item{F0}{}
 }
 \description{
 Simple one year forecast

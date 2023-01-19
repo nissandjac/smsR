@@ -216,7 +216,7 @@ calcFTAC <- function(TAC ,
 
   parms.in <- list(0.5)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBpa, data= data.in, method = 'L-BFGS-B')
+  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
 }
@@ -282,7 +282,14 @@ calcBescape <- function(Bpa ,
 #' @export
 #'
 #' @examples
-createForecastTable <- function(df.tmb, sas, TACold, HCR = 'Bescape', avg_R = 'mean', Bpa =NULL){
+createForecastTable <- function(df.tmb,
+                                sas,
+                                TACold,
+                                HCR = 'Bescape',
+                                avg_R = NULL,
+                                recruitment = 'mean',
+                                Bpa =NULL,
+                                Fcap = 2){
 
   # Get numbers at age
   # Get the estimated survey
