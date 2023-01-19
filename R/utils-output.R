@@ -256,7 +256,11 @@ getN <- function(df.tmb, sas){
   N$ages <- df.tmb$age
   N$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
   N$years <- rep(years, each = df.tmb$nage)
-  N <- N[-which(N$N == 0),]
+
+  if(min(N$N) == 0){
+    N <- N[-which(N$N == 0),]
+  }
+
 
   N$N <- exp(N$N)
   N$low <- exp(N$low)

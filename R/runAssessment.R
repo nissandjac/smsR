@@ -47,12 +47,12 @@ lower[names(lower) == 'Fyear' ] <- 0.001
 lower[names(lower) == 'Fseason'] <- 0.0001
 lower[names(lower) == 'SDsurvey'] <- 0.0001
 lower[names(lower) == 'logSDrec'] <- log(0.1)
-lower[names(lower) == 'SDcatch'] <- 0.0001
+lower[names(lower) == 'SDcatch'] <- 0.01
 
-upper[names(upper) == 'SDsurvey'] <- 3
+upper[names(upper) == 'SDsurvey'] <- 2
 upper[names(upper) == 'logSDrec'] <- log(4)
 upper[names(upper) == 'Fyear'] <- 2
-upper[names(upper) == 'SDcatch'] <- 3
+upper[names(upper) == 'SDcatch'] <- 2
 
 # Add custom boundaries to parameters
 for(i in 1:length(lwr)){
