@@ -1,5 +1,5 @@
 Package: smsR
-Title: Stochastic MultiSpecies stoch assessment model
+Title: Stochastic MultiSpecies stock assessment model
 Version: 0.0.0.9000
 Authors@R:
     person(given = "Nis",

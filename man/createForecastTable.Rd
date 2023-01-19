@@ -9,8 +9,10 @@ createForecastTable(
   sas,
   TACold,
   HCR = "Bescape",
-  avg_R = "mean",
-  Bpa = NULL
+  avg_R = NULL,
+  recruitment = "mean",
+  Bpa = NULL,
+  Fcap = 2
 )
 }
 \arguments{

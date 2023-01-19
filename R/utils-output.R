@@ -311,7 +311,22 @@ getCatchN <- function(df.tmb, sas){
   return(tmp)
 }
 
+#' Get the observed yield from the fishery
+#'
+#' @param df.tmb a list of parameters for smsR model
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getYield <- function(df.tmb){
 
+  Yield <- apply(df.tmb$Catchobs*df.tmb$weca[,1:df.tmb$nyears,], MARGIN = c(2), FUN = sum)
+  tmp <- data.frame(years = df.tmb$years, Yield = Yield)
+
+
+  return(tmp)
+}
 
 
 
@@ -624,13 +639,18 @@ getSummary <-function(df.tmb, sas){
 
 
   df.out <- data.frame(
+
     years = SSB$years,
-    SSB = SSB$SSB,
-    minSSB = SSB$low,
-    maxSSB = SSB$high,
     R = R$R,
+    Rmax = R$high,
+    Rmin = R$low,
+    SSB = SSB$SSB,
+    SSBhigh = SSB$high,
+    SSBmin = SSB$low,
     Catch = c(Catch$Catch,NA),
-    Fbar = c(Fbar$Fbar,NA)
+    Fbar = c(Fbar$Fbar,NA),
+    Fbarhigh = c(Fbar$high,NA),
+    Fbarlow = c(Fbar$low,NA)
   )
 
 
