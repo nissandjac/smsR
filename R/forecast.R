@@ -49,22 +49,23 @@ calcTAC <- function(df.tmb,
 
 
   if(df.tmb$nseason == 1){
-    Fsel <- getSelex(df.tmb, sas)
-    Fsel <- Fsel$Fsel[Fsel$years == max(df.tmb$years)]
+    Fsel <- getF(df.tmb, sas)
+    Fsel <- Fsel$F0[Fsel$years == max(df.tmb$years)]
     Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
 
-    Fsel <- (Fsel/mean(Fsel[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])) # Scale selectivity to Fbar
+    Fsel <- (Fsel/mean(Fsel[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2]+1)])) # Scale selectivity to Fbar
   }else{
 
     N_current <- matrix(0 , nrow = df.tmb$nage, ncol = df.tmb$nseason)
     N_current[2:df.tmb$nage,1] <- N_temp[2:df.tmb$nage]
     N_current[1, df.tmb$recseason] <- N_temp[1]
 
-    Fsel <- getSelex(df.tmb, sas)
-    Fsel <- matrix(Fsel$Fsel[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    Fsel <- getF(df.tmb, sas)
+    Fsel <- matrix(Fsel$F0[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
     Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
 
-    Fsel <- (Fsel/mean(Fsel[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])) # Scale selectivity to Fbar
+
+    Fsel <- (Fsel/mean(rowSums(Fsel)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])) # Scale selectivity to Fbar
   }
   # Now do a forecast with fishing mortality
 
@@ -84,10 +85,10 @@ calcTAC <- function(df.tmb,
     F0 <- calcBescape(Bpa, df.tmb, N_current, Fsel, Fcap)*Fsel
     # Do forecast
     fc <- forecast.sms(df.tmb , N_current , F0)
-    Fmsy <- mean(rowSums(F0)[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])
+    Fmsy <- mean(rowSums(F0)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])
 
 
-    Fmsy <- list(Fmsy = NA, MSY = NA)
+    Fmsy <- list(Fmsy = Fmsy, MSY = NA)
 
 
   }
@@ -141,7 +142,7 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
     for (i in 1:df.tmb$nage){
 
       if(Z[i,qrts]>0){
-        C_new[i,qrts]=(F0[i,qrts]/Z[i,qrts])*N_current[i,qrts]*weca[i,qrts]
+        C_new[i,qrts]=(F0[i,qrts]/Z[i,qrts])*N_current[i,qrts]*weca[i,qrts]*(1-exp(-(Z[i,qrts])))
       }
 
       if(qrts < df.tmb$nseason){
@@ -151,12 +152,7 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
         }else{
          N_current[i, qrts+1] <- N_current[i,qrts]*exp(-Z[i, qrts])
         }
-
-
-
-
       }else{
-
 
         N_future[1] <- 0
         if(i < df.tmb$nage){
@@ -166,7 +162,7 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
         }
       }
         if(mat[1,1]>0){
-          warning('new recruits not included in SSB for forcasted year')
+          warning('new recruits not included in SSB for forecasted year')
         }
          SSB_next <- sum(N_future*weca[,1]*mat[,1])
     }
@@ -196,8 +192,28 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
 #' @examples
 calcFTAC <- function(TAC , df.tmb){
 
-  data.in <- list(bios = bios,
-                  TAC = TAC,
+
+  optTAC <- function(data, par){
+
+    df.tmb <- data$df.tmb
+    Fsel <- data$bios$Fsel
+    Fcalc <- as.numeric(par[1])
+    TAC <- data$TAC
+
+    F0 <- Fsel*Fcalc
+
+
+    ls <- forecast.sms(df.tmb, N_current,F0, bios)
+
+    ans <- (log(TAC) - log(ls$Catch))^2
+
+    return(ans)
+  }
+
+
+
+
+  data.in <- list(TAC = TAC,
                   Ncurrent = Ncurrent,
                   df.tmb = df.tmb)
 
@@ -256,34 +272,81 @@ calcBescape <- function(Bpa ,
 
 
 
-
-
-
-
-#' Optimizer for finding the fishing mortality that leads to TAC
+#' Produce an ICES forecast table
 #'
-#' @param data
-#' @param par
+#' @param df.tmb sms model input data
+#' @param sas fitted sms model
+#' @param TACold last years tac
+#' @param HCR Harvest control rule to use - options Bescape or Fmsy
 #'
 #' @return
 #' @export
 #'
 #' @examples
-optTAC <- function(data, par){
+createForecastTable <- function(df.tmb, sas, TACold, HCR = 'Bescape', avg_R = 'mean'){
 
-  df.tmb <- data$df.tmb
-  Fsel <- data$bios$Fsel
-  Fcalc <- as.numeric(par[1])
-  TAC <- data$TAC
+  # Get numbers at age
+  # Get the estimated survey
+  reps <- sas$reps
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
 
-  F0 <- Fsel*Fcalc
+  N_temp <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
+
+  Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
+
+  if(is.null(avg_R)){
+    avg_R <- df.tmb$years
+  }
+
+  if(recruitment == 'mean'){
+    N_temp[1] <- log(exp(mean(log(Rold$R[Rold$years %in% avg_R]), na.rm = TRUE)))
+  }
+
+  N_temp <- exp(N_temp)
+
+  if(df.tmb$nseason == 1){
+    Fsel <- getF(df.tmb, sas)
+    Fsel <- Fsel$Fsel[Fsel$years == max(df.tmb$years)]
+    Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
+
+    Fsel <- (Fsel/mean(Fsel[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])) # Scale selectivity to Fbar
+  }else{
+
+    N_current <- matrix(0 , nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    N_current[2:df.tmb$nage,1] <- N_temp[2:df.tmb$nage]
+    N_current[1, df.tmb$recseason] <- N_temp[1]
+
+    Fsel <- getF(df.tmb, sas)
+    Fsel <- matrix(Fsel$F0[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
 
 
-  ls <- forecast.sms(df.tmb, N_current,F0, bios)
+    Fsel <- (Fsel/mean(rowSums(Fsel)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])) # Scale selectivity to Fbar
+  }
 
-  ans <- (log(TAC) - log(ls$Catch))^2
 
-return(ans)
+  F0 <- matrix(0, df.tmb$nage, df.tmb$nseason)
+  f0 <- forecast.sms(df.tmb , N_current , F0)
+
+  # Forecast with last years fishing
+  Flast <- getF(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years))
+  F0 <- matrix(Flast$F0, nrow = df.tmb$nage, ncol = df.tmb$nseason)
+
+  forlast <- forecast.sms(df.tmb, N_current, F0)
+
+  # Bpa = Blim
+  Flim <- calcBescape(Bpa = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap)*Fsel
+  # Do forecast
+  fc <- forecast.sms(df.tmb , N_current , F0)
+  Fmsy <- mean(rowSums(F0)[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])
+
+
+
+
 }
+
+
+
 
 
