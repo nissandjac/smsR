@@ -4,7 +4,11 @@
 \alias{calcFTAC}
 \title{Calculate the fishing mortality required to get the assigned TAC}
 \usage{
+<<<<<<< HEAD
 calcFTAC(TAC, df.tmb)
+=======
+calcFTAC(TAC, df.tmb, bios, Ncurrent, findTAC = TRUE)
+>>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
 }
 \arguments{
 \item{TAC}{TAC were are trying to achieve}
@@ -13,9 +17,15 @@ calcFTAC(TAC, df.tmb)
 
 \item{bios}{list of bioparams}
 
+<<<<<<< HEAD
 \item{N_current}{numbers at age at the beginning of the year}
 
 \item{findTAC}{Look for TAC or SSB}
+=======
+\item{findTAC}{Look for TAC or SSB}
+
+\item{N_current}{numbers at age at the beginning of the year}
+>>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
 }
 \description{
 Calculate the fishing mortality required to get the assigned TAC

@@ -21,19 +21,28 @@ getParms <- function(df.tmb, parms.true = NULL){
       betaSR <- df.tmb$betaSR
     }
 
-    parms <- list(logRin = rep(18, df.tmb$nyears),
-                  logNinit = rep(15, df.tmb$nage-1),
-                  Fyear = rep(1, df.tmb$nyears), # Mapped out
-                  Fseason = matrix(1, nrow = df.tmb$nseason-1, ncol = length(unique(df.tmb$bidx))),
+
+    if(df.tmb$useEffort == 1){
+      Fseason <- matrix(1, nrow = df.tmb$nseason-1, ncol = length(unique(df.tmb$bidx)))
+    }else{
+      Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(df.tmb$Fminage:df.tmb$Fmaxage))
+    }
+
+
+
+    parms <- list(logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
+                  logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage-1),
+                  Fyear = rep(1/df.tmb$nseason, df.tmb$nyears), # Mapped out
+                  Fseason = Fseason,
                   logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
                   SDsurvey = SDsurvey,
                   SDcatch = as.matrix(SDCatch),
+                  creep = 0,
                   logQ = rep(log(1), logQ),#length(df.tmb$surveyCV)
                   pin = 1,
-                  creep = 0,
                   logalpha = 2,
                   logbeta = log(betaSR),
-                  logSDrec = log(0.5)
+                  logSDrec = log(1)
                   )
 
     if(df.tmb$nseason == 1){
@@ -100,6 +109,12 @@ getMPS <- function(df.tmb, parms, mapExtra = NA){
   if(df.tmb$estCV[2] == 2){
     mps$SDcatch <- factor(parms$SDcatch*NA)
   }
+
+  if(df.tmb$estCV[3] == 2){
+    mps$logSDrec <- factor(parms$logSDrec*NA)
+  }
+
+
 
   if(df.tmb$useEffort == 1){
     mps$Fyear <- factor(parms$Fyear*NA)

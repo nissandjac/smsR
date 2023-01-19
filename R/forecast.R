@@ -18,8 +18,12 @@ calcTAC <- function(df.tmb,
                      HCR = 'Fmsy',
 #                     avg_years = rep(3, 4),
                      avg_R = NULL,
+<<<<<<< HEAD
                      Bpa = NULL,
                      Fcap = NULL
+=======
+                     Bpa = NULL
+>>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
                      ){
 
 
@@ -78,10 +82,15 @@ calcTAC <- function(df.tmb,
 
   if(HCR == 'Bescape'){
 
+<<<<<<< HEAD
     if(is.null(Fcap)){warning('assuming Fcap = 2yr-1')}
 
     # Find the fishing mortality leading to Bescape
     F0 <- calcBescape(Bpa, df.tmb, N_current, Fsel, Fcap)*Fsel
+=======
+    # Find the fishing mortality leading to Bescape
+    F0 <- calcBescape(Bpa, df.tmb, N_current, Fsel)*Fsel
+>>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
     # Do forecast
     fc <- forecast.sms(df.tmb , N_current , F0)
     Fmsy <- mean(rowSums(F0)[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])
