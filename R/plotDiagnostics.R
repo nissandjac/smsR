@@ -150,7 +150,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
   names(wdf) <- df.tmb$age
   wdf$season <- 1
-  wdf$year <- df.tmb$years
+  wdf$year <- c(df.tmb$years, max(years)+1)
   if(nseason > 1){
 
     for(i in 2:df.tmb$nseason){
@@ -158,7 +158,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
       tmp <- as.data.frame(t(df.tmb$weca[,,i]))
       names(tmp) <- df.tmb$age
       tmp$season <- i
-      tmp$year <- df.tmb$years
+      tmp$year <- c(df.tmb$years, max(years)+1)
 
       wdf <- rbind(wdf, tmp)
 
@@ -175,7 +175,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
   names(Mdf) <- df.tmb$age
   Mdf$season <- 1
-  Mdf$year <- df.tmb$years
+  Mdf$year <- c(df.tmb$years, max(years)+1)
 
   if(nseason > 1){
 
@@ -184,7 +184,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
       tmp <- as.data.frame(t(df.tmb$M[,,i]))
       names(tmp) <- df.tmb$age
       tmp$season <- i
-      tmp$year <- df.tmb$years
+      tmp$year <- c(df.tmb$years, max(years)+1)
 
       Mdf <- rbind(Mdf, tmp)
 
@@ -203,7 +203,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
   names(Matdf) <- df.tmb$age
   Matdf$season <- 1
-  Matdf$year <- df.tmb$years
+  Matdf$year <- c(df.tmb$years, max(years)+1)
 
   Mdf.p <- Matdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to= 'M')
 

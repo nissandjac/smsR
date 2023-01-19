@@ -219,7 +219,11 @@ calcFTAC <- function(TAC , df.tmb){
 #' @export
 #'
 #' @examples
-calcBescape <- function(Bpa , df.tmb, N_current, Fsel){
+calcBescape <- function(Bpa ,
+                        df.tmb,
+                        N_current,
+                        Fsel,
+                        Fcap = 2){
 
   optBpa <- function(data, par ){
     df.tmb <- data$df.tmb
@@ -241,7 +245,7 @@ calcBescape <- function(Bpa , df.tmb, N_current, Fsel){
 
   parms.in <- list(0.5)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = 2, fn = optBpa, data= data.in, method = 'L-BFGS-B')
+  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBpa, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
 }
