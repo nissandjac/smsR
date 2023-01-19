@@ -34,7 +34,9 @@ get_TMB_parameters(
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
   minSDsurvey = 0.3,
+  minSDcatch = 0.2,
   peneps = 0.001,
+  penepsC = 0.001,
   powers = list(NA),
   scv = array(0, dim = c(length(ages), length(years), nsurvey)),
   surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
@@ -103,7 +105,11 @@ get_TMB_parameters(
 
 \item{minSDsurvey}{minimum allowed for all SDsurvey estimates}
 
+\item{minSDcatch}{minimum SD catch estimates allowed.}
+
 \item{peneps}{epsilon used in penalty function for SDsurvey (try 1e-6 to 1e-3)}
+
+\item{penepsC}{epsilon used in penalty function for SDcatch (try 1e-6 to 1e-3)}
 
 \item{powers}{which ages are included in the power law calc}
 
@@ -117,7 +123,7 @@ get_TMB_parameters(
 
 \item{CVmin}{Currently not functional}
 
-\item{betaSR}{breakpoint of SSB}
+\item{betaSR}{breakpoint of SSB in hockey stick curve}
 
 \item{nllfactor}{vector length 3 of weights of log likelihood. 1-survey, 2-catch,3-stock recruitment}
 }

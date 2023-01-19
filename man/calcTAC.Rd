@@ -9,12 +9,9 @@ calcTAC(
   sas,
   recruitment = "hockey",
   HCR = "Fmsy",
-<<<<<<< HEAD
   avg_R = NULL,
-  Bpa = NULL
-=======
-  avg_years = rep(3, 4)
->>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
+  Bpa = NULL,
+  Fcap = NULL
 )
 }
 \arguments{
@@ -26,11 +23,7 @@ calcTAC(
 
 \item{HCR}{Fmsy or Bescape}
 
-<<<<<<< HEAD
 \item{avg_R}{years to average R}
-=======
-\item{avg_years}{years to average weca, M, west, and mat}
->>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
 
 \item{method}{}
 }

@@ -4,11 +4,7 @@
 \alias{forecast.sms}
 \title{Simple one year forecast}
 \usage{
-<<<<<<< HEAD
 forecast.sms(df.tmb, N_current, F0)
-=======
-forecast.sms(df.tmb, N_current, F0, bios)
->>>>>>> 15619a876e060ce37d66251d5c55c875e90f35a0
 }
 \arguments{
 \item{bios}{}
