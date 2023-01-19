@@ -321,7 +321,7 @@ run.agebased.sms.op <- function(df){
           Zcatch  <- Z
           Zcatch[1] <- Zcatch[2]
 
-          Catch.save.age[, yr,space, season] <- (Fseason/(Zcatch))*(1-exp(-(Zcatch)))*N.save.age[,yr,space,season]*w_catch[,season]
+          Catch.save.age[, yr,space, season] <- (Fseason/(Zcatch))*(1-exp(-(Zcatch)))*N.save.age[,yr,space,season]*w_catch[,,season]
           CatchN.save.age[, yr,space, season] <- (Fseason/(Zcatch))*(1-exp(-(Zcatch)))*N.save.age[,yr,space,season]
 
 

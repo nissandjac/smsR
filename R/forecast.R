@@ -5,7 +5,7 @@
 #' @param sas fitted sms model
 #' @param recruitment hockey, long_mean or short_mean
 #' @param HCR Fmsy or Bescape
-#' @param avg_years years to average weca, M, west, and mat
+#' @param avg_R years to average R
 #' @param method
 #'
 #' @return
@@ -16,15 +16,15 @@ calcTAC <- function(df.tmb,
                      sas,
                      recruitment = 'hockey',
                      HCR = 'Fmsy',
-                     avg_years = rep(3, 4)
+#                     avg_years = rep(3, 4),
+                     avg_R = NULL,
+                     Bpa = NULL
                      ){
 
 
 
 
-  if(length(avg_years) == 1){
-    avg_years <- rep(avg_years, 4)
-  }
+
   # Extract N in the beginning of the coming year
 
   # Get the estimated survey
@@ -32,19 +32,19 @@ calcTAC <- function(df.tmb,
   sdrep <- summary(reps)
   rep.values<-rownames(sdrep)
 
-  N_current <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
+  N_temp <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
 
-  Rold <- getR(df.tmb, sas)
+  Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
 
-
-  if(recruitment == 'long_mean'){
-    N_current[1] <- log(mean(Rold$R, na.rm = TRUE))
-  }
-  if(recruitment == 'short_mean'){
-    N_current[1] <- log(mean(Rold$R[Rold$years %in% df.tmb$years[(df.tmb$nyears-5):df.tmb$nyears]]))
+  if(is.null(avg_R)){
+    avg_R <- df.tmb$years
   }
 
-  N_current <- exp(N_current)
+  if(recruitment == 'mean'){
+    N_temp[1] <- log(exp(mean(log(Rold$R[Rold$years %in% avg_R]), na.rm = TRUE)))
+  }
+
+  N_temp <- exp(N_temp)
 
 
   if(df.tmb$nseason == 1){
@@ -54,7 +54,16 @@ calcTAC <- function(df.tmb,
 
     Fsel <- (Fsel/mean(Fsel[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])) # Scale selectivity to Fbar
   }else{
-    stop('add this feature for > 1 season')
+
+    N_current <- matrix(0 , nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    N_current[2:df.tmb$nage,1] <- N_temp[2:df.tmb$nage]
+    N_current[1, df.tmb$recseason] <- N_temp[1]
+
+    Fsel <- getSelex(df.tmb, sas)
+    Fsel <- matrix(Fsel$Fsel[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
+
+    Fsel <- (Fsel/mean(Fsel[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])) # Scale selectivity to Fbar
   }
   # Now do a forecast with fishing mortality
 
@@ -62,25 +71,26 @@ calcTAC <- function(df.tmb,
 
     Fmsy <- getFmsy(df.tmb, sas, recruitment = 'hockey')
     F0 <- matrix(Fsel*Fmsy$Fmsy, nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    fc <- forecast.sms(df.tmb, N_current, F0)
 
-    }else{
-
-      stop('Fmsy only option right now, get coding for Bescape and others')
   }
 
-  M <- matrix(rowMeans(df.tmb$M[,(df.tmb$nyears-avg_years[1]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-  mat <- matrix(rowMeans(df.tmb$Mat[,(df.tmb$nyears-avg_years[2]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-  weca <- matrix(rowMeans(df.tmb$weca[,(df.tmb$nyears-avg_years[3]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-  west <- matrix(rowMeans(df.tmb$weca[,(df.tmb$nyears-avg_years[4]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  if(HCR == 'Bescape'){
+
+    # Find the fishing mortality leading to Bescape
+    F0 <- calcBescape(Bpa, df.tmb, N_current, Fsel)*Fsel
+    # Do forecast
+    fc <- forecast.sms(df.tmb , N_current , F0)
+    Fmsy <- mean(rowSums(F0)[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])
 
 
-  bios <- list(M = M,
-               mat = mat,
-               weca = weca,
-               west = west)
+    Fmsy <- list(Fmsy = NA, MSY = NA)
 
 
-  fc <- forecast.sms(df.tmb, N_current, F0, bios)
+  }
+
+
+
 
 
 
@@ -108,43 +118,58 @@ ls.out <- list(TAC = fc$Catch,
 #' @export
 #'
 #' @examples
-forecast.sms <- function(df.tmb ,N_current, F0, bios){
+forecast.sms <- function(df.tmb , N_current, F0 ){
 
-  N_new <- matrix(NA, df.tmb$nage, df.tmb$nseason)
   N_future <- matrix(NA, df.tmb$nage) # For the following year SSB
-  C_new <- matrix(NA, df.tmb$nage, df.tmb$nseason)
+  C_new <- matrix(0, df.tmb$nage, df.tmb$nseason)
 
   #
-  M <- bios$M
-  weca <- bios$weca
-  west <- bios$west
-  mat <- bios$mat
+  M <- df.tmb$M[,df.tmb$nyears+1,]
+  weca <- df.tmb$weca[,df.tmb$nyears+1,]
+  west <- df.tmb$west[,df.tmb$nyears+1,]
+  mat <- df.tmb$Mat[,df.tmb$nyears+1,]
 
 
 
   Z <- F0 + M
-  N_new[,1] <- N_current
 
 
   for (qrts in 1:df.tmb$nseason) {
     for (i in 1:df.tmb$nage){
 
-      C_new[i,qrts]=(F0[i,qrts]/Z[i,qrts])*N_new[i,qrts]*weca[i,qrts]
+      if(Z[i,qrts]>0){
+        C_new[i,qrts]=(F0[i,qrts]/Z[i,qrts])*N_current[i,qrts]*weca[i,qrts]
+      }
 
-      if(i < df.tmb$nseason){
-        N_new[i, qrts+1] <- N_new*exp(Z[i, qrts])
+      if(qrts < df.tmb$nseason){
+
+        if(i == 1 & qrts < df.tmb$recseason){
+         # Dont do anything
+        }else{
+         N_current[i, qrts+1] <- N_current[i,qrts]*exp(-Z[i, qrts])
+        }
+
+
+
+
       }else{
+
+
         N_future[1] <- 0
         if(i < df.tmb$nage){
-          N_future[i+1] <- N_new[i]*exp(Z[i,qrts])
+          N_future[i+1] <- N_current[i,qrts]*exp(-Z[i,qrts])
         }else{
-          N_future[i] <- N_future[i,qrts]+N_new[i,qrts]*exp(-Z[i,qrts])
+          N_future[df.tmb$nage] <- N_future[df.tmb$nage]+N_current[i,qrts]*exp(-Z[i,qrts])
         }
       }
-         SSB_next <- sum(N_future*weca*mat)
+        if(mat[1,1]>0){
+          warning('new recruits not included in SSB for forcasted year')
+        }
+         SSB_next <- sum(N_future*weca[,1]*mat[,1])
     }
   }
-return(list(Catch = sum(C_new),
+
+  return(list(Catch = sum(C_new),
             SSB = sum(SSB_next)
             )
 
@@ -166,9 +191,8 @@ return(list(Catch = sum(C_new),
 #' @export
 #'
 #' @examples
-calcFTAC <- function(TAC , df.tmb, bios , Ncurrent, findTAC = TRUE){
+calcFTAC <- function(TAC , df.tmb){
 
-  if(findTAC == TRUE){
   data.in <- list(bios = bios,
                   TAC = TAC,
                   Ncurrent = Ncurrent,
@@ -180,10 +204,53 @@ calcFTAC <- function(TAC , df.tmb, bios , Ncurrent, findTAC = TRUE){
 
 
 
+}
 
+#' Calculate the fishing mortality required to get the assigned TAC
+#'
+#' @param TAC TAC were are trying to achieve
+#' @param df.tmb SMS input list
+#' @param bios list of bioparams
+#' @param N_current numbers at age at the beginning of the year
+#' @param findTAC Look for TAC or SSB
+
+#'
+#' @return
+#' @export
+#'
+#' @examples
+calcBescape <- function(Bpa , df.tmb, N_current, Fsel){
+
+  optBpa <- function(data, par ){
+    df.tmb <- data$df.tmb
+    Fsel <- data$Fsel
+    Fcalc <- as.numeric(par[1])
+    Bpa <- data$Bpa
+
+    F0 <- Fsel*Fcalc
+    ls <- forecast.sms(df.tmb, N_current,F0)
+
+    ans <- (Bpa - ls$SSB)^2
   }
 
+
+  data.in <- list(Bpa = Bpa,
+                  N_current = N_current,
+                  Fsel = Fsel,
+                  df.tmb = df.tmb)
+
+  parms.in <- list(0.5)
+
+  Fnew <- optim(parms.in, lower = 0.0001, upper = 2, fn = optBpa, data= data.in, method = 'L-BFGS-B')
+
+  return(Fnew$par)
 }
+
+
+
+
+
+
 
 
 #' Optimizer for finding the fishing mortality that leads to TAC
