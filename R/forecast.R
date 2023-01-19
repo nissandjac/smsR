@@ -299,7 +299,11 @@ createForecastTable <- function(df.tmb,
 
   N_temp <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
 
-  Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
+  Rold <- getR(df.tmb, sas)
+
+  # Remove the one year SR projection
+  Rold <- Rold[-nrow(Rold),]
+
 
   if(is.null(avg_R)){
     avg_R <- df.tmb$years
@@ -408,7 +412,23 @@ names(df.out) <- c('Basis',
   )
 
 
-return(df.out)
+ # Do the list of input parameters
+R_current <- c(Rold$R[nrow(Rold)],
+               N_temp[1],
+               as.numeric(SSBold))
+
+vars <- c(paste('Recruitment (', max(df.tmb$years),')', sep = ''),
+          paste('Recruitment (', max(df.tmb$years)+1,')', sep = ''),
+          paste('SSB (', max(df.tmb$years)+1,')', sep = ''))
+
+
+df.fut <- data.frame(
+  Variable = vars,
+  Value = R_current)
+
+
+return(list(Forecastval = df.fut,
+            Forecast = df.out))
 }
 
 
