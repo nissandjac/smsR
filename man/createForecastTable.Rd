@@ -27,6 +27,8 @@ createForecastTable(
 \item{avg_R}{years to average recruitment}
 
 \item{Bpa}{SSB at Bpa}
+
+\item{Fcap}{Maximum possible F value}
 }
 \description{
 Produce an ICES forecast table

@@ -308,7 +308,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
  SR_pred <- getSR(df.tmb, sas)
  R <- getR(df.tmb, sas)
  SSB <- getSSB(df.tmb, sas)
- R$SSB <- SSB$SSB
+ R$SSB <- SSB$SSB[1:(nrow(SSB)-1)]
 
  lims <- c(0, max(R$R)*2)
 

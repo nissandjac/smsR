@@ -277,6 +277,7 @@ calcBescape <- function(Bpa ,
 #' @param HCR Harvest control rule to use - options Bescape or Fmsy
 #' @param avg_R years to average recruitment
 #' @param Bpa SSB at Bpa
+#' @param Fcap Maximum possible F value
 #'
 #' @return
 #' @export
@@ -288,7 +289,7 @@ createForecastTable <- function(df.tmb,
                                 HCR = 'Bescape',
                                 avg_R = NULL,
                                 recruitment = 'mean',
-                                Bpa =NULL,
+                                Bpa = NULL,
                                 Fcap = 2){
 
   # Get numbers at age
@@ -300,9 +301,6 @@ createForecastTable <- function(df.tmb,
   N_temp <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
 
   Rold <- getR(df.tmb, sas)
-
-  # Remove the one year SR projection
-  Rold <- Rold[-nrow(Rold),]
 
 
   if(is.null(avg_R)){

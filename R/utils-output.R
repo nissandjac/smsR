@@ -213,7 +213,7 @@ getR <- function(df.tmb, sas){
   R$SE <- sdrep[rep.values == 'logRec',2]
   R$low <- R$R-2*R$SE
   R$high <- R$R+2*R$SE
-  R$years <- c(years,max(years)+1)
+  R$years <- years
 
 
   R$R <- exp(R$R)
@@ -634,20 +634,21 @@ getSummary <-function(df.tmb, sas){
 
   SSB <- getSSB(df.tmb,sas)
   R <- getR(df.tmb, sas)
-  Catch <- getCatch(df.tmb, sas)
+  Yield <- getYield(df.tmb)
   Fbar <- getFbar(df.tmb, sas)
 
+  Rgeo <- exp(mean(log(R$R)))
 
   df.out <- data.frame(
 
     years = SSB$years,
-    R = R$R,
-    Rmax = R$high,
-    Rmin = R$low,
+    R = c(R$R, Rgeo),
+    Rmax = c(R$high,NA),
+    Rmin = c(R$low,NA),
     SSB = SSB$SSB,
     SSBhigh = SSB$high,
     SSBmin = SSB$low,
-    Catch = c(Catch$Catch,NA),
+    Catch = c(Yield$Yield,NA),
     Fbar = c(Fbar$Fbar,NA),
     Fbarhigh = c(Fbar$high,NA),
     Fbarlow = c(Fbar$low,NA)

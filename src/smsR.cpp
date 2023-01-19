@@ -106,8 +106,8 @@ array<Type>Fagein(nage, nyears);
 
 
 vector<Type>SSB(nyears+1);
-vector<Type>Rsave(nyears+1);
-vector<Type>logRec(nyears+1);
+vector<Type>Rsave(nyears);
+vector<Type>logRec(nyears);
 vector<Type>term_logN_next(nage); // Numbers at age in the future year
 
 vector<Type>Rin(nyears);
@@ -498,11 +498,11 @@ for(int i=0;i<nage;i++){ // Loop over other ages
 }
 // // // // //
 // // // // // Stock recruitment
-vector<Type> SRpred(nyears+1);
-vector<Type> xR(nyears+1);
-vector<Type> xR2(nyears+1);
+vector<Type> SRpred(nyears);
+vector<Type> xR(nyears);
+vector<Type> xR2(nyears);
 
-for(int time=0;time<(nyears+1);time++){ // Loop over years
+for(int time=0;time<(nyears);time++){ // Loop over years
 
 // SRpred(time) = alpha + log(SSB(time));
      //   if(SSB(time) > beta){
@@ -521,21 +521,13 @@ for(int time=0;time<(nyears+1);time++){ // Loop over years
            SRpred(time) = alpha+log(beta);
          }
 
-     if(time == nyears){
-          xR(time) = 0;
-          xR2(time) = 0;
 
-
-       if(recseason == 1){
-       term_logN_next(0) = SRpred(time);
-     }else{
-       term_logN_next(0) = -999;
-     }
-   }
   }
+
+
 // // // // // // //
-Rsave(nyears) = exp(SRpred(nyears));
-logRec(nyears) = SRpred(nyears);
+// Rsave(nyears) = exp(SRpred(nyears)); Enable to predict R from SR
+// logRec(nyears) = SRpred(nyears);
 // //
 // //
 // // // Run catch residuals for preliminary calcs
