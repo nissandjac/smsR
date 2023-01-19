@@ -6,7 +6,8 @@
 #' @param recruitment hockey, long_mean or short_mean
 #' @param HCR Fmsy or Bescape
 #' @param avg_R years to average R
-#' @param method
+#' @param Bpa SSB value for Bpa
+#' @param Fcap Maximum possible fishing mortality
 #'
 #' @return
 #' @export
@@ -116,7 +117,6 @@ ls.out <- list(TAC = fc$Catch,
 #' @param df.tmb
 #' @param N_current
 #' @param F0
-#' @param bios
 #'
 #' @return
 #' @export
@@ -181,57 +181,54 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
 #'
 #' @param TAC TAC were are trying to achieve
 #' @param df.tmb SMS input list
-#' @param bios list of bioparams
 #' @param N_current numbers at age at the beginning of the year
-#' @param findTAC Look for TAC or SSB
+#' @param Fsel Selectivity
+#' @param Fcap maximum fishing mortality allowed
 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-calcFTAC <- function(TAC , df.tmb){
+calcFTAC <- function(TAC ,
+                        df.tmb,
+                        N_current,
+                        Fsel,
+                        Fcap = 2){
 
-
-  optTAC <- function(data, par){
-
+  optFTAC <- function(data, par ){
     df.tmb <- data$df.tmb
-    Fsel <- data$bios$Fsel
+    Fsel <- data$Fsel
     Fcalc <- as.numeric(par[1])
     TAC <- data$TAC
 
     F0 <- Fsel*Fcalc
-
-
-    ls <- forecast.sms(df.tmb, N_current,F0, bios)
+    ls <- forecast.sms(df.tmb, N_current,F0)
 
     ans <- (log(TAC) - log(ls$Catch))^2
-
-    return(ans)
   }
 
 
-
-
   data.in <- list(TAC = TAC,
-                  Ncurrent = Ncurrent,
+                  N_current = N_current,
+                  Fsel = Fsel,
                   df.tmb = df.tmb)
 
   parms.in <- list(0.5)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = 2, fn = optTAC, data= data.in, method = 'L-BFGS-B')
+  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBpa, data= data.in, method = 'L-BFGS-B')
 
-
-
+  return(Fnew$par)
 }
+
 
 #' Calculate the fishing mortality required to get the assigned TAC
 #'
 #' @param TAC TAC were are trying to achieve
 #' @param df.tmb SMS input list
-#' @param bios list of bioparams
 #' @param N_current numbers at age at the beginning of the year
-#' @param findTAC Look for TAC or SSB
+#' @param Fsel Current selectivity
+#' @param Fcap maximum fishing mortality
 
 #'
 #' @return
@@ -253,7 +250,7 @@ calcBescape <- function(Bpa ,
     F0 <- Fsel*Fcalc
     ls <- forecast.sms(df.tmb, N_current,F0)
 
-    ans <- (Bpa - ls$SSB)^2
+    ans <- (log(Bpa) - log(ls$SSB))^2
   }
 
 
@@ -278,12 +275,14 @@ calcBescape <- function(Bpa ,
 #' @param sas fitted sms model
 #' @param TACold last years tac
 #' @param HCR Harvest control rule to use - options Bescape or Fmsy
+#' @param avg_R years to average recruitment
+#' @param Bpa SSB at Bpa
 #'
 #' @return
 #' @export
 #'
 #' @examples
-createForecastTable <- function(df.tmb, sas, TACold, HCR = 'Bescape', avg_R = 'mean'){
+createForecastTable <- function(df.tmb, sas, TACold, HCR = 'Bescape', avg_R = 'mean', Bpa =NULL){
 
   # Get numbers at age
   # Get the estimated survey
@@ -333,17 +332,76 @@ createForecastTable <- function(df.tmb, sas, TACold, HCR = 'Bescape', avg_R = 'm
   Flast <- getF(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years))
   F0 <- matrix(Flast$F0, nrow = df.tmb$nage, ncol = df.tmb$nseason)
 
-  forlast <- forecast.sms(df.tmb, N_current, F0)
+  flast <- forecast.sms(df.tmb, N_current, F0)
+  Fbar <- getFbar(df.tmb, sas)
 
   # Bpa = Blim
-  Flim <- calcBescape(Bpa = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap)*Fsel
-  # Do forecast
-  fc <- forecast.sms(df.tmb , N_current , F0)
-  Fmsy <- mean(rowSums(F0)[df.tmb$Fbarage[1]:df.tmb$Fbarage[2]])
+  Flim <- calcBescape(Bpa = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 2)
+  flim <- forecast.sms(df.tmb , N_current , Flim*Fsel)
 
 
+  # Regular Bpa
+  if(is.null(Bpa) != 1){
+   Fpa <- calcBescape(Bpa = Bpa, df.tmb, N_current, Fsel, Fcap)
+   Fpa_sel <- Fpa * Fsel
+   fpa <- forecast.sms(df.tmb , N_current , Fpa_sel)
+
+   Fpa_nocap <- calcBescape(Bpa = Bpa, df.tmb, N_current, Fsel, Fcap  = 2)
+   Fpa_sel <- Fpa * Fsel
+   fpa_nocap <- forecast.sms(df.tmb , N_current , Fpa_sel)
 
 
+  }
+
+  HCRnames = c('Bescapement (Fcap)',
+            'F = 0',
+            'Bescapement (no cap)',
+            'Blim',
+            'F = F_2022')
+
+  TACs <- c(fpa$Catch,
+            f0$Catch,
+            fpa_nocap$Catch,
+            flim$Catch,
+            flast$Catch)
+
+  Fs <- c(Fpa,
+          0,
+          Fpa_nocap,
+          Flim,
+          Fbar$Fbar[Fbar$years == max(Fbar$years)]
+          )
+
+  SSBout <- c(fpa$SSB,
+              f0$SSB,
+              fpa_nocap$SSB,
+              flim$SSB,
+              flast$SSB)
+
+  SSBold <- getSSB(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years+1)) %>% dplyr::select(SSB)
+
+  SSBrel <- round((SSBout-as.numeric(SSBold))/as.numeric(SSBold), 2)*100
+  TACrel <- round((TACs-as.numeric(TACold))/as.numeric(TACold), 2)*100
+ # Create a nice table
+  df.out <- data.frame(
+    HCRnames,
+    TACs,
+    Fs,
+    SSBout,
+    SSBrel,
+    TACrel
+    )
+
+names(df.out) <- c('Basis',
+                   paste('Total Catch (', max(df.tmb$years)+1,')', sep = ''),
+                   paste('F (', max(df.tmb$years)+1,')', sep = ''),
+                   paste('SSB (', max(df.tmb$years)+1,')', sep = ''),
+                   paste('SSB change %'),
+                   paste('TAC change %')
+  )
+
+
+return(df.out)
 }
 
 
