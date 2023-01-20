@@ -180,7 +180,13 @@ if(useBlocks == 0){
         }else{
 
           if(useEffort == 0){
-          Fquarter(i,j,qrts) = Fseason(qrts,i);
+
+            if(i >= Fminage && i <= Fmaxage){
+            Fquarter(i,j,qrts) = Fseason(qrts,i);
+            }
+            if(i > Fmaxage){
+            Fquarter(i,j,qrts) = Fseason(qrts, Fmaxage);
+            }
         }else{
           Fquarter(i,j,qrts) = Fseason(qrts,bidx(j));
         }

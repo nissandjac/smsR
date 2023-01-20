@@ -368,29 +368,34 @@ createForecastTable <- function(df.tmb,
             'Blim',
             'F = F_2022')
 
-  TACs <- c(fpa$Catch,
+  TACs <- round(c(fpa$Catch,
             f0$Catch,
             fpa_nocap$Catch,
             flim$Catch,
-            flast$Catch)
+            flast$Catch),2)
 
-  Fs <- c(Fpa,
+  Fs <- round(c(Fpa,
           0,
           Fpa_nocap,
           Flim,
           Fbar$Fbar[Fbar$years == max(Fbar$years)]
-          )
+          ),2)
 
-  SSBout <- c(fpa$SSB,
+  SSBout <- round(c(fpa$SSB,
               f0$SSB,
               fpa_nocap$SSB,
               flim$SSB,
-              flast$SSB)
+              flast$SSB),2)
 
   SSBold <- getSSB(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years+1)) %>% dplyr::select(SSB)
 
+
+
   SSBrel <- round((SSBout-as.numeric(SSBold))/as.numeric(SSBold), 2)*100
   TACrel <- round((TACs-as.numeric(TACold))/as.numeric(TACold), 2)*100
+  TACrel[TACrel == Inf] <- 100
+  TACrel[is.nan(TACrel)] <- 0
+
  # Create a nice table
   df.out <- data.frame(
     HCRnames,
@@ -411,9 +416,9 @@ names(df.out) <- c('Basis',
 
 
  # Do the list of input parameters
-R_current <- c(Rold$R[nrow(Rold)],
+R_current <- round(c(Rold$R[nrow(Rold)],
                N_temp[1],
-               as.numeric(SSBold))
+               as.numeric(SSBold)))
 
 vars <- c(paste('Recruitment (', max(df.tmb$years),')', sep = ''),
           paste('Recruitment (', max(df.tmb$years)+1,')', sep = ''),
