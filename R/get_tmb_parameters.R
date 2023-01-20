@@ -75,6 +75,7 @@ get_TMB_parameters <- function(
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
+  leavesurveyout = rep(1,nsurvey),
   minSDsurvey = 0.3,
   minSDcatch = 0.2,
   peneps = 1e-3,
@@ -91,7 +92,33 @@ get_TMB_parameters <- function(
 
 ){
 
+
+  # Remove surveys for sensitivity analysis
+    if(sum(leavesurveyout) != nsurvey){
+
+
+
+
+      Surveyobs <- Surveyobs[,,leavesurveyout == 1, drop = FALSE]
+      Qminage <- Qminage[leavesurveyout == 1]
+      Qmaxage <- Qmaxage[leavesurveyout == 1]
+      Qlastage <- Qlastage[leavesurveyout == 1]
+      powers <- powers[leavesurveyout == 1]
+      surveyCV <- surveyCV[leavesurveyout == 1]
+
+    }
+
+
+
+
+
   nsurvey <- dim(Surveyobs)[3]
+  if(nsurvey == 0){
+    warning('probably doesnt work without survey')
+  }
+
+
+
   Qidx <- rep(0, nsurvey)
 
   if(nsurvey > 1){
@@ -384,6 +411,13 @@ get_TMB_parameters <- function(
   if(sum(dim(propF) == c(nage, nyear+1, nseason)) != 3){
     stop('wrong size of propF matrix')
   }
+
+
+  # leave one survey out #
+
+
+
+
 
 
   df.tmb <- list(

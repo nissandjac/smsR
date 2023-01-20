@@ -283,7 +283,7 @@ calcBescape <- function(Bpa ,
 #' @export
 #'
 #' @examples
-createForecastTable <- function(df.tmb,
+getForecastTable <- function(df.tmb,
                                 sas,
                                 TACold,
                                 HCR = 'Bescape',
