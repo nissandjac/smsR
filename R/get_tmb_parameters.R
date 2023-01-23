@@ -340,7 +340,7 @@ get_TMB_parameters <- function(
 #
 #   }
 
-  if(catchCV[[1]][1] == 0){ # Do some index fixing
+  if(min(Cidx.CV[Cidx.CV>0]) == 1){ # Do some index fixing
     Cidx.CV <- Cidx.CV + 1
   }
 
@@ -403,22 +403,6 @@ get_TMB_parameters <- function(
   if(is.null(propF)){
     propF <- array(0, dim = c( nage , nyear+1, nseason))
   }
-
-  if(sum(dim(propM) == c(nage, nyear+1, nseason)) != 3){
-    stop('wrong size of propM matrix')
-  }
-
-  if(sum(dim(propF) == c(nage, nyear+1, nseason)) != 3){
-    stop('wrong size of propF matrix')
-  }
-
-
-  # leave one survey out #
-
-
-
-
-
 
   df.tmb <- list(
     weca = mtrx$weca,

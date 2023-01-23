@@ -327,7 +327,7 @@ getForecastTable <- function(df.tmb,
 
     Fsel <- getF(df.tmb, sas)
     Fsel <- matrix(Fsel$F0[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
-    Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
+    Fsel[df.tmb$age < df.tmb$Fminage] <- 0
 
 
     Fsel <- (Fsel/mean(rowSums(Fsel)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])) # Scale selectivity to Fbar
@@ -390,11 +390,15 @@ getForecastTable <- function(df.tmb,
   SSBold <- getSSB(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years+1)) %>% dplyr::select(SSB)
 
 
+  if(TACold == 0){
+    TACold = 0.001
+  }
+
+
 
   SSBrel <- round((SSBout-as.numeric(SSBold))/as.numeric(SSBold), 2)*100
   TACrel <- round((TACs-as.numeric(TACold))/as.numeric(TACold), 2)*100
-  TACrel[TACrel == Inf] <- 100
-  TACrel[is.nan(TACrel)] <- 0
+
 
  # Create a nice table
   df.out <- data.frame(

@@ -179,7 +179,7 @@ if(useBlocks == 0){
 
         }else{
 
-          if(useEffort == 0){
+          if(useEffort == 0 && nseason > 1){
 
             if(i >= Fminage && i <= Fmaxage){
             Fquarter(i,j,qrts) = Fseason(qrts,i);
@@ -499,7 +499,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 // // // Calculate SSB and recruitment in the new year
 // //
 for(int i=0;i<nage;i++){ // Loop over other ages
-     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears,0)*propF(i,nyears,0)); //
+     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0)); //
      term_logN_next(i) = log(Nsave(i, nyears,0));
 }
 // // // // //
