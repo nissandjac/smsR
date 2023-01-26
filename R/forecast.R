@@ -108,7 +108,7 @@ calcTAC <- function(df.tmb,
     Fmsy  <- list(Fmsy = NA,
                   MSY = NA)
 
-
+    F0 <- Fsel
   }
 
 
