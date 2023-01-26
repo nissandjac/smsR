@@ -279,7 +279,7 @@ getOM_FTAC <- function(TAC ,
 
   Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
 
-  Fsel <- Fnew*df.OM$F0[,length(df.OM$years),]
+  Fsel <- df.OM$F0[,length(df.OM$years),]
 
   return(Fnew$par*Fsel)
 }
