@@ -33,7 +33,7 @@ get_TMB_parameters(
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
   surveySeason = rep(1, nsurvey),
-  lsurveyout = rep(1, nsurvey),
+  leavesurveyout = rep(1, nsurvey),
   minSDsurvey = 0.3,
   minSDcatch = 0.2,
   peneps = 0.001,

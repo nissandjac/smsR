@@ -499,7 +499,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 // // // Calculate SSB and recruitment in the new year
 // //
 for(int i=0;i<nage;i++){ // Loop over other ages
-     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0)); //
+     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(-M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0)); //
      term_logN_next(i) = log(Nsave(i, nyears,0));
 }
 // // // // //
@@ -626,28 +626,28 @@ penSDcatch= 0;//penalty if SDsurvey is close to minSDsurvey
 
 if(estCV(1) == 0){ // Estimate
   // Fix CV of catches
-  // Type tmpdiffC; //temporarily store SDsurvey-minSDsurvey
+   Type tmpdiffC; //temporarily store SDsurvey-minSDsurvey
   // // // // // // //
-  // if(nseason>1){
-  //   for(int k=0;k<(nseason);k++){ // Loop over surveys
-  //     for(int i=0;i<nage;i++){ // Loop over other ages
-  //         if(i >= CminageSeason(k)){
-  //           tmpdiffC = SDcatch(Cidx_CV(i,k))-minSDcatch;
-  //           tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
-  //           SDcatch(Cidx_CV(i,k)) = tmpdiffC+minSDcatch;
-  //         }
-  //     }
-  //   }
-  // }else{
-  //   for(int i=0;i<nage;i++){ // Loop over other ages
-  //       if(i >= CminageSeason(0)){
-  //         tmpdiffC = SDcatch(Qidx_CV(i,0))-minSDcatch;
-  //         tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
-  //         SDcatch(Cidx_CV(i,0)) = tmpdiffC+minSDcatch;
-  //       //  SDS(i,0) = SDsurvey(Qidx_CV(i,0));
-  //       }
-  //   }
-  // }
+  if(nseason>1){
+    for(int k=0;k<(nseason);k++){ // Loop over surveys
+      for(int i=0;i<nage;i++){ // Loop over other ages
+          if(i >= CminageSeason(k)){
+            tmpdiffC = SDcatch(Cidx_CV(i,k))-minSDcatch;
+            tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
+            SDcatch(Cidx_CV(i,k)) = tmpdiffC+minSDcatch;
+          }
+      }
+    }
+  }else{
+    for(int i=0;i<nage;i++){ // Loop over other ages
+        if(i >= CminageSeason(0)){
+          tmpdiffC = SDcatch(Cidx_CV(i,0))-minSDcatch;
+          tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
+          SDcatch(Cidx_CV(i,0)) = tmpdiffC+minSDcatch;
+        //  SDS(i,0) = SDsurvey(Qidx_CV(i,0));
+        }
+    }
+  }
 
   if(nseason>1){
     for(int qrts=0;qrts<(nseason);qrts++){ // Loop over surveys

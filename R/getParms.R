@@ -28,7 +28,9 @@ getParms <- function(df.tmb, parms.true = NULL){
       Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(df.tmb$Fminage:df.tmb$Fmaxage))
     }
 
-
+    if(df.tmb$useEffort ==0 & df.tmb$useBlocks ==1){
+      Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(unique(df.tmb$bidx)))
+    }
 
     parms <- list(logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
                   logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage-1),

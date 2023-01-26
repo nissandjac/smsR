@@ -39,17 +39,21 @@ calcTAC <- function(df.tmb,
   Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
 
   if(is.null(avg_R)){
-    avg_R <- df.tmb$years
+    R.index <- df.tmb$years
+  }else{
+    R.index <- df.tmb$years[(df.tmb$nyears-avg_R+1):df.tmb$nyears]
   }
 
   if(recruitment == 'mean'){
-    N_temp[1] <- log(exp(mean(log(Rold$R[Rold$years %in% avg_R]), na.rm = TRUE)))
+    N_temp[1] <- log(exp(mean(log(Rold$R[Rold$years %in% R.index]), na.rm = TRUE)))
   }
 
   N_temp <- exp(N_temp)
 
 
   if(df.tmb$nseason == 1){
+    N_current <- matrix(N_temp, nrow = df.tmb$nage, ncol = df.tmb$nseason)
+
     Fsel <- getF(df.tmb, sas)
     Fsel <- Fsel$F0[Fsel$years == max(df.tmb$years)]
     Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
@@ -94,9 +98,18 @@ calcTAC <- function(df.tmb,
 
   }
 
+  if(HCR == 'Fmean'){
+
+    Fsel <- getF(df.tmb, sas)
+    Fsel <- matrix(Fsel$F0[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
+
+    fc <- forecast.sms(df.tmb, N_current, Fsel)
+    Fmsy  <- list(Fmsy = NA,
+                  MSY = NA)
 
 
-
+  }
 
 
 
@@ -128,10 +141,10 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
   C_new <- matrix(0, df.tmb$nage, df.tmb$nseason)
 
   #
-  M <- df.tmb$M[,df.tmb$nyears+1,]
-  weca <- df.tmb$weca[,df.tmb$nyears+1,]
-  west <- df.tmb$west[,df.tmb$nyears+1,]
-  mat <- df.tmb$Mat[,df.tmb$nyears+1,]
+  M <- matrix(df.tmb$M[,df.tmb$nyears+1,], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  weca <- matrix(df.tmb$weca[,df.tmb$nyears+1,], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  west <- matrix(df.tmb$west[,df.tmb$nyears+1,], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  mat <- matrix(df.tmb$Mat[,df.tmb$nyears+1,], nrow = df.tmb$nage, ncol = df.tmb$nseason)
 
 
 
@@ -219,6 +232,56 @@ calcFTAC <- function(TAC ,
   Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
+}
+
+
+#' calc f required in OM to get TAC
+#'
+#' @param TAC
+#' @param df.OM
+#' @param OM
+#'
+#' @return
+#' @export
+#'
+#' @examples
+getOM_FTAC <- function(TAC ,
+                     df.OM,
+                     Fcap = 10){
+
+  optFTAC <- function(data, par ){
+    df <- data[[2]]
+    TAC <- data[[1]]
+    # Fsel <- data$Fsel
+    Fcalc <- as.numeric(par[1])
+    # N_current <- df.OM$N_current
+
+    df$F0[,length(df$years),] <- df$F0[,length(df$years),]*Fcalc
+    #ls <- forecast.sms(df.tmb, N_current,F0)
+    #ls <- forecast.sms(df.tmb)
+    tmp <- run.agebased.sms.op(df)
+
+    ans <- (log(TAC) - log(tmp$Catch[length(df$years)]))^2
+  }
+
+
+
+  # data.in <- list(TAC = TAC,
+  #                 N_current = df.OM$N_current,
+  #                 Fsel = Fsel,
+  #                 df.OM = df.OM)
+  data.in <- list(TAC,
+                  df.OM)
+
+
+
+  parms.in <- list(1)
+
+  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
+
+  Fsel <- Fnew*df.OM$F0[,length(df.OM$years),]
+
+  return(Fnew$par*Fsel)
 }
 
 
