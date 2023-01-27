@@ -13,6 +13,11 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL){
 
 
   surv <- df.tmb$Surveyobs
+
+  if(is.null(dimnames(surv))){
+    dimnames(surv) <- list(df.tmb$age, df.tmb$years, 1:df.tmb$nsurvey)
+  }
+
   surv.fit <- getSurvey(df.tmb, sas) %>% dplyr::rename('age' = ages,
                                                 'cpue' = surveyest)
 
@@ -20,6 +25,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL){
     s.out <- as.data.frame(t(surv[,,i]))
     s.out[s.out == -1] <- NA
     s.out$year <- df.tmb$years
+    names(s.out)[1:df.tmb$nage] <- df.tmb$age
 
     s.out <- s.out %>% tidyr::pivot_longer(as.character(df.tmb$age), values_to = 'cpue', names_to = 'age') %>%
       tidyr::drop_na(cpue)

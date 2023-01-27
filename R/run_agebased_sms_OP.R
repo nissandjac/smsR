@@ -424,15 +424,24 @@ run.agebased.sms.op <- function(df){
 
     if(df$move == FALSE){
       Nsurv <- N.save.age[,yr,,df$surveySeason]*
-        exp(-.5*Z.save[,yr,space,df$surveySeason])*df$Q[,surv]
+        exp(-Z.save[,yr,space,df$surveySeason])*df$Q[,surv]
     }else{
       Nsurv <- rowSums(N.save.age[,yr,,df$surveySeason]*
                          exp(-Msurveymul*Z.save[,yr,space,df$surveySeason]))*df$Q[,surv]
     }
 
+      if(df$surveyEnd[surv] == 0){
+        survey[,yr,surv] <- N.save.age[,yr,,df$surveySeason[surv]]*
+          exp(-Z.save[,yr,space,df$surveySeason[surv]])*df$Q[,surv]*exp(rnorm(df$nage, mean =0, sd = 0.3)) # Change this
+      }else{
+        Ntmp.s = N.save.age[,yr,,df$surveySeason[surv]]*(exp(-Z.save[,yr,space,df$surveySeason[surv]]*df$surveyStart[surv]))
+        survey[,yr,surv] = Ntmp.s*(1-exp(-Z.save[,yr,space,df$surveySeason[surv]]*(df$surveyEnd[surv]-df$surveyStart[surv])))/
+          (Z.save[,yr,space,df$surveySeason[surv]]*(df$surveyEnd[surv]-df$surveyStart[surv]))*df$Q[,surv]*exp(rnorm(df$nage, mean =0, sd = df$surveySD))
+        }
 
-    survey[,yr,surv] <- N.save.age[,yr,,df$surveySeason[surv]]*
-      exp(-.5*Z.save[,yr,space,df$surveySeason[surv]])*df$Q[,surv]*exp(rnorm(df$nage, mean =0, sd = 0.3)) # Change this
+#
+#     survey[,yr,surv] <- N.save.age[,yr,,df$surveySeason[surv]]*
+#       exp(-.5*Z.save[,yr,space,df$surveySeason[surv]])*df$Q[,surv]*exp(rnorm(df$nage, mean =0, sd = 0.3)) # Change this
 
 
     survey[survey == 0] <- -1 # For TMB
@@ -441,6 +450,7 @@ run.agebased.sms.op <- function(df){
 
 
     Ntot.year <- Nsurv
+
 
 
     for(space in 1:nspace){

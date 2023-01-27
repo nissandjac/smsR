@@ -321,7 +321,7 @@ getCatchN <- function(df.tmb, sas){
 #' @examples
 getYield <- function(df.tmb){
 
-  Yield <- apply(df.tmb$Catchobs*df.tmb$weca[,1:df.tmb$nyears,], MARGIN = c(2), FUN = sum)
+  Yield <- apply(df.tmb$Catchobs*df.tmb$weca[,1:df.tmb$nyears,, drop = FALSE], MARGIN = c(2), FUN = sum)
   tmp <- data.frame(years = df.tmb$years, Yield = Yield)
 
 
