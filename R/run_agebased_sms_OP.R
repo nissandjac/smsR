@@ -57,9 +57,10 @@ run.agebased.sms.op <- function(df){
   agetmp <- 0:(mage*3)
   nagetmp <- length(agetmp)
 
+  #
   M0 <- rep(0, mage*3+1)
-  M0[1:nage]<- M[,1,1]*df$nseason
-  M0[nage:length(M0)] <- M[nage,1,1]*df$nseason
+  M0[1:nage]<- M[,1,1,1]*df$nseason
+  M0[nage:length(M0)] <- M[nage,1,1,1]*df$nseason
 
   N0tmp <- rep(NA,nagetmp)
 
@@ -72,12 +73,12 @@ run.agebased.sms.op <- function(df){
   N0[1:(nage-1)] <- N0tmp[1:(nage-1)]
   N0[nage] <- sum(N0tmp[nage:nagetmp])
 
-  SSB_0 <- sum(N0*west[,1,1]*mat[,1,1])
+  SSB_0 <- sum(N0*west[,1,1,1]*mat[,1,1,1])
 
 
   # Recruitment per country
   R_0 <- R0
-  nspace <- 1
+  nspace <- df$nspace
 
   # Initialize for saving
   year_1 <- c(year,max(year)+1)
@@ -146,7 +147,7 @@ run.agebased.sms.op <- function(df){
   Z.save <- array(NA, dim = c(df$nage, nyear,nspace,nseason), dimnames = list(age= age, year = year, space = 1:nspace,
                                                                               season = 1:nseason))
 
-  Z.save[,1,1,1] <- M[,1,1]
+  Z.save[,1,1,1] <- M[,1,1,1]
   Catch.age[,1] <- 0 # Assumed no fishing before data started
   Catch[1]<- 0
 
@@ -168,8 +169,8 @@ run.agebased.sms.op <- function(df){
 
   for (space in 1:nspace){
     # if (season == 1){
-    N.save.age[,1,space,1] <- Ninit # Just to initialize
-    N.save.age.mid[,1,space,1] <- N.save.age[,1,space,1]*exp(-0.5*(M[,1,1]/nseason))
+    N.save.age[,1,space,1] <- Ninit/nspace # Just to initialize
+    N.save.age.mid[,1,space,1] <- N.save.age[,1,space,1]*exp(-0.5*(M[,1,space,1]/nseason))
     # }else{
     #   N.save.age[,1,space,season] <- N.save.age[,1,space,season-1]*exp(-M/nseason)
     #   N.save.age.mid[,1,space,season] <- N.save.age[,1,space,season]*exp(-0.5*(M/nseason))
@@ -183,19 +184,19 @@ run.agebased.sms.op <- function(df){
 
   for (yr in 1:(nyear)){ # Loop over years add one year for initial distribution
 
-    w_catch <- df$weca[,yr,, drop = FALSE]
+    w_catch <- df$weca[,yr,,, drop = FALSE]
     w_catch[is.na(w_catch)] <- 0
 
-    w_ssb <- df$west[,yr,, drop = FALSE]
+    w_ssb <- df$west[,yr,,, drop = FALSE]
     w_ssb[is.na(w_ssb)] <- 0
 
 
-    sel <- df$sel[,yr,, drop = FALSE]
+    sel <- df$sel[,yr,,, drop = FALSE]
     sel[is.na(sel)] <- 0
 
     # Fyear <- F0[yr]*Fsel
-    Myear <- M[,yr,, drop = FALSE] # Natural mortality
-    mat.year <- mat[,yr,, drop = FALSE]
+    Myear <- M[,yr,,, drop = FALSE] # Natural mortality
+    mat.year <- mat[,yr,,, drop = FALSE]
 
 
     for (season in 1:nseason){
@@ -256,7 +257,7 @@ run.agebased.sms.op <- function(df){
 
 
         if(df$Fmodel == 'est'){
-        Fseason <- F0[,yr, season]
+        Fseason <- F0[,yr,space ,season]
         }
 
         if(df$Fmodel == 'sim'){
@@ -264,7 +265,7 @@ run.agebased.sms.op <- function(df){
         Fseason <- df$Fin[yr, season]*sel[,1,season]
 
         }
-        Mseason <- Myear[,1,season]
+        Mseason <- Myear[,space,season]
 
 
         Z <- Mseason+Fseason
