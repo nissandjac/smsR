@@ -5,10 +5,22 @@ years <- 1983:2021
 nseason <- 2
 ages <- 0:4
 
+Qminage = c(1,0) # Qminage = c(0,1) minimum age in surveys
+Qmaxage = c(3,1) #Qmaxage = c(1,3)
+surveyStart = c(0,0.75) #c(0.75,0)
+surveyEnd =  c(0,1) # c(1,0) Does the survey last throughout the season it's conducted?
+surveySeason = c(1,2) # c(2,1)Which seasons do the surveys occur in
+surveyCV =  list(c(1,2),
+                 c(0,1)) #c(1,2)),
+powers = list(NA,
+              0)
+
+
 Catchobs <- df_to_matrix(sandeel_1r[['canum']], season =1:nseason)
 Surveyobs <- survey_to_matrix(sandeel_1r[['survey']], year = years)
 Feffort <- sandeel_1r[['effort']]
 nocatch <- sandeel_1r[['nocatch']]
+
 
 df.tmb <- get_TMB_parameters(
   mtrx = sandeel_1r[['mtrx']], # List that contains M, mat, west, weca
@@ -18,29 +30,28 @@ df.tmb <- get_TMB_parameters(
   nseason = nseason, # Number of seasons
   useEffort = 1,
   ages = ages, # Ages of the species
-  Fbarage = 1:2, # min and max age for Fbar calculations
   recseason = 2, # Season where recruitment occurs
   CminageSeason = c(1,0),
   Fmaxage = 3, # Fully selected fishing mortality age
-  Qminage = c(0,1), # minimum age in surveys
-  Qmaxage = c(1,3),
+  Qminage = Qminage, # Qminage = c(0,1) minimum age in surveys
+  Qmaxage = Qmaxage, #Qmaxage = c(1,3)
+  Fbarage = c(1,2),
   isFseason = c(1,0), # Seasons to calculate fishing in
   effort = Feffort,
-  powers =list(NA, NA),
-  blocks = c(1983, 1989, 1999, 2005, 2010), # Blocks with unique selectivity
+  powers = powers,
+  blocks = c(1983,1989, 1999,2005 ,2010), # Blocks with unique selectivity
   endFseason = 2, # which season does fishing stop in the final year of data
   nocatch = as.matrix(nocatch),
-  surveyStart = c(0, .75),
-  surveyEnd =  c(0,1), # Does the survey last throughout the season it's conducted?
-  surveySeason = c(2,1), # Which seasons do the surveys occur in
-  surveyCV =  list(c(0,1), # Add ages for survey CV
-                   c(1,2,3)),
+  surveyStart = surveyStart, #c(0.75,0)
+  surveyEnd =  surveyEnd, # c(1,0) Does the survey last throughout the season it's conducted?
+  surveySeason = surveySeason, # c(2,1)Which seasons do the surveys occur in
+  surveyCV =  surveyCV, #c(1,2)),
   catchCV = list(c(0,1,3),
                  c(0,1,3)),
-  recmodel = 2, # Chose recruitment model (2 = estimated)
+  recmodel = 2, # Chose recruitment model (2 = estimated, hockey)
   estCV = c(0,2,0), # Estimate
-  betaSR = 110000, # Hockey stick breakpoint (x-axis)
-  nllfactor = c(1,1,.05) # Factor for relative strength of log-likelihood
+  beta = 110000, # Hockey stick plateau
+  nllfactor = c(1,1,.05) # Factor for relative strength of log-likelihood (survey , catch, SR )
 
 )
 
@@ -49,13 +60,19 @@ df.tmb <- get_TMB_parameters(
 # Get initial parameter structure
 parms <- getParms(df.tmb)
 
+# Get non-estimated parameters, based on info in df.tmb
+mps <- getMPS(df.tmb, parms)
 
-# Run the assessment
+# Set boundaries
+# This model works best if SDsurvey is mapped
+#parms[names(parms) == 'SDsurvey'][[1]] <- c(0.5, 0.3, 0.3,.3)
 
-sas <- runAssessment(df.tmb, parms = parms)
+# Try initial parameters in weird spots
+sas <- runAssessment(df.tmb, parms = parms, mps = mps)
+#
+sas$reps
 
-# Plot standard graphs
-p <- smsPlots(df.tmb, sas)
+p1 <- smsPlots(df.tmb = df.tmb,sas)
 
 # See Mohns rho
 m <- mohns_rho(df.tmb,parms, peels = 5, plotfigure = TRUE)
