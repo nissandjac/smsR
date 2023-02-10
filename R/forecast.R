@@ -3,7 +3,7 @@
 #'
 #' @param df.tmb sms dataframe
 #' @param sas fitted sms model
-#' @param recruitment hockey, long_mean or short_mean
+#' @param recruitment hockey, mean
 #' @param HCR Fmsy or Bescape
 #' @param avg_R years to average R
 #' @param Bpa SSB value for Bpa
@@ -13,10 +13,10 @@
 #' @export
 #'
 #' @examples
-calcTAC <- function(df.tmb,
+getTAC <- function(df.tmb,
                      sas,
-                     recruitment = 'hockey',
-                     HCR = 'Fmsy',
+                     recruitment = 'mean',
+                     HCR = 'Bescape',
 #                     avg_years = rep(3, 4),
                      avg_R = NULL,
                      Bpa = NULL,
@@ -119,7 +119,7 @@ ls.out <- list(TAC = fc$Catch,
                Fnext = F0,
                MSY = Fmsy$MSY)
 
-
+  return(ls.out)
     }
 
 

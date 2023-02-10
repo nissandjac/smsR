@@ -40,7 +40,16 @@ getFmsy <- function(df.tmb,
   #
   # }
 
-  Fsel <- array(Fselin$Fsel[Fselin$years == df.tmb$years[df.tmb$nyears]], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
+  for(i in 1:df.tmb$nseason){
+
+    if(i == 1){
+    Fsel <- array(Fselin$Fsel[Fselin$years == df.tmb$years[df.tmb$nyears] & Fselin$season == i], dim = c(df.tmb$nage, nyears, 1))
+    }else{
+      tmp <- array(Fselin$Fsel[Fselin$years == df.tmb$years[df.tmb$nyears] & Fselin$season == i], dim = c(df.tmb$nage, nyears, 1))
+      Fsel <- abind::abind(Fsel, tmp, along = 3)
+    }
+
+  }
 
   parms.est <- getEstimatedParms(sas)
 
