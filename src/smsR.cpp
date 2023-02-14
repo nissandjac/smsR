@@ -37,7 +37,7 @@ Type objective_function<Type>::operator() ()
   DATA_IVECTOR(Qmaxage); // Maximum age in survey
   DATA_IVECTOR(Qlastage);
   DATA_IVECTOR(bidx); // Indexes for blocks of fishing mortality
-  DATA_INTEGER(endFseason); // Season in last year where fishing ends
+  //DATA_INTEGER(endFseason); // Season in last year where fishing ends
   DATA_VECTOR(isFseason);
   DATA_VECTOR(surveyEnd);
   DATA_VECTOR(surveyStart);
@@ -73,7 +73,7 @@ Type objective_function<Type>::operator() ()
    // Parameters
   PARAMETER_VECTOR(logRin); // Recruitment
   PARAMETER_VECTOR(logNinit); // Initial distribution
-  PARAMETER_VECTOR(Fyear);
+  PARAMETER_VECTOR(logFyear);
   PARAMETER_ARRAY(Fseason);
   PARAMETER_ARRAY(logFage);
   PARAMETER_VECTOR(SDsurvey); // Survey variation
@@ -106,6 +106,7 @@ array<Type>Fagein(nage, nyears);
 
 
 vector<Type>SSB(nyears+1);
+vector<Type>Fyear(nyears);
 vector<Type>Rsave(nyears);
 vector<Type>logRec(nyears);
 vector<Type>term_logN_next(nage); // Numbers at age in the future year
@@ -130,11 +131,20 @@ Qsurv.setZero();
 logQsurv.setZero();
 Fsel.setZero();
 log_exp_pattern.setZero();
+Fyear.setZero();
+
+Fyear(0) = 1;
 
 // Retransform and set up for model
 for(int time=0;time<nyears;time++){
       Rin(time)=exp(logRin(time));
+
+      if(time > 0){
+        Fyear(time) = exp(logFyear(time-1));
+      }
 }
+
+
 
 Type alpha = exp(logalpha);
 Type beta = exp(logbeta);
@@ -181,12 +191,12 @@ if(useBlocks == 0){
 
           if(useEffort == 0 && nseason > 1){
 
-            if(i >= Fminage && i <= Fmaxage){
+            if(i >= Fminage){ //  && i <= Fmaxage Is not used for some reason
             Fquarter(i,j,qrts) = Fseason(qrts,i);
             }
-            if(i > Fmaxage){
-            Fquarter(i,j,qrts) = Fseason(qrts, Fmaxage);
-            }
+            // if(i > Fmaxage){
+            // Fquarter(i,j,qrts) = Fseason(qrts, Fmaxage);
+            // }
         }else{
           Fquarter(i,j,qrts) = Fseason(qrts,bidx(j));
         }
@@ -198,7 +208,11 @@ if(useBlocks == 0){
           Fquarter(i,j,qrts) = 0;//Type(1);
           }else{
           if(i == 0){
-            Fquarter(i,j,qrts) = Type(1.0);
+            if(nseason == 2){
+                Fquarter(i,j,qrts) = Type(1);
+              }else{
+                Fquarter(i,j,qrts) = Type(1)/nseason; // This is a hack - ask Morten
+            }
             }else{
             Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
             }
@@ -221,9 +235,13 @@ if(useBlocks == 0){
         }else{
 
           if(i == 0){ // Not sure why this is happening.
-          Fquarter(i,j,qrts) = Type(1);
+            if(nseason == 2){
+                Fquarter(i,j,qrts) = Type(1);
+              }else{
+                Fquarter(i,j,qrts) = Type(1)/nseason; // This is a hack - ask Morten
+            }
           }else{
-          Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
+            Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
           }
         }
       }
@@ -517,14 +535,14 @@ for(int time=0;time<(nyears);time++){ // Loop over years
      //
 
        if(SSB(time)<=beta){
-           xR(time) = log(Rsave(time))-(alpha+log(SSB(time)));
-           xR2(time) = pow(log(Rsave(time))-(alpha+log(SSB(time))),2);
-           SRpred(time) = alpha+log(SSB(time));
+           xR(time) = log(Rsave(time))-(log(alpha)+log(SSB(time)));
+           xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(SSB(time))),2);
+           SRpred(time) = exp(log(alpha)+log(SSB(time)));
 
          }else{
-           xR(time)  = log(Rsave(time))-(alpha+log(beta));
-           xR2(time) = pow(log(Rsave(time))-(alpha+log(beta)),2);
-           SRpred(time) = alpha+log(beta);
+           xR(time)  = log(Rsave(time))-(log(alpha)+log(beta));
+           xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(beta)),2);
+           SRpred(time) = exp(log(alpha)+log(beta));
          }
 
 
@@ -789,7 +807,8 @@ if(estCV(2) == 2){// Calculate the standard deviation of recruitment
 }else{
   SDrec2 = SDrec;
 }
-REPORT(SDrec)
+REPORT(SDrec2)
+REPORT(resid_x)
 // // //
 //Type prec = Type(0.0);
 Type pXr = Type(0.0);
@@ -896,6 +915,7 @@ REPORT(resid_survey)
 REPORT(SDS)
 REPORT(SDSout)
 REPORT(p)
+REPORT(logFavg)
 // REPORT(survey)
 // REPORT(ans)
 // REPORT(alpha)

@@ -107,7 +107,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
   sum.lm <- summary(xmod)
 
-  p3 <- ggplot(dredge, ggplot2::aes(x = log(Age0), y = log(Age1), color = year))+ggplot2::geom_point()+
+  p3 <- ggplot2::ggplot(dredge, ggplot2::aes(x = log(Age0), y = log(Age1), color = year))+ggplot2::geom_point()+
     ggplot2::geom_smooth(method = 'lm', color = 'black', se = FALSE)+ggplot2::scale_color_viridis_c()+
     theme(legend.position = 'top')+theme_classic()+
     ggplot2::annotate('text', x = mean(log(dredge$Age0), na.rm =TRUE), y = log(max(dredge$Age0, na.rm = TRUE)),
@@ -142,7 +142,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   }
   # `take the average for the plot
 
-  catchdf.plot <- catchdf %>% tidyr::pivot_longer(paste(0:4), names_to = 'Age', values_to = 'canum') %>%
+  catchdf.plot <- catchdf %>% tidyr::pivot_longer(paste(df.tmb$age), names_to = 'Age', values_to = 'canum') %>%
     dplyr::group_by(Age, year) %>% dplyr::summarise(catch = mean(canum, na.rm =TRUE))
 
   p4 <- ggplot(catchdf.plot, ggplot2::aes(x = year, y = catch, fill = Age))+geom_bar(position = 'fill', stat ='identity')+
@@ -331,10 +331,10 @@ p10 <-  ggplot(SR_pred, ggplot2::aes(x = SSB, y = SR/1e8))+ggplot2::geom_line()+
 
 #mr <- readRDS(file.path(wd, 'mr.RDS'))
 if(is.null(mr)){
-  parms <- getParms(df.tmb)
-  mr <- smsR::mohns_rho(df.tmb,parms, peels = 5,plotfigure = FALSE)
+  # parms <- getParms(df.tmb)
+  # mr <- smsR::mohns_rho(df.tmb,parms, peels = 5,plotfigure = FALSE)
 
-  p11 <- mr$p1()
+  p11 <-NULL
 }else{
   p11 <- mr$p1()
   }

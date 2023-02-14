@@ -120,7 +120,13 @@ getDataSMS <- function(wd,
   colnames(M) <- 0:maxage
 
   # Remove the last couple of years
-  M <- M[1:(nyears*max(seasons)+max(seasons)),]
+
+  if(nrow(M) < (nyears*max(seasons)+max(seasons))){
+    M <- rbind(M, M[(nrow(M)-nseason+1):nrow(M),])
+    warning('Projected year not included. Using last year in data')
+  }else{
+    M <- M[1:(nyears*max(seasons)+max(seasons)),]
+  }
 
   M$year <- rep(c(years,max(years)+1), each = length(seasons))
   M$Quarter <- rep(seasons, nyears+1)
@@ -134,6 +140,7 @@ getDataSMS <- function(wd,
   colnames(mat) <- 0:maxage
 
   # Remove the last couple of years (it goes to 2023)
+
   mat <- mat[1:(nyears*max(seasons)+max(seasons)),]
 
   mat$year <- rep(c(years,max(years)+1), each = length(seasons))

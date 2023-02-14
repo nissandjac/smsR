@@ -25,7 +25,7 @@ getParms <- function(df.tmb, parms.true = NULL){
     if(df.tmb$useEffort == 1){
       Fseason <- matrix(1, nrow = df.tmb$nseason-1, ncol = length(unique(df.tmb$bidx)))
     }else{
-      Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(df.tmb$Fminage:df.tmb$Fmaxage))
+      Fseason <- matrix(1, ncol = df.tmb$nseason, nrow = length(df.tmb$Fminage:df.tmb$Fmaxage))
     }
 
     if(df.tmb$useEffort ==0 & df.tmb$useBlocks ==1){
@@ -34,7 +34,7 @@ getParms <- function(df.tmb, parms.true = NULL){
 
     parms <- list(logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
                   logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage-1),
-                  Fyear = rep(1/df.tmb$nseason, df.tmb$nyears), # Mapped out
+                  logFyear = rep(log(1), df.tmb$nyears-1), # Mapped out
                   Fseason = Fseason,
                   logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
                   SDsurvey = SDsurvey,
@@ -119,7 +119,7 @@ getMPS <- function(df.tmb, parms, mapExtra = NA){
 
 
   if(df.tmb$useEffort == 1){
-    mps$Fyear <- factor(parms$Fyear*NA)
+    mps$logFyear <- factor(parms$logFyear*NA)
   }
 
   if(is.numeric(df.tmb$betaSR)){
