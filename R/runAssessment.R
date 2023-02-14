@@ -96,6 +96,14 @@ system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
 system.time(reps<-TMB::sdreport(obj))
 
 
+# Add congrats
+if(reps$pdHess == TRUE & max(reps$gradient.fixed) < 0.1){
+  print('Congrats, your model converged')
+}else{
+  print('Check model convergence')
+}
+
+
 # Throw a warning if something is on the boundary
 if(any(reps$par.fixed == lower)){
 

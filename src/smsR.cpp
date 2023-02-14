@@ -789,12 +789,14 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
 // // // //
 // // // // // Penalty function for recruitment errors
 Type resid_x = 0;
+Type resid_x2 = 0;
 vector<Type> resid_x_export(nyears);
 //
 // // Calculate SDrec
 //
 for(int i=0;i<nyears;i++){ // Loop over years
   resid_x += log(Rsave(i))-log(SRpred(i));
+  resid_x2 += pow(log(Rsave(i))- log(SRpred(i)),2);
   resid_x_export(i) = log(Rsave(i))-log(SRpred(i));
 }
 //
@@ -803,12 +805,15 @@ for(int i=0;i<nyears;i++){ // Loop over years
 Type SDrec2;
 
 if(estCV(2) == 2){// Calculate the standard deviation of recruitment
-  SDrec2 = ((nyears*pow(resid_x, 2)-pow(resid_x,2))/pow(nyears,2))*SDrec;
+  SDrec2 = (((nyears*resid_x2)-pow(resid_x,2))/pow(nyears,2))*SDrec;
+  // =(no*sumx2-square(sumx))/square(no);
+
 }else{
   SDrec2 = SDrec;
 }
 REPORT(SDrec2)
 REPORT(resid_x)
+REPORT(resid_x2)
 // // //
 //Type prec = Type(0.0);
 Type pXr = Type(0.0);
@@ -954,6 +959,7 @@ ADREPORT(xR)
 ADREPORT(log_exp_pattern)
 ADREPORT(term_logN_next)
 ADREPORT(effort_creep)
+ADREPORT(resid_x_export)
 //ADREPORT(Catchtot)
 ADREPORT(logbeta)
 ADREPORT(SDrec2)
