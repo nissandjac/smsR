@@ -22,10 +22,14 @@ getParms <- function(df.tmb, parms.true = NULL){
     }
 
 
+
+
     if(df.tmb$useEffort == 1){
       Fseason <- matrix(1, nrow = df.tmb$nseason-1, ncol = length(unique(df.tmb$bidx)))
     }else{
-      Fseason <- matrix(1, ncol = df.tmb$nseason, nrow = length(df.tmb$Fminage:df.tmb$Fmaxage))
+      srows <- sum(df.tmb$isFseason)
+      scol <- length(df.tmb$CminageSeason[1]:max(df.tmb$age))
+      Fseason <- matrix(1, nrow = srows, ncol = scol)
     }
 
     if(df.tmb$useEffort ==0 & df.tmb$useBlocks ==1){

@@ -191,8 +191,8 @@ if(useBlocks == 0){
 
           if(useEffort == 0 && nseason > 1){
 
-            if(i >= Fminage){ //  && i <= Fmaxage Is not used for some reason
-            Fquarter(i,j,qrts) = Fseason(qrts,i);
+            if(i >= CminageSeason(qrts)){ //  && i <= Fmaxage Is not used for some reason
+            Fquarter(i,j,qrts) = Fseason(qrts,i-(CminageSeason(qrts)));
             }
             // if(i > Fmaxage){
             // Fquarter(i,j,qrts) = Fseason(qrts, Fmaxage);
@@ -611,6 +611,8 @@ if(estCV(1) == 2){
        }
      }
    }
+   REPORT(sumx2)
+  REPORT(sumx)
 // //
 // // // Now assign SDR to each age
 array<Type>SD_catch2(nage, nseason);
