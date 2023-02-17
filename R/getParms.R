@@ -48,7 +48,8 @@ getParms <- function(df.tmb, parms.true = NULL){
                   pin = 1,
                   logalpha = 2,
                   logbeta = log(betaSR),
-                  logSDrec = log(1)
+                  logSDrec = log(1),
+                  logSDF = log(1)
                   )
 
     if(df.tmb$nseason == 1){
@@ -136,6 +137,10 @@ getMPS <- function(df.tmb, parms, mapExtra = NA){
 
   if(df.tmb$estimateCreep == 0){
     mps$creep <- factor(parms$creep*NA)
+  }
+
+  if(df.tmb$randomF == 0){
+    mps$logSDF = factor(parms$logSDF*NA)
   }
 
 

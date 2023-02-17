@@ -32,11 +32,13 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(useEffort); // use effort or estimate F
   DATA_INTEGER(useBlocks); // Use blocks for species selectivity?
   DATA_INTEGER(estimateCreep); // Bolean, estimate creep from effort data
+  DATA_INTEGER(randomF); // Random walk on F
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
   DATA_IVECTOR(Qmaxage); // Maximum age in survey
   DATA_IVECTOR(Qlastage);
   DATA_IVECTOR(bidx); // Indexes for blocks of fishing mortality
+
   //DATA_INTEGER(endFseason); // Season in last year where fishing ends
   DATA_VECTOR(isFseason);
   DATA_VECTOR(surveyEnd);
@@ -85,6 +87,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER(logalpha);
   PARAMETER(logbeta);
   PARAMETER(logSDrec);
+  PARAMETER(logSDF); // Fishing mortality variability
 
 //
 array<Type>Catch(nage,nyears, nseason);
@@ -149,6 +152,7 @@ for(int time=0;time<nyears;time++){
 Type alpha = exp(logalpha);
 Type beta = exp(logbeta);
 Type SDrec = exp(logSDrec);
+Type SDF = exp(logSDF);
 
 
 for(int i=0;i<(logQ.size());i++){ //
@@ -887,12 +891,25 @@ for(int time=0;time<nyears;time++){ // Loop over years
     logFavg(time)=log(Favg(time));
   }
 
+
+// add random F possibility
+Type ansF = 0.0;
+
+if(randomF == 1){
+
+  for(int time=1;time<nyears;time++){ // Loop over years
+    ansF += -dnorm(Fyear(time), Fyear(time-1), SDF, true);
+  }
+}
+
+
+
 // // // // // prec += pCV;
 // // // // // // //
 // // // // // // //
 Type ans = 0.0;
 //
-ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch;
+ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch+ansF;
 // // //
 vector<Type> ansvec(3);
 ansvec(0) = nllsurv;
