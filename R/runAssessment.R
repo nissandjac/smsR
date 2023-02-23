@@ -107,10 +107,12 @@ system.time(reps<-TMB::sdreport(obj))
 
 
 # Add congrats
-if(reps$pdHess == TRUE & max(reps$gradient.fixed) < 0.1){
-  print('Congrats, your model converged')
+if(reps$pdHess == TRUE & max(abs(reps$gradient.fixed)) < 0.1){
+  message('Congrats, your model converged')
 }else{
-  print('Check model convergence')
+  message('Check model convergence')
+  message(paste('hessian =', reps$pdHess))
+  message(max(abs(reps$gradient.fixed)))
 }
 
 
