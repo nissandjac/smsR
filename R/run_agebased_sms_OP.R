@@ -237,11 +237,19 @@ run.agebased.sms.op <- function(df){
     for (season in 1:nseason){
       for (space in 1:nspace){
 
+
+        if(df$Fmodel == 'est'){
+          Fseason <- F0[,yr,space ,season]
+        }
+
+
         if(season == 1){
-          SSB.weight[yr,space] <- sum(N.save.age[,yr,space,1]*w_ssb[,,space,season]*mat.year[,1,space,season], na.rm = TRUE)
+          SSB.weight[yr,space] <- sum(N.save.age[,yr,space,1]*w_ssb[,,space,season]*
+                                        mat.year[,1,space,season]*exp(-(Myear[,1,space,season]*df$propM[,yr,season]+Fseason*df$propF[,yr, season])), na.rm = TRUE)
           SSB[yr,space] <- SSB.weight[yr,space] #sum(N.save.age[,yr,space,1]*Mat.sel, na.rm = TRUE)
 
-          SSB.all[1,space,1]<- sum(N.save.age[,1,space,1]*mat.year[,1,space,season], na.rm = TRUE)
+          SSB.all[1,space,1]<- sum(N.save.age[,1,space,1]*mat.year[,1,space,season]*
+                                     exp(-(Myear[,1,space,season]*df$propM[,yr,season]+Fseason*df$propF[,yr, season])), na.rm = TRUE)
 
         }
 
@@ -288,10 +296,6 @@ run.agebased.sms.op <- function(df){
 
 
 
-
-        if(df$Fmodel == 'est'){
-          Fseason <- F0[,yr,space ,season]
-        }
 
         if(df$Fmodel == 'sim'){
 
