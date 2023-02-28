@@ -242,6 +242,11 @@ run.agebased.sms.op <- function(df){
           Fseason <- F0[,yr,space ,season]
         }
 
+        if(df$Fmodel == 'sim'){
+
+          Fseason <- df$Fin[yr, season]*sel[,1,space,season]
+
+        }
 
         if(season == 1){
           SSB.weight[yr,space] <- sum(N.save.age[,yr,space,1]*w_ssb[,,space,season]*
@@ -297,11 +302,7 @@ run.agebased.sms.op <- function(df){
 
 
 
-        if(df$Fmodel == 'sim'){
 
-          Fseason <- df$Fin[yr, season]*sel[,1,space,season]
-
-        }
         Mseason <- Myear[,1,space,season]
 
 
