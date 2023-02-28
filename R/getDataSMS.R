@@ -145,7 +145,7 @@ getDataSMS <- function(wd,
 
   mat$year <- rep(c(years,max(years)+1), each = length(seasons))
   mat$Quarter <- rep(seasons, nyears+1)
-  mat <- mat %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'mortality')
+  mat <- mat %>% tidyr::pivot_longer(1:(maxage+1), names_to = 'Age', values_to = 'maturity')
 
   # Now west and weca
   weca <- read.table(file.path(wd,'weca.in'),

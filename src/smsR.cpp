@@ -258,7 +258,11 @@ REPORT(Fquarter)
 // REPORT(Fyear)
 //
 // // // // // // Annual contribution of fishing mortality
-array<Type>effort_creep(nyears, nseason);
+array<Type>effort_creep(nyears);
+array<Type>effort_new(nyears, nseason);
+
+effort_creep(0) = 1;
+
 // Estimate creep
 if(useEffort == 1){
   if(estimateCreep == 1){
@@ -266,9 +270,10 @@ if(useEffort == 1){
         for(int qrts=0;qrts<nseason;qrts++){ // Loop over other seasons
 
           if(time == 0){
-            effort_creep(0,qrts) = 1;
+            effort_new(0,qrts) = 1*effort(time,qrts);
           }else{
-          effort_creep(time,qrts) = effort(time-1, qrts)*exp(creep);
+          effort_creep(time) = effort_creep(time-1)*exp(creep);
+          effort_new(time,qrts) = effort(time, qrts)*effort_creep(time);
         }
       }
     }
@@ -277,7 +282,7 @@ if(useEffort == 1){
     if(useEffort == 1){
       for(int time=0;time<(nyears);time++){ // Loop over years excluding last one
         for(int qrts=0;qrts<nseason;qrts++){ // Loop over other seasons
-          effort_creep(time,qrts) = effort(time, qrts);
+          effort_new(time,qrts) = effort(time, qrts);
         }
       }
     }
@@ -297,7 +302,7 @@ if(useEffort == 1){
 
           //  if(qrts != (nseason-1)){
               if(nocatch(time, qrts)>0){
-              F0(i,time,qrts) = Fquarter(i,time,qrts)*Fagein(i,time)*effort_creep(time, qrts);
+              F0(i,time,qrts) = Fquarter(i,time,qrts)*Fagein(i,time)*effort_new(time, qrts);
               Fsel(i,time,qrts) = log(Fquarter(i,time,qrts)*Fagein(i,time));
               }
 
@@ -442,7 +447,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
   for(int qrts=0; qrts<(nseason);qrts++){
       if(qrts == 0){ // Spawning stock biomass is from season 1
         for(int i=0;i<nage;i++){ // Loop over other ages
-             SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0)*exp(M(i,time,qrts)*propM(i,time,qrts)+F0(i,time,qrts)*propF(i,time,qrts)); // Fix SSB
+             SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0)*exp(-(M(i,time,qrts)*propM(i,time,qrts)+F0(i,time,qrts)*propF(i,time,qrts))); // Fix SSB
           }
       }
       if(qrts == (recseason-1)){ // Recruitment season
@@ -521,7 +526,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 // // // Calculate SSB and recruitment in the new year
 // //
 for(int i=0;i<nage;i++){ // Loop over other ages
-     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(-M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0)); //
+     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(-(M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0))); //
      term_logN_next(i) = log(Nsave(i, nyears,0));
 }
 // // // // //
