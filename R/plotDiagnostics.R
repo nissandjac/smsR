@@ -157,6 +157,9 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
   names(wdf) <- df.tmb$age
   wdf$season <- 1
   wdf$year <- c(df.tmb$years, max(years)+1)
+
+  nseason <- df.tmb$nseason
+
   if(nseason > 1){
 
     for(i in 2:df.tmb$nseason){
@@ -181,6 +184,8 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
   names(Mdf) <- df.tmb$age
   Mdf$season <- 1
+  years <- df.tmb$years
+
   Mdf$year <- c(df.tmb$years, max(years)+1)
 
   if(nseason > 1){
