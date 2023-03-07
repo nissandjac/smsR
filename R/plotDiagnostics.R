@@ -9,7 +9,7 @@
 #' @examples
 plotDiagnostics <- function(df.tmb, sas, mr = NULL){
 
-
+  nseason <- df.tmb$nseason
 
 
   surv <- df.tmb$Surveyobs
