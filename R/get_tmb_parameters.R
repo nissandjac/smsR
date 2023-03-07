@@ -88,7 +88,8 @@ get_TMB_parameters <- function(
   estCV = c(0,0,0),
   CVmin = c(0.2,0.2,0.2),
   betaSR = NULL,
-  nllfactor = rep(1,3)
+  nllfactor = rep(1,3),
+  randomF = 0
 
 ){
 
@@ -453,7 +454,8 @@ get_TMB_parameters <- function(
     estCV = estCV,
     CVmin = CVmin,
     betaSR = betaSR,
-    nllfactor = nllfactor
+    nllfactor = nllfactor,
+    randomF = randomF
 
   )
 

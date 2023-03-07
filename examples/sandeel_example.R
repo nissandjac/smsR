@@ -1,7 +1,7 @@
 # Run a the 2022 stock assessment of sandeel in Area 1a
 library(smsR)
 
-years <- 1983:2021
+years <- 1983:2022
 nseason <- 2
 ages <- 0:4
 
@@ -75,9 +75,12 @@ sas$reps
 p1 <- smsPlots(df.tmb = df.tmb,sas)
 
 # See Mohns rho
-m <- mohns_rho(df.tmb,parms, peels = 5, plotfigure = TRUE)
-print(m$mohns)
+mr <- mohns_rho(df.tmb,parms, peels = 5, plotfigure = TRUE)
+print(mr$mohns)
 # Show some other functions
+p.diag <- plotDiagnostics(df.tmb, sas, mr = mr)
+
+
 require(ggplot2)
 
 # Get SSB

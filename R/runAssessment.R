@@ -34,8 +34,16 @@ if(length(df.tmb$Qidx) > length(parms$logQ)){
   stop('wrong length of survey ages - redo input parameters')
 }
 
+  if(df.tmb$randomF == 1){
+    rlist <- c('logFyear','logRin')
+  }else{
+    rlist <- c()
+  }
 
-obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps, silent = silent)
+  rlist <- c()
+
+
+obj <-TMB::MakeADFun(df.tmb,parms,DLL="smsR", map = mps, silent = silent, random = rlist)
 x <- obj$report()
 
 # Set boundaries
@@ -48,11 +56,13 @@ lower[names(lower) == 'Fseason'] <- 0.0001
 lower[names(lower) == 'SDsurvey'] <- 0.0001
 lower[names(lower) == 'logSDrec'] <- log(0.1)
 lower[names(lower) == 'SDcatch'] <- 0.01
+lower[names(lower) == 'creep'] <-  -0.1
 
 upper[names(upper) == 'SDsurvey'] <- 2
 upper[names(upper) == 'logSDrec'] <- log(4)
-upper[names(upper) == 'logFyear'] <- log(5)
-upper[names(upper) == 'SDcatch'] <- 2
+upper[names(upper) == 'logFyear'] <- log(10)
+upper[names(upper) == 'SDcatch'] <- sqrt(2)
+upper[names(upper) == 'creep'] <- 0.2
 
 # Add custom boundaries to parameters
 for(i in 1:length(lwr)){
@@ -88,19 +98,23 @@ for(i in 1:length(upr)){
 
 
 
+
 system.time(opt<-stats::nlminb(obj$par,obj$fn,obj$gr,lower=lower,upper=upper,
                         control = list(iter.max = 1e6,
-                                       eval.max = 1e6))) #
+                                       eval.max = 1e6))
+            ) #
 
 
 system.time(reps<-TMB::sdreport(obj))
 
 
 # Add congrats
-if(reps$pdHess == TRUE & max(reps$gradient.fixed) < 0.1){
-  print('Congrats, your model converged')
+if(reps$pdHess == TRUE & max(abs(reps$gradient.fixed)) < 0.1){
+  message('Congrats, your model converged')
 }else{
-  print('Check model convergence')
+  message('Check model convergence')
+  message(paste('hessian =', reps$pdHess))
+  message(max(abs(reps$gradient.fixed)))
 }
 
 
