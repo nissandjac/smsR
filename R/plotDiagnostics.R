@@ -10,6 +10,7 @@
 plotDiagnostics <- function(df.tmb, sas, mr = NULL){
 
   nseason <- df.tmb$nseason
+  years <- df.tmb$years
 
 
   surv <- df.tmb$Surveyobs
