@@ -841,6 +841,51 @@ getSelectivity <- function(df.tmb, sas){
 
 
 
+#' Get the CVs of the summary information
+#'
+#' @param df.tmb
+#' @param sas
+#' @param verbose
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+getSummaryCVs <- function(df.tmb, sas, verbose = TRUE){
+
+
+
+  ssb <- sas$reps$sd[names(sas$reps$value) == 'logSSB'][1:df.tmb$nyears]
+  Fbar <- sas$reps$sd[names(sas$reps$value) == 'logFavg'][1:df.tmb$nyears]
+  Rec <- sas$reps$sd[names(sas$reps$value) == 'logRec'][1:df.tmb$nyears]
+
+
+
+  df.out <- data.frame(
+                    years = df.tmb$years,
+                    CV_SSB = ssb,
+                    CV_Fbar = Fbar,
+                    CV_R = Rec)
+
+
+  if(verbose){
+
+    tbl <- c(mean(ssb[df.tmb$nyears-2:df.tmb$nyears]),
+                      mean(Fbar[df.tmb$nyears-2:df.tmb$nyears]),
+                      mean(Rec[df.tmb$nyears-2:df.tmb$nyears]))
+
+    message(paste(
+              paste('mean(CV(SSB)) = ',round(tbl[1], digits = 2)),
+              paste('mean(CV(Fbar)) = ',round(tbl[2], digits = 2)),
+              paste('mean(CV(R)) = ',round(tbl[3], digits = 2)))
+    )
+  }
+
+
+  return(df.out)
+}
+
 
 
 

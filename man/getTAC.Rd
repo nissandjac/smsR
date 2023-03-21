@@ -7,8 +7,8 @@
 getTAC(
   df.tmb,
   sas,
-  recruitment = "hockey",
-  HCR = "Fmsy",
+  recruitment = "mean",
+  HCR = "Bescape",
   avg_R = NULL,
   Bpa = NULL,
   Fcap = NULL
@@ -19,7 +19,7 @@ getTAC(
 
 \item{sas}{fitted sms model}
 
-\item{recruitment}{hockey, long_mean or short_mean}
+\item{recruitment}{hockey, mean}
 
 \item{HCR}{Fmsy or Bescape}
 
