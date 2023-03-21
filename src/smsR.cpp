@@ -330,6 +330,7 @@ if(useEffort == 1){
             Fsel(i,time,qrts) = log(Fquarter(i,time,qrts)*Fagein(i,time));
           }
 
+
           if(time == (nyears-1)){
                 if(Fquarter(i, time, qrts) > 0 && Fagein(i,time)> 0){
 
