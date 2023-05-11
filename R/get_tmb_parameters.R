@@ -266,7 +266,9 @@ get_TMB_parameters <- function(
   # Fix the survey CV groups
   Cidx.CV <- matrix(NA, nage, nseason)
 
-
+  if(min(CminageSeason) > Fminage){
+    Fminage <- min(CminageSeason)
+  }
 
 
   #if(length(catchCV) > 1){
@@ -286,9 +288,11 @@ get_TMB_parameters <- function(
         # }
         }else{
           no <- (max(no)+1):(max(no)+length(catchCV[[i]]))
+
+          no <- no - CminageSeason[i]
+
+
         }
-
-
       Cidx.CV[ages %in% catchCV[[i]],i] <- no
       Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
       Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)

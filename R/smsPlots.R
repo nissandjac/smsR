@@ -25,9 +25,13 @@
 
   if(type=="default"){
     # Plot SSB
+    lims <- c(min(SSB$SSB)/2, max(SSB$SSB)*2)
+
+
+
     pssb <- ggplot(SSB, aes(x = years, y = SSB))+geom_line(size = 1.4)+
-        theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
-        scale_y_continuous('SSB')+theme(legend.position = c(0.8,.8))
+      theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
+      scale_y_continuous('SSB')+theme(legend.position = c(0.8,.8))+coord_cartesian(ylim = lims)
 
     # Plot Recruitment
     # take care of crazy recruitment stuff
