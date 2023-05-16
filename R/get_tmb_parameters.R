@@ -53,6 +53,7 @@ get_TMB_parameters <- function(
   propM = NULL,
   propF = NULL,
   years,
+  startYear = min(years),
   nseason = 4,
   nsurvey = 2,
   ages = 0:20,
@@ -409,9 +410,41 @@ get_TMB_parameters <- function(
     propF <- array(0, dim = c( nage , nyear+1, nseason))
   }
 
+
+  if(startYear > min(years)){
+    weca <- mtrx$weca[,c(years %in% startYear:max(years),TRUE),]
+    west <- mtrx$west[,c(years %in% startYear:max(years),TRUE),]
+    M <- mtrx$M[,c(years %in% startYear:max(years),TRUE),]
+    Mat <- mtrx$mat[,c(years %in% startYear:max(years),TRUE),]
+    propM <- propM[,c(years %in% startYear:max(years),TRUE),]
+    propF <- propF[,c(years %in% startYear:max(years),TRUE),]
+
+    Surveyobs <- Surveyobs[,which(years %in% startYear:max(years)),]
+    Catchobs <- Catchobs[,which(years %in% startYear:max(years)),]
+
+    scv <- scv[,which(years %in% startYear:max(years)),]
+    effort <- effort.in[which(years %in% startYear:max(years)),]
+    nocatch <- nocatch[which(years %in% startYear:max(years)),]
+    bidx <- bidx[which(years %in% startYear:max(years))]
+
+    years <- startYear:max(years)
+    nyears <- length(years)
+
+  }else{
+    weca <- mtrx$weca
+    west <- mtrx$west
+    M <- mtrx$M
+    Mat <- mtrx$mat
+    effort <- effort.in
+  }
+
+
+
+
+
   df.tmb <- list(
-    weca = mtrx$weca,
-    west = mtrx$west,
+    weca = weca,
+    west = west,
     Surveyobs = Surveyobs,
     Catchobs = Catchobs,
     propM = propM,
@@ -427,7 +460,7 @@ get_TMB_parameters <- function(
     recseason = recseason,
     useEffort = useEffort,
     estimateCreep = estimateCreep,
-    effort = effort.in,
+    effort = effort,
     bidx = bidx,
     useBlocks = useBlocks,
     Fminage = Fminage,
@@ -443,8 +476,8 @@ get_TMB_parameters <- function(
     endFseason = endFseason,
     CminageSeason = CminageSeason,
     nocatch = nocatch,
-    M = mtrx$M,
-    Mat = mtrx$mat,
+    M = M,
+    Mat = Mat,
     scv = scv,
     surveyStart = surveyStart,
     surveyEnd = surveyEnd,#c(0.1,1,0.001),
