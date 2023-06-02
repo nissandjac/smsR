@@ -80,6 +80,41 @@ getBiomass <- function(df.tmb, sas){
 
   return(Biomass.df)
 }
+
+#' Get the total stock biomass
+#'
+#' @param df.tmb list of input parameters
+#' @param sas fitted smsR model
+#'
+#' @return
+#' data frame containing the biomass of each age group.
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log TSB
+#' @export
+#'
+#' @examples
+getTSB <- function(df.tmb, sas){
+
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values<-rownames(sdrep)
+  years <- df.tmb$years
+
+  TSB <- data.frame(TSB = sdrep[rep.values == 'logTSB',1])
+  TSB$SE <- (sdrep[rep.values == 'logTSB',2])
+  TSB$low <- TSB$TSB-2*TSB$SE
+  TSB$high <- TSB$TSB+2*TSB$SE
+  TSB$years <- c(years)
+
+  TSB$TSB <- exp(TSB$TSB)
+  TSB$low <- exp(TSB$low)
+  TSB$high <- exp(TSB$high)
+
+  return(TSB)
+}
+
+
 #' Retrieve the total catch from a fitted smsR object
 #'
 #' @param df.tmb input parameters

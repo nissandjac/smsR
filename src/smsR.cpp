@@ -109,6 +109,7 @@ array<Type>Fagein(nage, nyears);
 
 
 vector<Type>SSB(nyears+1);
+vector<Type>TSB(nyears);
 vector<Type>Fyear(nyears);
 vector<Type>Rsave(nyears);
 vector<Type>logRec(nyears);
@@ -125,6 +126,7 @@ CatchN.setZero();
 Catchtot.setZero();
 Rsave.setZero();
 SSB.setZero();
+TSB.setZero();
 Zsave.setZero();
 Nsave.setZero();
 survey.setZero();
@@ -448,6 +450,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
       if(qrts == 0){ // Spawning stock biomass is from season 1
         for(int i=0;i<nage;i++){ // Loop over other ages
              SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0)*exp(-(M(i,time,qrts)*propM(i,time,qrts)+F0(i,time,qrts)*propF(i,time,qrts))); // Fix SSB
+             TSB(time) += Nsave(i,time,0)*west(i,time,0); // TSB in the beginning of the season
           }
       }
       if(qrts == (recseason-1)){ // Recruitment season
@@ -847,6 +850,7 @@ Type prec = nyears*log(sqrt(SDrec2))+pXr*0.5/SDrec2;   // likelihood
 
 // Do some reporting in log space
 vector<Type>logSSB(nyears+1);
+vector<Type>logTSB(nyears);
 vector<Type>logCatchtot(nyears);
 array<Type>logF0(nage, nyears, nseason);
 array<Type>logCatch(nage,nyears, nseason);
@@ -858,6 +862,7 @@ vector<Type>logFavg(nyears);
 
 //
 logSSB.setZero();
+logTSB.setZero();
 logF0.setZero();
 logN.setZero();
 logCatch.setZero();
@@ -868,6 +873,7 @@ Favg.setZero();
 //
 for(int time=0;time<(nyears);time++){ // Loop over other years
   logSSB(time) = log(SSB(time));
+  logTSB(time) = log(TSB(time));
   logCatchtot(time) = log(Catchtot(time));
 
 }
@@ -958,6 +964,7 @@ REPORT(effort_creep)
 // //
 // //
 ADREPORT(logSSB)
+ADREPORT(logTSB)
 ADREPORT(logF0)
 ADREPORT(logCatch)
 ADREPORT(logCatchN)
