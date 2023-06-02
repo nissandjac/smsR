@@ -11,6 +11,7 @@ get_TMB_parameters(
   propM = NULL,
   propF = NULL,
   years,
+  startYear = min(years),
   nseason = 4,
   nsurvey = 2,
   ages = 0:20,
