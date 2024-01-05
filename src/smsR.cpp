@@ -217,7 +217,7 @@ if(useBlocks == 0){
             if(nseason == 2){
                 Fquarter(i,j,qrts) = Type(1);
               }else{
-                Fquarter(i,j,qrts) = Type(1)/nseason; // This is a hack - ask Morten
+                Fquarter(i,j,qrts) = Type(1)/nseason; // Morton's trick to fix a degree of freedom that isn't needed for the parameterization
             }
             }else{
             Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
