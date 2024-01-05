@@ -72,6 +72,7 @@ sas <- runAssessment(df.tmb, parms = parms, mps = mps)
 #
 sas$reps
 
+
 p1 <- smsPlots(df.tmb = df.tmb,sas)
 
 # See Mohns rho

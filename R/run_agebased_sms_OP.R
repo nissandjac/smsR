@@ -212,7 +212,7 @@ run.agebased.sms.op <- function(df){
   }
 
   if(is.null(df$movemat)){
-    movemat <- array(0, dim = c(1,df$nage, df$nseason, nyear))
+    movemat <- array(0, dim = c(df$nage,nyear, 1,df$nseason))
   }else{
     movemat <- df$movemat
   }
@@ -290,8 +290,12 @@ run.agebased.sms.op <- function(df){
 
           if(df$recruitment == 'estimated'){
 
-            R <- df$Rin[yr]/nspace
+            R <- df$Rin[yr]*df$rec.space[space]
 
+            if(df$years[yr] > df$last_year){ # Change this to specific recruitment scenario
+              R <- exp(mean(log(df$Rin)))*exp(rnorm(1, mean = 0, sd = df$SDR)-df$SDR^2*0.5)*df$rec.space[space]
+
+            }
 
             N.save.age[1,yr,space,season] <- R
             R.save[yr,space] <- R
@@ -333,9 +337,15 @@ run.agebased.sms.op <- function(df){
 
         if(season <nseason){
 
+          if(spaceidx[k] > 1 & (spaceidx[k] < nspace)){
+            space_multiplier <- 0.5 # Assume that the diffusion left and right is the same
+          }else{
+            space_multiplier <- 1 #
+          }
+
 
           for(k in 1:length(spaceidx)){
-            Nin.tmp<-  N.save.age[, yr,spaceidx[k],season]*exp(-Z)*(movemat[spaceidx[k],,season,yr])# add the ones come to the surrounding areas
+            Nin.tmp<-  N.save.age[, yr,spaceidx[k],season]*exp(-Z)*(movemat[,year,spaceidx[k],season])*space_multiplier# add the ones come to the surrounding areas
 
             if(k == 1){
               Nin <- Nin.tmp
@@ -347,7 +357,7 @@ run.agebased.sms.op <- function(df){
 
 
           N.save.age[,yr,space,season+1] <- N.save.age[,yr,space,season]*exp(-Z)-
-            N.save.age[, yr,space,season]*exp(-Z)*(movemat[space,,season,yr])+ # Remove the ones that leave
+            N.save.age[, yr,space,season]*exp(-Z)*(movemat[,yr,space,season])+ # Remove the ones that leave
             Nin# add the ones come to the surrounding areas
 
           age_comps_OM[,yr,space,season] <- N.save.age[, yr,space,season]/sum(N.save.age[, yr,space,season])
@@ -373,11 +383,17 @@ run.agebased.sms.op <- function(df){
         }else{
 
           for(k in 1:length(spaceidx)){
-            Nin.tmp<- N.save.age[1:(nage-2), yr,spaceidx[k],season]*exp(-Z[1:(nage-2)])*(movemat[spaceidx[k],1:(nage-2),season,yr])## add the ones come to the surrounding areas
+            if((spaceidx[k]) > 1 & (spaceidx[k] < nspace)){
+              space_multiplier <- 0.5 # Assume that the diffusion left and right is the same
+            }else{
+              space_multiplier <- 1 #
+            }
+
+            Nin.tmp<- N.save.age[1:(nage-2), yr,spaceidx[k],season]*exp(-Z[1:(nage-2)])*(movemat[1:(nage-2),yr,spaceidx[k],season])*space_multiplier## add the ones come to the surrounding areas
 
             Nin.plus.tmp <- (N.save.age[nage-1, yr,spaceidx[k],nseason]*exp(-Z[nage-1])+
                                N.save.age[nage, yr,spaceidx[k],nseason]*exp(-Z[nage]))*
-              (movemat[spaceidx[k],nage, season,yr]) # Incoming
+              (movemat[nage,yr, spaceidx[k], season])*space_multiplier # Incoming
 
 
 
@@ -394,13 +410,13 @@ run.agebased.sms.op <- function(df){
 
 
           N.save.age[2:(nage-1),yr+1,space,1] <- N.save.age[1:(nage-2),yr,space,season]*exp(-Z[1:(nage-2)])-
-            N.save.age[1:(nage-2), yr,space,season]*exp(-Z[1:(nage-2)])*(movemat[space,1:(nage-2),season,yr])+
+            N.save.age[1:(nage-2), yr,space,season]*exp(-Z[1:(nage-2)])*(movemat[1:(nage-2),yr, space,season])+
             Nin #add the ones come to the surrounding areas
           # Plus group
           Nsurvive.plus <- (N.save.age[nage-1, yr,space, nseason]*exp(-Z[nage-1])+
                               N.save.age[nage, yr,space, nseason]*exp(-Z[nage]))
 
-          Nout.plus <- Nsurvive.plus*(movemat[space,nage, season,yr]) # Leaving
+          Nout.plus <- Nsurvive.plus*(movemat[nage,yr,space, season]) # Leaving
 
           N.save.age[nage,yr+1,space,1] <- Nsurvive.plus- Nout.plus + Nin.plus
 
