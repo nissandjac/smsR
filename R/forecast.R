@@ -6,7 +6,7 @@
 #' @param recruitment hockey, mean
 #' @param HCR Fmsy or Bescape
 #' @param avg_R years to average R
-#' @param Bpa SSB value for Bpa
+#' @param Btarget SSB value for Btarget
 #' @param Fcap Maximum possible fishing mortality
 #'
 #' @return
@@ -19,8 +19,8 @@ getTAC <- function(df.tmb,
                      HCR = 'Bescape',
 #                     avg_years = rep(3, 4),
                      avg_R = NULL,
-                     Bpa = NULL,
-                     Fcap = NULL
+                     Btarget = NULL,
+                     Fcap = 2
                      ){
 
 
@@ -86,8 +86,11 @@ getTAC <- function(df.tmb,
 
     if(is.null(Fcap)){warning('assuming Fcap = 2yr-1')}
 
+    if(is.null(Btarget)){
+      stop('Give a target Btarget to calc Bescape')}
+
     # Find the fishing mortality leading to Bescape
-    F0 <- calcBescape(Bpa, df.tmb, N_current, Fsel, Fcap)*Fsel
+    F0 <- calcBescape(Btarget, df.tmb, N_current, Fsel, Fcap)*Fsel
     # Do forecast
     fc <- forecast.sms(df.tmb , N_current , F0)
     Fmsy <- mean(rowSums(F0)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])
@@ -298,33 +301,34 @@ getOM_FTAC <- function(TAC ,
 #' @export
 #'
 #' @examples
-calcBescape <- function(Bpa ,
+calcBescape <- function(Btarget ,
                         df.tmb,
                         N_current,
                         Fsel,
                         Fcap = 2){
 
-  optBpa <- function(data, par ){
+  optBtarget <- function(data, par ){
     df.tmb <- data$df.tmb
     Fsel <- data$Fsel
     Fcalc <- as.numeric(par[1])
-    Bpa <- data$Bpa
+    Btarget <- data$Btarget
 
     F0 <- Fsel*Fcalc
     ls <- forecast.sms(df.tmb, N_current,F0)
 
-    ans <- (log(Bpa) - log(ls$SSB))^2
+    ans <- (log(Btarget) - log(ls$SSB))^2
+    return(ans)
   }
 
 
-  data.in <- list(Bpa = Bpa,
+  data.in <- list(Btarget = Btarget,
                   N_current = N_current,
                   Fsel = Fsel,
                   df.tmb = df.tmb)
 
   parms.in <- list(0.5)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBpa, data= data.in, method = 'L-BFGS-B')
+  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBtarget, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
 }
@@ -339,7 +343,7 @@ calcBescape <- function(Bpa ,
 #' @param TACold last years tac
 #' @param HCR Harvest control rule to use - options Bescape or Fmsy
 #' @param avg_R years to average recruitment
-#' @param Bpa SSB at Bpa
+#' @param Btarget SSB at Btarget
 #' @param Fcap Maximum possible F value
 #'
 #' @return
@@ -352,7 +356,7 @@ getForecastTable <- function(df.tmb,
                                 HCR = 'Bescape',
                                 avg_R = NULL,
                                 recruitment = 'mean',
-                                Bpa = NULL,
+                                Btarget = NULL,
                                 Fcap = 2){
 
   # Get numbers at age
@@ -407,18 +411,18 @@ getForecastTable <- function(df.tmb,
   flast <- forecast.sms(df.tmb, N_current, F0)
   Fbar <- getFbar(df.tmb, sas)
 
-  # Bpa = Blim
-  Flim <- calcBescape(Bpa = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 2)
+  # Btarget = Blim
+  Flim <- calcBescape(Btarget = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 2)
   flim <- forecast.sms(df.tmb , N_current , Flim*Fsel)
 
 
-  # Regular Bpa
-  if(is.null(Bpa) != 1){
-   Fpa <- calcBescape(Bpa = Bpa, df.tmb, N_current, Fsel, Fcap)
+  # Regular Btarget
+  if(is.null(Btarget) != 1){
+   Fpa <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Fcap)
    Fpa_sel <- Fpa * Fsel
    fpa <- forecast.sms(df.tmb , N_current , Fpa_sel)
 
-   Fpa_nocap <- calcBescape(Bpa = Bpa, df.tmb, N_current, Fsel, Fcap  = 2)
+   Fpa_nocap <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Fcap  = 2)
    Fpa_sel <- Fpa * Fsel
    fpa_nocap <- forecast.sms(df.tmb , N_current , Fpa_sel)
 

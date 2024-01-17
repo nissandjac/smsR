@@ -1,52 +1,61 @@
 
-#' Organize TMB parameters in a list.
+#' Prepare data input for an smsR model
 #'
-#' @param mtrx matrix containing M, Mat, weca, west
-#' @param Surveyobs matrix of survey observations
-#' @param Catchobs matrix of catch observations
-#' @param propM Proportion of natural mortality before fishing
-#' @param propF Proportion of fishing mortality before fishing
-#' @param years vector of years
-#' @param nseason number of seasons
-#' @param nsurvey number of surveys
-#' @param ages vector of ages
-#' @param Fbarage vector of min and max ages used in Fbar calculations
-#' @param recseason season where recruitment occurs
-#' @param Fminage First age to start fishing
-#' @param Fmaxage Last age with unique fishing mortality
-#' @param Qminage vector length of nsurvey with minimum ages
-#' @param Qmaxage vector length of nsurvey with max age with unique selectivity
-#' @param Qlastage Last age observed in the survey
-#' @param isFseason Season to calculate F in
-#' @param CminageSeason  Minimum age with fishing mortality per season
-#' @param endFseason  Last season last year with F
-#' @param nocatch  Matrix size year x season with 1 or 0 showing catch
-#' @param useEffort 1 or 0, use nominal CPUE to tune F
-#' @param estimateCreep Estimate creep from nominal cpue
-#' @param effort matrix size year x season that contains nominal CPUE
-#' @param blocks Blocks with unique selectivity for fishing
-#' @param surveyStart number between 0 and 1 determine the start of the survey within season
-#' @param surveyEnd number between 0 and 1 determine the end of the survey within season
-#' @param surveySeason vector determining which seasons surveys occur
-#' @param minSDsurvey minimum allowed for all SDsurvey estimates
-#' @param minSDcatch minimum SD catch estimates allowed.
-#' @param peneps epsilon used in penalty function for SDsurvey (try 1e-6 to 1e-3)
-#' @param penepsC epsilon used in penalty function for SDcatch (try 1e-6 to 1e-3)
-#' @param powers which ages are included in the power law calc
-#' @param surveyCV list with ages with unique survey CVs. Length = nsurvey
-#' @param catchCV list with ages with unique catch CVs. Length = nseason
-#' @param recmodel chose recruitment model. 2 = hockeystick
-#' @param estCV vector length 3 of which CVs to determine. 1-survey,2-catch, 3-stock recruitment
-#' @param CVmin Currently not functional
-#' @param betaSR breakpoint of SSB in hockey stick curve
-#' @param nllfactor vector length 3 of weights of log likelihood. 1-survey, 2-catch,3-stock recruitment
+#' @param mtrx
+#' @param Surveyobs
+#' @param Catchobs
+#' @param propM
+#' @param propF
+#' @param years
+#' @param startYear
+#' @param endYear
+#' @param nseason
+#' @param nsurvey
+#' @param ages
+#' @param Fbarage
+#' @param recseason
+#' @param Fminage
+#' @param Fmaxage
+#' @param Qminage
+#' @param Qmaxage
+#' @param Qlastage
+#' @param isFseason
+#' @param CminageSeason
+#' @param CmaxageSeason
+#' @param endFseason
+#' @param nocatch
+#' @param useEffort
+#' @param estimateCreep
+#' @param effort
+#' @param blocks
+#' @param surveyStart
+#' @param surveyEnd
+#' @param surveySeason
+#' @param leavesurveyout
+#' @param minSDsurvey
+#' @param minSDcatch
+#' @param peneps
+#' @param penepsC
+#' @param powers
+#' @param scv
+#' @param surveyCV
+#' @param catchCV
+#' @param recmodel
+#' @param estCV
+#' @param CVmin
+#' @param betaSR
+#' @param nllfactor
+#' @param randomF
 #'
 #' @return
-#' list of stuff
 #' @export
 #'
 #' @examples
+#' get_TMB_paramters(123) # Not run
+#'
+#'
 get_TMB_parameters <- function(
+
   mtrx = NULL,
   Surveyobs = NULL,
   Catchobs = NULL,
@@ -54,6 +63,7 @@ get_TMB_parameters <- function(
   propF = NULL,
   years,
   startYear = min(years),
+  endYear = max(years),
   nseason = 4,
   nsurvey = 2,
   ages = 0:20,
@@ -67,7 +77,7 @@ get_TMB_parameters <- function(
   isFseason = rep(1, nseason),
   CminageSeason = rep(0, nseason),
   CmaxageSeason = rep(max(ages), nseason),
-  endFseason = 4,
+  endFseason = nseason,
   nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
   useEffort = 0,
   estimateCreep = 0,
@@ -439,6 +449,26 @@ get_TMB_parameters <- function(
   }
 
 
+  if(endYear < max(years)){
+    weca <- mtrx$weca[,c(years %in% startYear:endYear,TRUE),]
+    west <- mtrx$west[,c(years %in% startYear:endYear,TRUE),]
+    M <- mtrx$M[,c(years %in% startYear:endYear,TRUE),]
+    Mat <- mtrx$mat[,c(years %in% startYear:endYear,TRUE),]
+    propM <- propM[,c(years %in% startYear:endYear,TRUE),]
+    propF <- propF[,c(years %in% startYear:endYear,TRUE),]
+
+    Surveyobs <- Surveyobs[,which(years %in% startYear:endYear),]
+    Catchobs <- Catchobs[,which(years %in% startYear:endYear),]
+
+    scv <- scv[,which(years %in% startYear:endYear),]
+    effort <- effort.in[which(years %in% startYear:endYear),]
+    nocatch <- nocatch[which(years %in% startYear:endYear),]
+    bidx <- bidx[which(years %in% startYear:endYear)]
+
+    years <- startYear:endYear
+    nyears <- length(years)
+
+  }
 
 
 

@@ -1,4 +1,4 @@
-#' Title
+#' Plot standard stock assessment figures
 #'
 #' @param df.tmb list of tmb parameters
 #' @param sas estimated model.

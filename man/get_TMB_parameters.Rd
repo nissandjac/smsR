@@ -25,7 +25,7 @@ get_TMB_parameters(
   isFseason = rep(1, nseason),
   CminageSeason = rep(0, nseason),
   CmaxageSeason = rep(max(ages), nseason),
-  endFseason = 4,
+  endFseason = nseason,
   nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
   useEffort = 0,
   estimateCreep = 0,

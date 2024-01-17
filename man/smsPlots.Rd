@@ -2,7 +2,7 @@
 % Please edit documentation in R/smsPlots.R
 \name{smsPlots}
 \alias{smsPlots}
-\title{Title}
+\title{Plot standard stock assessment figures}
 \usage{
 smsPlots(df.tmb, sas, type = "default", Blim = NULL, printFig = TRUE)
 }
@@ -16,7 +16,7 @@ smsPlots(df.tmb, sas, type = "default", Blim = NULL, printFig = TRUE)
 \item{Blim}{optional value to graph if type is stack or wrap}
 }
 \description{
-Title
+Plot standard stock assessment figures
 }
 \examples{
 smsPlots(df.tmb, sas)

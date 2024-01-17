@@ -11,7 +11,8 @@ get_OM_parameters(
   recruitment = NULL,
   nspace = 1,
   moveinit = 1,
-  movemaxinit = 0.3,
+  movemax = 0.3,
+  rec.space = 1,
   moveslope = 0.7,
   movefifty = 1
 )
