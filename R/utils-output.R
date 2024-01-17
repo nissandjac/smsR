@@ -922,6 +922,86 @@ getSummaryCVs <- function(df.tmb, sas, verbose = TRUE){
 }
 
 
+#' get the weight at age from the input data and plot it
+#'
+#' @param df.tmb smsR list of input parameters
+#' @param WW weca or west
+#' @param plotFig plot the data (TRUE OR FALSE)
+#'
+#' @return returns a data frame of weight at aeg
+#'
+#' @export
+#'
+#' @examples
+getWeight <- function(df.tmb, WW = 'weca', plotFig =FALSE){
+
+  # Get weight per season
+  weca <- df.tmb[WW][[1]]
+  dimnames(weca) <- list(age = df.tmb$age, years = c(df.tmb$years,max(df.tmb$years)+1),season = 1:df.tmb$nseason)
+
+  weca<- reshape::melt(weca)
+
+  if(plotFig == TRUE){
+  p1 <- ggplot(weca, aes(x = age, y = value*1000, color = years,group = years))+geom_line()+facet_wrap(~season)+theme_classic()+
+    scale_y_continuous(paste(WW,'(g)'))
+
+  print(p1)
+  }
+return(weca)
+}
 
 
+#' get the natural mortality at age from the input data and plot it
+#'
+#' @param df.tmb smsR list of input parameters
+#' @param plotFig plot the data (TRUE OR FALSE)
+#'
+#' @return returns a data frame of weight at aeg
+#'
+#' @export
+#'
+#' @examples
+getM <- function(df.tmb, plotFig =FALSE){
+
+  # Get weight per season
+  M <- df.tmb$M
+  dimnames(M) <- list(age = df.tmb$age, years = c(df.tmb$years,max(df.tmb$years)+1),season = 1:df.tmb$nseason)
+
+  M <- reshape::melt(M)
+
+  if(plotFig == TRUE){
+    p1 <- ggplot(M %>% dplyr::filter(value > 0), aes(x = age, y = value, color = years,group = years))+geom_line()+facet_wrap(~season)+theme_classic()+
+      scale_y_continuous('natural mortality (per season)')
+
+    print(p1)
+  }
+  return(M)
+}
+
+#' get the maturity at age from the input data and plot it
+#'
+#' @param df.tmb smsR list of input parameters
+#' @param plotFig plot the data (TRUE OR FALSE)
+#'
+#' @return returns a data frame of weight at aeg
+#'
+#' @export
+#'
+#' @examples
+getMat <- function(df.tmb, plotFig =FALSE){
+
+  # Get weight per season
+  Mat<- df.tmb$Mat
+  dimnames(Mat) <- list(age = df.tmb$age, years = c(df.tmb$years,max(df.tmb$years)+1),season = 1:df.tmb$nseason)
+
+  Mat <- reshape::melt(Mat)
+
+  if(plotFig == TRUE){
+    p1 <- ggplot(Mat, aes(x = age, y = value, color = years,group = years))+geom_line()+facet_wrap(~season)+theme_classic()+
+      scale_y_continuous('natural mortality (per season)')
+
+    print(p1)
+  }
+  return(Mat)
+}
 

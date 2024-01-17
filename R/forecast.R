@@ -423,7 +423,7 @@ getForecastTable <- function(df.tmb,
    fpa <- forecast.sms(df.tmb , N_current , Fpa_sel)
 
    Fpa_nocap <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Fcap  = 2)
-   Fpa_sel <- Fpa * Fsel
+   Fpa_sel <- Fpa_nocap * Fsel
    fpa_nocap <- forecast.sms(df.tmb , N_current , Fpa_sel)
 
 
