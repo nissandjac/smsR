@@ -4,6 +4,7 @@
 #' @param peels number of peels
 #' @param parms parameters that are estimated
 #' @param mps parameters that are mapped
+#' @param useSSBprojection Use the projected SSB to calculate Mohns rho
 #' @param lower lower boundary of parameters
 #' @param upper upper boundary of parameters
 #' @param plotfigure TRUE FALSE of whether to plot figure
@@ -21,6 +22,7 @@ mohns_rho <- function(df.tmb,
                       peels = 5,
                       parms ,
                       mps = NULL,
+                      useSSBprojection = TRUE,
                       lwr = list(NA),
                       upr = list(NA),
                       plotfigure = TRUE,
@@ -51,26 +53,53 @@ mohns_rho <- function(df.tmb,
 
   F0base <- getFbar(df.tmb, asses1)
 
+  if(useSSBprojection == TRUE){
+    ssb.index <- 0
 
-  df.save <- data.frame(years = df.tmb$years,
-                        SSB = SSB.base$SSB[1:(nrow(SSB.base)-1)],
-                        R = recruit.base$R[1:(nrow(SSB.base)-1)],
-                        Fbar = F0base$Fbar,
-                        peel = 0,
-                        convergence = asses1$reps$pdHess)
+    df.save <- data.frame(years = c(df.tmb$years,max(df.tmb$years)+1),
+                          SSB = SSB.base$SSB[1:(nrow(SSB.base)-ssb.index)],
+                          R = c(recruit.base$R[1:(nrow(SSB.base)-1)],NA),
+                          Fbar = c(F0base$Fbar,NA),
+                          peel = 0,
+                          convergence = asses1$reps$pdHess)
 
-  df.var <- data.frame(years = df.tmb$years,
-                       SSBmin = SSB.base$low[1:(nrow(SSB.base)-1)],
-                       SSBmax = SSB.base$high[1:(nrow(SSB.base)-1)],
-                       Rmin = recruit.base$low[1:(nrow(SSB.base)-1)],
-                       Rmax = recruit.base$high[1:(nrow(SSB.base)-1)],
-                       Fmin = F0base$low,
-                       Fmax = F0base$high,
-                       peel = 0,
-                       convergence = 1)
+    df.var <- data.frame(years = df.save$years,
+                         SSBmin = SSB.base$low[1:(nrow(SSB.base)-ssb.index)],
+                         SSBmax = SSB.base$high[1:(nrow(SSB.base)-ssb.index)],
+                         Rmin = c(recruit.base$low[1:(nrow(SSB.base)-1)],NA),
+                         Rmax = c(recruit.base$high[1:(nrow(SSB.base)-1)],NA),
+                         Fmin = c(F0base$low,NA),
+                         Fmax = c(F0base$high,NA),
+                         peel = 0,
+                         convergence = 1)
+
+  }else{
+    ssb.index <- 1
 
 
-  xx <- data.frame(base = df.save$R,
+    df.save <- data.frame(years = df.tmb$years,
+                          SSB = SSB.base$SSB[1:(nrow(SSB.base)-ssb.index)],
+                          R = recruit.base$R[1:(nrow(SSB.base)-1)],
+                          Fbar = F0base$Fbar,
+                          peel = 0,
+                          convergence = asses1$reps$pdHess)
+
+    df.var <- data.frame(years = df.save$years,
+                         SSBmin = SSB.base$low[1:(nrow(SSB.base)-ssb.index)],
+                         SSBmax = SSB.base$high[1:(nrow(SSB.base)-ssb.index)],
+                         Rmin = c(recruit.base$low[1:(nrow(SSB.base)-1)]),
+                         Rmax = c(recruit.base$high[1:(nrow(SSB.base)-1)]),
+                         Fmin = c(F0base$low),
+                         Fmax = c(F0base$high),
+                         peel = 0,
+                         convergence = 1)
+
+  }
+
+
+
+
+  xx <- data.frame(base = df.save$R[1:df.tmb$nyears],
                    '-1' = NA,
                    '-2' = NA,
                    '-3' = NA,
@@ -133,29 +162,40 @@ mohns_rho <- function(df.tmb,
   F0.tmb <- getFbar(df.new, assess.new)
 
 
-
-  tmp <- data.frame(years = df.new$years,
-                                 SSB = SSB.tmb$SSB[1:(nrow(SSB.tmb)-1)],
-                                 R = recruit.tmb$R[1:(nrow(SSB.tmb)-1)],
-                                 Fbar = F0.tmb$Fbar,
+  if(useSSBprojection == TRUE){
+    tmp <- data.frame(years = SSB.tmb$years,
+                                 SSB = SSB.tmb$SSB[1:(nrow(SSB.tmb)-ssb.index)],
+                                 R = c(recruit.tmb$R[1:(nrow(SSB.tmb)-1)],NA),
+                                 Fbar = c(F0.tmb$Fbar,NA),
                                  peel = i,
                                  convergence = assess.new$reps$pdHess)
+    index.new <- 1
 
-  xx[1:(df.new$nyears),i+1] <- tmp$R
+  }else{
+    tmp <- data.frame(years = df.new$years,
+                      SSB = SSB.tmb$SSB[1:(nrow(SSB.tmb)-ssb.index)],
+                      R = c(recruit.tmb$R[1:(nrow(SSB.tmb)-1)]),
+                      Fbar = c(F0.tmb$Fbar),
+                      peel = i,
+                      convergence = assess.new$reps$pdHess)
+    index.new <- 0
+  }
+
+  xx[1:(df.new$nyears),i+1] <- tmp$R[1:df.new$nyears]
 
   df.save <- rbind(df.save, tmp)
 
   # Calculate mohns rho
   if(i == 1){
     mohns <- data.frame(
-                      SSB = (tmp$SSB[df.new$nyears]-SSB.base$SSB[df.tmb$nyears-i])/SSB.base$SSB[df.tmb$nyears-i],
+                      SSB = (tmp$SSB[nrow(tmp)]-SSB.base$SSB[df.tmb$nyears-i+index.new])/SSB.base$SSB[df.tmb$nyears-i+index.new],
                       R = (tmp$R[df.new$nyears]-recruit.base$R[df.tmb$nyears-i])/recruit.base$R[df.tmb$nyears-i],
                       F0 = (tmp$Fbar[df.new$nyears]-F0base$Fbar[df.tmb$nyears-i])/F0base$Fbar[df.tmb$nyears-i],
                       row.names = FALSE
                       )
   }else{
     tmp.m <- data.frame(
-      SSB = (tmp$SSB[df.new$nyears]-SSB.base$SSB[df.tmb$nyears-i])/SSB.base$SSB[df.tmb$nyears-i],
+      SSB = (tmp$SSB[nrow(tmp)]-SSB.base$SSB[df.tmb$nyears-i+index.new])/SSB.base$SSB[df.tmb$nyears-i+index.new],
       R = (tmp$R[df.new$nyears]-recruit.base$R[df.tmb$nyears-i])/recruit.base$R[df.tmb$nyears-i],
       F0 = (tmp$Fbar[df.new$nyears]-F0base$Fbar[df.tmb$nyears-i])/F0base$Fbar[df.tmb$nyears-i],
       row.names = FALSE
