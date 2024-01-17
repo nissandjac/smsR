@@ -5,14 +5,17 @@
 #' @param sas fitted sms model
 #' @param recruitment hockey, mean
 #' @param HCR Fmsy or Bescape
-#' @param avg_R years to average R
+#' @param avg_R vector of years to average R (e.g. 2010:2022)
 #' @param Btarget SSB value for Btarget
 #' @param Fcap Maximum possible fishing mortality
 #'
 #' @return
+#' returns the TAC based on the applied HCR
 #' @export
 #'
 #' @examples
+#'getTAC(df.tmb, sas, HCR = 'Bescape')
+#'
 getTAC <- function(df.tmb,
                      sas,
                      recruitment = 'mean',
@@ -127,7 +130,6 @@ ls.out <- list(TAC = fc$Catch,
 
 
 
-
 #' Simple one year forecast
 #'
 #' @param df.tmb
@@ -135,6 +137,7 @@ ls.out <- list(TAC = fc$Catch,
 #' @param F0
 #'
 #' @return
+#' returns a list with forecasted SSB and catch
 #' @export
 #'
 #' @examples

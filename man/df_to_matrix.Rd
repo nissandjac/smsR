@@ -17,3 +17,6 @@ returns a matrix
 \description{
 Turn data frames into multidimensional matrices for TMB
 }
+\examples{
+df_to_matrix(sandeel_1r$survey, season = 1:2)
+}

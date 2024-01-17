@@ -9,6 +9,9 @@ forecast.sms(df.tmb, N_current, F0)
 \arguments{
 \item{F0}{}
 }
+\value{
+returns a list with forecasted SSB and catch
+}
 \description{
 Simple one year forecast
 }

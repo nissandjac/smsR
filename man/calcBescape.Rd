@@ -4,7 +4,7 @@
 \alias{calcBescape}
 \title{Calculate the fishing mortality required to get the assigned TAC}
 \usage{
-calcBescape(Bpa, df.tmb, N_current, Fsel, Fcap = 2)
+calcBescape(Btarget, df.tmb, N_current, Fsel, Fcap = 2)
 }
 \arguments{
 \item{df.tmb}{SMS input list}

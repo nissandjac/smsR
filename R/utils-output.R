@@ -933,6 +933,8 @@ getSummaryCVs <- function(df.tmb, sas, verbose = TRUE){
 #' @export
 #'
 #' @examples
+#' getWeight(df.tmb, WW = 'west', plotFig = TRUE) # Plots the weight in the stock
+#' @importFrom reshape melt
 getWeight <- function(df.tmb, WW = 'weca', plotFig =FALSE){
 
   # Get weight per season
@@ -961,6 +963,7 @@ return(weca)
 #' @export
 #'
 #' @examples
+#' @importFrom reshape melt
 getM <- function(df.tmb, plotFig =FALSE){
 
   # Get weight per season
@@ -988,6 +991,9 @@ getM <- function(df.tmb, plotFig =FALSE){
 #' @export
 #'
 #' @examples
+#' getMat(df.tmb, plotFig = TRUE)
+#'
+#' @importFrom reshape melt
 getMat <- function(df.tmb, plotFig =FALSE){
 
   # Get weight per season

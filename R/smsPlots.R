@@ -6,6 +6,7 @@
 #' @param Blim optional value to graph if type is stack or wrap
 #'
 #' @return
+#' Returns a figure with SSB, Fbar, recruitment and catch
 #' @export
 #'
 #' @examples
@@ -15,6 +16,7 @@
 #' @importFrom ggplot2 ggplot aes geom_bar geom_line geom_hline geom_ribbon
 #' @importFrom ggplot2 alpha scale_x_continuous scale_y_continuous coord_cartesian coord_flip
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
+#' @importFrom patchwork plot_layout
 #'
  smsPlots <- function(df.tmb, sas, type="default", Blim=NULL, printFig = TRUE){
 

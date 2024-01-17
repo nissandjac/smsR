@@ -11,7 +11,7 @@ getForecastTable(
   HCR = "Bescape",
   avg_R = NULL,
   recruitment = "mean",
-  Bpa = NULL,
+  Btarget = NULL,
   Fcap = 2
 )
 }
@@ -26,7 +26,7 @@ getForecastTable(
 
 \item{avg_R}{years to average recruitment}
 
-\item{Bpa}{SSB at Bpa}
+\item{Btarget}{SSB at Btarget}
 
 \item{Fcap}{Maximum possible F value}
 }

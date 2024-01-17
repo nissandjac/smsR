@@ -9,6 +9,7 @@ mohns_rho(
   peels = 5,
   parms,
   mps = NULL,
+  useSSBprojection = TRUE,
   lwr = list(NA),
   upr = list(NA),
   plotfigure = TRUE,
@@ -24,6 +25,8 @@ mohns_rho(
 \item{parms}{parameters that are estimated}
 
 \item{mps}{parameters that are mapped}
+
+\item{useSSBprojection}{Use the projected SSB to calculate Mohns rho}
 
 \item{plotfigure}{TRUE FALSE of whether to plot figure}
 

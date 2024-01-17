@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-#'
+#' df_to_matrix(sandeel_1r$survey, season = 1:2)
 
 df_to_matrix <- function(df.in, season = 1:4){
 

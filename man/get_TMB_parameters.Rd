@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_tmb_parameters.R
 \name{get_TMB_parameters}
 \alias{get_TMB_parameters}
-\title{Organize TMB parameters in a list.}
+\title{Prepare data input for an smsR model}
 \usage{
 get_TMB_parameters(
   mtrx = NULL,
@@ -12,6 +12,7 @@ get_TMB_parameters(
   propF = NULL,
   years,
   startYear = min(years),
+  endYear = max(years),
   nseason = 4,
   nsurvey = 2,
   ages = 0:20,
@@ -52,87 +53,101 @@ get_TMB_parameters(
 )
 }
 \arguments{
-\item{mtrx}{matrix containing M, Mat, weca, west}
+\item{mtrx}{matrix containing weca, west, mat, and M}
 
-\item{Surveyobs}{matrix of survey observations}
+\item{Surveyobs}{Survey observations}
 
-\item{Catchobs}{matrix of catch observations}
+\item{Catchobs}{Catch observations}
 
-\item{propM}{Proportion of natural mortality before fishing}
+\item{propM}{proportion M before spawning}
 
-\item{propF}{Proportion of fishing mortality before fishing}
+\item{propF}{proportion F before spawning}
 
-\item{years}{vector of years}
+\item{years}{years with available data}
+
+\item{startYear}{start year of assessment (optional)}
+
+\item{endYear}{end year of assessment (optional)}
 
 \item{nseason}{number of seasons}
 
 \item{nsurvey}{number of surveys}
 
-\item{ages}{vector of ages}
+\item{ages}{age span}
 
-\item{Fbarage}{vector of min and max ages used in Fbar calculations}
+\item{Fbarage}{Ages to average F to Fbar}
 
-\item{recseason}{season where recruitment occurs}
+\item{recseason}{recruitment season}
 
-\item{Fminage}{First age to start fishing}
+\item{Fminage}{minimum age to calculate F}
 
-\item{Fmaxage}{Last age with unique fishing mortality}
+\item{Fmaxage}{Maximum age to calculate F}
 
-\item{Qminage}{vector length of nsurvey with minimum ages}
+\item{Qminage}{Minimum age included in survey}
 
-\item{Qmaxage}{vector length of nsurvey with max age with unique selectivity}
+\item{Qmaxage}{Max age included in survey}
 
-\item{Qlastage}{Last age observed in the survey}
+\item{Qlastage}{Last age with unique survey selectivity}
 
-\item{isFseason}{Season to calculate F in}
+\item{isFseason}{seasons to calculate F}
 
-\item{CminageSeason}{Minimum age with fishing mortality per season}
+\item{CminageSeason}{minimum age to use catchdata}
 
-\item{endFseason}{Last season last year with F}
+\item{CmaxageSeason}{Maximum age to use catchdata}
 
-\item{nocatch}{Matrix size year x season with 1 or 0 showing catch}
+\item{endFseason}{Last season with fishing}
 
-\item{useEffort}{1 or 0, use nominal CPUE to tune F}
+\item{nocatch}{input matrix of 1 or 0 defining if F should be calculated}
 
-\item{estimateCreep}{Estimate creep from nominal cpue}
+\item{useEffort}{Use nominal effort to calculate F}
 
-\item{effort}{matrix size year x season that contains nominal CPUE}
+\item{estimateCreep}{Estimate technological creep as a parameter. Needs useEffort = 1}
 
-\item{blocks}{Blocks with unique selectivity for fishing}
+\item{effort}{matrix of nominal effort per season}
 
-\item{surveyStart}{number between 0 and 1 determine the start of the survey within season}
+\item{blocks}{unique selectivity blocks}
 
-\item{surveyEnd}{number between 0 and 1 determine the end of the survey within season}
+\item{surveyStart}{fraction into the season where the survey starts}
 
-\item{surveySeason}{vector determining which seasons surveys occur}
+\item{surveyEnd}{fraction into the season where the survey ends}
 
-\item{minSDsurvey}{minimum allowed for all SDsurvey estimates}
+\item{surveySeason}{season where survey occurs}
 
-\item{minSDcatch}{minimum SD catch estimates allowed.}
+\item{leavesurveyout}{vector of 1 and 0 to exclude surveys}
 
-\item{peneps}{epsilon used in penalty function for SDsurvey (try 1e-6 to 1e-3)}
+\item{minSDsurvey}{minimum CV of survey}
 
-\item{penepsC}{epsilon used in penalty function for SDcatch (try 1e-6 to 1e-3)}
+\item{minSDcatch}{minimum CV of catch}
 
-\item{powers}{which ages are included in the power law calc}
+\item{peneps}{parameter for regulating minimum CV for survey}
 
-\item{surveyCV}{list with ages with unique survey CVs. Length = nsurvey}
+\item{penepsC}{parameter for regulating minimum CV of catch}
 
-\item{catchCV}{list with ages with unique catch CVs. Length = nseason}
+\item{powers}{apply powerlaw for density dependent survey observations}
 
-\item{recmodel}{chose recruitment model. 2 = hockeystick}
+\item{scv}{add time varying survey CV (input matrix)}
 
-\item{estCV}{vector length 3 of which CVs to determine. 1-survey,2-catch, 3-stock recruitment}
+\item{surveyCV}{survey cv grouping}
 
-\item{CVmin}{Currently not functional}
+\item{catchCV}{catch cv grouping}
 
-\item{betaSR}{breakpoint of SSB in hockey stick curve}
+\item{recmodel}{recruitment model}
 
-\item{nllfactor}{vector length 3 of weights of log likelihood. 1-survey, 2-catch,3-stock recruitment}
-}
-\value{
-list of stuff
+\item{estCV}{which CVs to estimate as parameters}
+
+\item{CVmin}{minimum CVs}
+
+\item{betaSR}{hockey stick break point}
+
+\item{nllfactor}{negative log likelihood weighting}
+
+\item{randomF}{try random effect fishing mortality}
 }
 \description{
-Organize TMB parameters in a list.
+Prepare data input for an smsR model
+}
+\examples{
+get_TMB_paramters(123) # Not run
+
+
 }

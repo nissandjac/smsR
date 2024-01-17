@@ -1,51 +1,52 @@
 
 #' Prepare data input for an smsR model
 #'
-#' @param mtrx
-#' @param Surveyobs
-#' @param Catchobs
-#' @param propM
-#' @param propF
-#' @param years
-#' @param startYear
-#' @param endYear
-#' @param nseason
-#' @param nsurvey
-#' @param ages
-#' @param Fbarage
-#' @param recseason
-#' @param Fminage
-#' @param Fmaxage
-#' @param Qminage
-#' @param Qmaxage
-#' @param Qlastage
-#' @param isFseason
-#' @param CminageSeason
-#' @param CmaxageSeason
-#' @param endFseason
-#' @param nocatch
-#' @param useEffort
-#' @param estimateCreep
-#' @param effort
-#' @param blocks
-#' @param surveyStart
-#' @param surveyEnd
-#' @param surveySeason
-#' @param leavesurveyout
-#' @param minSDsurvey
-#' @param minSDcatch
-#' @param peneps
-#' @param penepsC
-#' @param powers
-#' @param scv
-#' @param surveyCV
-#' @param catchCV
-#' @param recmodel
-#' @param estCV
-#' @param CVmin
-#' @param betaSR
-#' @param nllfactor
-#' @param randomF
+#' @param mtrx matrix containing weca, west, mat, and M
+#' @param Surveyobs Survey observations
+#' @param Catchobs Catch observations
+#' @param propM proportion M before spawning
+#' @param propF proportion F before spawning
+#' @param years years with available data
+#' @param startYear start year of assessment (optional)
+#' @param endYear end year of assessment (optional)
+#' @param nseason number of seasons
+#' @param nsurvey number of surveys
+#' @param ages age span
+#' @param Fbarage Ages to average F to Fbar
+#' @param recseason recruitment season
+#' @param Fminage minimum age to calculate F
+#' @param Fmaxage Maximum age to calculate F
+#' @param Qminage Minimum age included in survey
+#' @param Qmaxage Max age included in survey
+#' @param Qlastage Last age with unique survey selectivity
+#' @param isFseason seasons to calculate F
+#' @param CminageSeason minimum age to use catchdata
+#' @param CmaxageSeason Maximum age to use catchdata
+#' @param endFseason Last season with fishing
+#' @param nocatch input matrix of 1 or 0 defining if F should be calculated
+#' @param useEffort Use nominal effort to calculate F
+#' @param estimateCreep Estimate technological creep as a parameter. Needs useEffort = 1
+#' @param effort matrix of nominal effort per season
+#' @param blocks unique selectivity blocks
+#' @param surveyStart fraction into the season where the survey starts
+#' @param surveyEnd fraction into the season where the survey ends
+#' @param surveySeason season where survey occurs
+#' @param leavesurveyout vector of 1 and 0 to exclude surveys
+#' @param minSDsurvey minimum CV of survey
+#' @param minSDcatch minimum CV of catch
+#' @param peneps parameter for regulating minimum CV for survey
+#' @param penepsC parameter for regulating minimum CV of catch
+#' @param powers apply powerlaw for density dependent survey observations
+#' @param scv add time varying survey CV (input matrix)
+#' @param surveyCV survey cv grouping
+#' @param catchCV catch cv grouping
+#' @param recmodel recruitment model
+#' @param estCV which CVs to estimate as parameters
+#' @param CVmin minimum CVs
+#' @param betaSR hockey stick break point
+#' @param nllfactor negative log likelihood weighting
+#' @param randomF try random effect fishing mortality
+#'
 #'
 #' @return
 #' @export

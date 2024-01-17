@@ -10,8 +10,8 @@ getTAC(
   recruitment = "mean",
   HCR = "Bescape",
   avg_R = NULL,
-  Bpa = NULL,
-  Fcap = NULL
+  Btarget = NULL,
+  Fcap = 2
 )
 }
 \arguments{
@@ -23,12 +23,19 @@ getTAC(
 
 \item{HCR}{Fmsy or Bescape}
 
-\item{avg_R}{years to average R}
+\item{avg_R}{vector of years to average R (e.g. 2010:2022)}
 
-\item{Bpa}{SSB value for Bpa}
+\item{Btarget}{SSB value for Btarget}
 
 \item{Fcap}{Maximum possible fishing mortality}
 }
+\value{
+returns the TAC based on the applied HCR
+}
 \description{
 Forecast an sms model
+}
+\examples{
+getTAC(df.tmb, sas, HCR = 'Bescape')
+
 }

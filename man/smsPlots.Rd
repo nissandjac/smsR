@@ -15,6 +15,9 @@ smsPlots(df.tmb, sas, type = "default", Blim = NULL, printFig = TRUE)
 
 \item{Blim}{optional value to graph if type is stack or wrap}
 }
+\value{
+Returns a figure with SSB, Fbar, recruitment and catch
+}
 \description{
 Plot standard stock assessment figures
 }
