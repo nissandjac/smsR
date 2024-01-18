@@ -17,3 +17,8 @@ data frame of fishing mortality at age. Last year is based on the expected survi
 \description{
 Get survey residuals from fitted model
 }
+\examples{
+res <- getResidSurvey(df.tmb, sas)
+print(res)
+
+}

@@ -11,6 +11,14 @@ getSR(df.tmb, sas)
 
 \item{sas}{fitted smsR model}
 }
+\value{
+returns a data frame with a stock recruitment relationship
+}
 \description{
 Get the stock recruitment relationship
+}
+\examples{
+
+SR <- getSR(df.tmb, sas)
+
 }

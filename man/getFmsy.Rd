@@ -17,6 +17,9 @@ getFmsy(df.tmb, sas, nyears = 50, recruitment = "hockey", plotMSY = FALSE)
 
 \item{plotMSY}{TRUE OR FALSE to plot the result}
 }
+\value{
+returns the fishing mortality that leads to Fmsy
+}
 \description{
 Calculate Fmsy from a sms model
 }

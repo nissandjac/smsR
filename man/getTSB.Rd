@@ -19,3 +19,9 @@ SE is standard error of log TSB
 \description{
 Get the total stock biomass
 }
+\examples{
+
+dat <- getTSB(df.tmb, sas)
+
+
+}

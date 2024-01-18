@@ -9,6 +9,7 @@
 #' @param mat Maturity ogive
 #'
 #' @return
+#' returns a list of derived values from the projection
 #' @export
 #'
 #' @examples

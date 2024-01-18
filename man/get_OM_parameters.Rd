@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_OM_parameters.R
 \name{get_OM_parameters}
 \alias{get_OM_parameters}
-\title{Ready parameters for an operating model using a fitted sms model}
+\title{Prepare parameters for an operating model using a fitted sms model}
 \usage{
 get_OM_parameters(
   df.tmb,
@@ -18,8 +18,33 @@ get_OM_parameters(
 )
 }
 \arguments{
-\item{recruitment}{}
+\item{df.tmb}{list of smsR input data}
+
+\item{sas}{fitted smsR stock assessment}
+
+\item{surveySD}{CV on survey}
+
+\item{recruitment}{Type of recruitment function shape}
+
+\item{nspace}{number of spatial cells}
+
+\item{moveinit}{Initial distribution in spatial cells (must add to 1)}
+
+\item{movemax}{maximum movement rate per cell}
+
+\item{rec.space}{relative recruitment in cells}
+
+\item{moveslope}{slope of the movement function shape}
+
+\item{movefifty}{age at 50% movement rate out of a cell}
+}
+\value{
+Returns a list of parameters for an smsR operating model
 }
 \description{
-Ready parameters for an operating model using a fitted sms model
+Prepare parameters for an operating model using a fitted sms model
+}
+\examples{
+p <- get_OM_parameters(df.tmb)
+
 }

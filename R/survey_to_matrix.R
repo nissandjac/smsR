@@ -1,10 +1,11 @@
-#' Title
+#' Take a dataframe of surveys and converts them to matrix for smsR
 #'
 #' @param survey data frame containing survey
 #' @param year years  to plot
 #' @param season which seasons  are modeled
 #'
 #' @return
+#' returns a matrix of observed surveys
 #' @export
 #'
 #' @examples

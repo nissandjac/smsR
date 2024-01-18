@@ -2,7 +2,7 @@
 % Please edit documentation in R/survey_to_matrix.R
 \name{survey_to_matrix}
 \alias{survey_to_matrix}
-\title{Title}
+\title{Take a dataframe of surveys and converts them to matrix for smsR}
 \usage{
 survey_to_matrix(survey, year)
 }
@@ -13,8 +13,11 @@ survey_to_matrix(survey, year)
 
 \item{season}{which seasons  are modeled}
 }
+\value{
+returns a matrix of observed surveys
+}
 \description{
-Title
+Take a dataframe of surveys and converts them to matrix for smsR
 }
 \examples{
 survey_to_matrix(x,y)

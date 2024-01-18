@@ -47,7 +47,6 @@ getSSB <- function(df.tmb, sas){
 #' SE is standard error of log Biomass
 #' @export
 #'
-#' @examples
 getBiomass <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -93,6 +92,10 @@ getBiomass <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#'
+#' dat <- getTSB(df.tmb, sas)
+#'
+#'
 getTSB <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -160,9 +163,13 @@ getCatch <- function(df.tmb, sas){
 #' @param sas fitted model object
 #'
 #' @return
+#' returns a table of survey catchability
 #' @export
 #'
 #' @examples
+#'
+#' print(getCatchability(df.tmb, sas))
+#'
 getCatchability <- function(df.tmb, sas){
 
 
@@ -187,6 +194,7 @@ getCatchability <- function(df.tmb, sas){
 #' @param sas fitted sms model
 #'
 #' @return
+#' returns a table of estimated fisheries selectivity
 #' @export
 #'
 #' @examples
@@ -351,9 +359,13 @@ getCatchN <- function(df.tmb, sas){
 #' @param df.tmb a list of parameters for smsR model
 #'
 #' @return
+#' returns the observed catch at age
 #' @export
 #'
 #' @examples
+#'
+#' Yield <- getYield(df.tmb) # Get observed catch at age as a data frame
+#'
 getYield <- function(df.tmb){
 
   Yield <- apply(df.tmb$Catchobs*df.tmb$weca[,1:df.tmb$nyears,, drop = FALSE], MARGIN = c(2), FUN = sum)
@@ -379,6 +391,9 @@ getYield <- function(df.tmb){
 #' @export
 #'
 #' @examples
+#'
+#' Ftest <- getF(df.tmb, sas)
+#'
 getF <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -407,7 +422,7 @@ getF <- function(df.tmb, sas){
   return(F0)
 }
 
-#' Title
+#' Get Fbar from a fitted smsR model
 #'
 #' @param df.tmb list of input parameters
 #' @param sas smsR fitted model
@@ -419,6 +434,9 @@ getF <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#'
+#' Fbar <- getFbar(df.tmb, sas)
+#'
 getFbar <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -442,14 +460,15 @@ getFbar <- function(df.tmb, sas){
   return(tmp)
 }
 
+#' Get the catch residuals
 #'
-#' @param df.tmb list of input parameters
-#' @param sas fitted smsR model
+#' @param df.tmb list of input data for smsR object
+#' @param sas fitted stock assessment model for smsR
 #'
-#' @return
-
 #' @export
 #'
+#' @return
+#' Returns a data frame of catch residuals
 #' @examples
 #'
 #' getResidCatch(df.tmb, sas)
@@ -492,6 +511,9 @@ getResidCatch <- function(df.tmb, sas){
 #' @export
 #'
 #' @examples
+#' res <- getResidSurvey(df.tmb, sas)
+#' print(res)
+#'
 getResidSurvey <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -528,6 +550,8 @@ getResidSurvey <- function(df.tmb, sas){
 #'
 #' @examples
 #'
+#' print(getEstimatedParms(sas))
+#'
 getEstimatedParms <- function(sas){
 
   parms.estimated <- data.frame(value = sas$opt$par,
@@ -547,8 +571,6 @@ getEstimatedParms <- function(sas){
 #' @return
 #' data frame of estimated parameters and their SE
 #' @export
-#'
-#' @examples
 #'
 getCatchCV <- function(df.tmb, sas){
 
@@ -583,8 +605,6 @@ getCatchCV <- function(df.tmb, sas){
 #' data frame of estimated parameters and their SE
 #' @export
 #'
-#' @examples
-#'
 getSurveyCV <- function(df.tmb,sas){
 
   reps <- sas$reps
@@ -617,9 +637,12 @@ getSurveyCV <- function(df.tmb,sas){
 #' @aliases AIC AIC.sms
 #'
 #' @return
+#' return the AIC value of the fitted assessment
 #' @export
 #'
 #' @examples
+#'
+#' AIC(sas)
 AIC.sms <- function(object, p=2, n=Inf, ...){
 
     opt <- object$opt
@@ -658,13 +681,18 @@ nobs.sms <- function(object, ...) {
 
 #' Get summary of derived variables from fitted smsR object
 #'
-#' @param df.tmb
-#' @param sas
+#' @param df.tmb list of input parameters for smsR object
+#' @param sas fitted smsR model
 #'
 #' @return
+#' returns a table of SSB, R, Yield and Fbar with uncertainty
 #' @export
 #'
 #' @examples
+#'
+#' dat <- getSummary(df.tmb, sas)
+#'
+#'
 getSummary <-function(df.tmb, sas){
 
   SSB <- getSSB(df.tmb,sas)
@@ -693,37 +721,19 @@ getSummary <-function(df.tmb, sas){
 return(df.out)
 }
 
-#' Make sure no boundaries are overrun in the model
-#'
-#' @param df.tmb
-#' @param parms
-#' @param mps
-#'
-#' @return
-#' @export
-#'
-#' @examples
-checkBoundaries <- function(df.tmb, parms, mps){
-
-
-
-
-
-
-
-}
-
-
-
 #' Get the stock recruitment relationship
 #'
 #' @param df.tmb data frame with input data
 #' @param sas fitted smsR model
 #'
 #' @return
+#' returns a data frame with a stock recruitment relationship
 #' @export
 #'
 #' @examples
+#'
+#' SR <- getSR(df.tmb, sas)
+#'
 getSR <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -755,73 +765,20 @@ getSR <- function(df.tmb, sas){
 }
 
 
-#' Get the fisheries selectivity
-#'
-#' @param df.tmb
-#' @param sas
-#'
-#' @return
-#' @export
-#'
-#' @examples
-getSelex <- function(df.tmb, sas){
-
-  reps <- sas$reps
-
-  sdrep <- summary(reps)
-  rep.values<-rownames(sdrep)
-  years <- df.tmb$years
-
-  tmp <- data.frame(Fsel = sdrep[rep.values == 'Fsel',1])
-  tmp$SE <- sdrep[rep.values == 'Fsel',2]
-  tmp$low <- tmp$Fsel-2*tmp$SE
-  tmp$high <- tmp$Fsel+2*tmp$SE
-  tmp$ages <- df.tmb$age
-  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage*(df.tmb$nyears))
-  tmp$years <- rep(years, each = df.tmb$nage)
-  tmp$Fsel[tmp$Fsel == 0] <- -Inf
-  tmp$low[tmp$Fsel == -Inf] <- -Inf
-  tmp$high[tmp$Fsel == -Inf] <- -Inf
-
-  tmp$Fsel <- exp(tmp$Fsel)
-  tmp$low <- exp(tmp$low)
-  tmp$high <- exp(tmp$high)
-  tmp$blocks <- NA
-
-  # Add blocks for plotting
-  nblocks <- rep(NA, length(unique(df.tmb$bidx)))
-
-  for(i in 1:length(nblocks)){
-    if(i == 1){
-      y1 <- df.tmb$years[1]
-    }
-
-    if(i == length(nblocks)){
-      y2 <- df.tmb$years[df.tmb$nyears]
-    }else{
-      y2 <- df.tmb$years[which(df.tmb$bidx == i)[1]]
-    }
-
-    nblocks[i] <- paste(y1,y2, sep = '-')
-    tmp$blocks[tmp$years%in% y1:y2] <- nblocks[i]
-
-    y1 <- y2
-
-  }
-
-return(tmp)
-}
-
 
 #' Get the estimated survey
 #'
-#' @param df.tmb
-#' @param sas
+#' @param df.tmb list of input data for smsR
+#' @param sas fitted smsR assessment model
 #'
 #' @return
+#' returns the estimated survey as a data frame
 #' @export
 #'
 #' @examples
+#'
+#' survest <- getSurvey(df.tmb, sas)
+#'
 getSurvey <- function(df.tmb, sas){
 
   # Get the estimated survey
@@ -849,6 +806,19 @@ getSurvey <- function(df.tmb, sas){
 }
 
 
+#' Get the selectivity in the last year
+#'
+#' @param df.tmb list of input data for an smsR model
+#' @param sas fitted smsR model
+#'
+#' @return
+#' returns a table of most recent selectivity with uncertainty
+#' @export
+#'
+#' @examples
+#'
+#' sel <- getSelectivity(df.tmb, sas)
+#'
 getSelectivity <- function(df.tmb, sas){
 
   # Get the estimated survey
@@ -873,19 +843,19 @@ getSelectivity <- function(df.tmb, sas){
   return(tmp)
 }
 
-
-
-
 #' Get the CVs of the summary information
 #'
-#' @param df.tmb
-#' @param sas
-#' @param verbose
+#' @param df.tmb list of smsR input data
+#' @param sas fitted smsR model
+#' @param verbose print the output
 #'
 #' @return
+#' returns a table of annual CVs for SSB, R and Fbar
 #' @export
 #'
 #' @examples
+#'
+#' cvs <- getSummaryCVs(df.tmb, sas, verbose = TRUE) # Don't print it
 #'
 getSummaryCVs <- function(df.tmb, sas, verbose = TRUE){
 
@@ -963,6 +933,10 @@ return(weca)
 #' @export
 #'
 #' @examples
+#'
+#' M <- getM(df.tmb, plotFig = TRUE) # Plot the natural mortality by age
+#'
+#'
 #' @importFrom reshape melt
 getM <- function(df.tmb, plotFig =FALSE){
 
@@ -991,7 +965,7 @@ getM <- function(df.tmb, plotFig =FALSE){
 #' @export
 #'
 #' @examples
-#' getMat(df.tmb, plotFig = TRUE)
+#' getMat(df.tmb, plotFig = TRUE) # Plot maturity
 #'
 #' @importFrom reshape melt
 getMat <- function(df.tmb, plotFig =FALSE){

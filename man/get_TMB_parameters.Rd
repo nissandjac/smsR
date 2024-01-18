@@ -143,11 +143,16 @@ get_TMB_parameters(
 
 \item{randomF}{try random effect fishing mortality}
 }
+\value{
+returns a
+}
 \description{
 Prepare data input for an smsR model
 }
 \examples{
-get_TMB_paramters(123) # Not run
-
+get_TMB_paramters(mtrx = sandeel_1r$lhs,
+                 Surveyobs = sandeel_1r$survey,
+                 Catchobs = sandeel_1r$Catch ,
+                 years = 1983:2022) # Not run
 
 }

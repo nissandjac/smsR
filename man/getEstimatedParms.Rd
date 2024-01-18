@@ -15,3 +15,8 @@ data frame of estimated parameters and their SE
 \description{
 Retrieve estimated parameters
 }
+\examples{
+
+print(getEstimatedParms(sas))
+
+}

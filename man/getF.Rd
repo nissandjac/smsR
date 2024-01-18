@@ -20,3 +20,8 @@ SE is standard error of log F0
 \description{
 Get fishing mortality at age from fitted model
 }
+\examples{
+
+Ftest <- getF(df.tmb, sas)
+
+}

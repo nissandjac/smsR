@@ -7,9 +7,7 @@
 #' @param plotMSY TRUE OR FALSE to plot the result
 #'
 #' @return
-#' @export
-#'
-#' @examples
+#' returns the fishing mortality that leads to Fmsy
 getFmsy <- function(df.tmb,
                     sas,
                     nyears = 50,

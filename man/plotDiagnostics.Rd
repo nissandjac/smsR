@@ -7,8 +7,20 @@
 plotDiagnostics(df.tmb, sas, mr = NULL)
 }
 \arguments{
-\item{sas}{}
+\item{df.tmb}{List of smsR input data}
+
+\item{sas}{Fitted smsR model}
+}
+\value{
+returns a list of plots
 }
 \description{
 Plot all diagnostics of fitted stock assesment model
+}
+\examples{
+p <- plotDiagnostics(df.tmb, sas)
+
+print(p$SR) # Print the stock recruitment relationship
+
+
 }

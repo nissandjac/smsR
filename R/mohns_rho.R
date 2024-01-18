@@ -12,9 +12,14 @@
 #' @param dll which dll to use. Uses 'sms' as standard
 #'
 #' @return
+#' returnsa list of Mohns rho values, input values, and a Mohns rho plot
 #' @export
 #'
 #' @examples
+#'
+#' MR <- mohns_rho(df.tmb, peels = 5, parms)
+#'
+#'print(MR$p1()) # plot the results
 #' @importFrom ggplot2 ggplot aes geom_bar coord_flip theme_classic geom_line geom_ribbon
 #' @importFrom ggplot2 alpha scale_y_continuous coord_cartesian theme facet_wrap
 

@@ -32,3 +32,6 @@ a list of derived variables
 \description{
 Run the sms model
 }
+\examples{
+sas <- runAssessment(df.tmb, parms) # Run an assessment
+}

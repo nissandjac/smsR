@@ -7,8 +7,20 @@
 getSummaryCVs(df.tmb, sas, verbose = TRUE)
 }
 \arguments{
-\item{verbose}{}
+\item{df.tmb}{list of smsR input data}
+
+\item{sas}{fitted smsR model}
+
+\item{verbose}{print the output}
+}
+\value{
+returns a table of annual CVs for SSB, R and Fbar
 }
 \description{
 Get the CVs of the summary information
+}
+\examples{
+
+cvs <- getSummaryCVs(df.tmb, sas, verbose = TRUE) # Don't print it
+
 }

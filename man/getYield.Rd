@@ -9,6 +9,14 @@ getYield(df.tmb)
 \arguments{
 \item{df.tmb}{a list of parameters for smsR model}
 }
+\value{
+returns the observed catch at age
+}
 \description{
 Get the observed yield from the fishery
+}
+\examples{
+
+Yield <- getYield(df.tmb) # Get observed catch at age as a data frame
+
 }

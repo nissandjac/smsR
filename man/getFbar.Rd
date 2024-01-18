@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getFbar}
 \alias{getFbar}
-\title{Title}
+\title{Get Fbar from a fitted smsR model}
 \usage{
 getFbar(df.tmb, sas)
 }
@@ -17,5 +17,10 @@ low and high are the 95\% confidence intervals.
 SE is standard error of log Fbar
 }
 \description{
-Title
+Get Fbar from a fitted smsR model
+}
+\examples{
+
+Fbar <- getFbar(df.tmb, sas)
+
 }

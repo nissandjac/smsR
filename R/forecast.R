@@ -132,15 +132,22 @@ ls.out <- list(TAC = fc$Catch,
 
 #' Simple one year forecast
 #'
-#' @param df.tmb
-#' @param N_current
-#' @param F0
+#' @param df.tmb smsR input data list
+#' @param N_current Latest estimate of numbers at age. Can be extracted from 'sas' object
+#' @param F0 Fishing mortality and selectivity to project
 #'
 #' @return
 #' returns a list with forecasted SSB and catch
 #' @export
 #'
 #' @examples
+#'
+#' N_current <-  N_current <- matrix(0 , nrow = df.tmb$nage, ncol = df.tmb$nseason)
+#' N_current[2:df.tmb$nage,1] <- N_temp[2:df.tmb$nage]
+#' N_current[1, df.tmb$recseason] <- N_temp[1]
+#'
+#' fcast <- forecast.sms(df.tmb, N_current, rep(0, df.tmb$nage))
+#'
 forecast.sms <- function(df.tmb , N_current, F0 ){
 
   N_future <- matrix(NA, df.tmb$nage) # For the following year SSB
@@ -206,9 +213,13 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
 
 #'
 #' @return
+#' Returns the fishing mortality required to reach the input TAC
 #' @export
 #'
 #' @examples
+#'
+#' calcFTAC(10000, df.tmb,
+#'
 calcFTAC <- function(TAC ,
                         df.tmb,
                         N_current,
@@ -235,7 +246,7 @@ calcFTAC <- function(TAC ,
 
   parms.in <- list(0.5)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
+  Fnew <- stats::optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
 }
@@ -243,14 +254,12 @@ calcFTAC <- function(TAC ,
 
 #' calc f required in OM to get TAC
 #'
-#' @param TAC
-#' @param df.OM
-#' @param OM
+#' @param TAC TAC to optimize for
+#' @param df.OM list of OM parameters
+#' @param Fcap Maximum F to test
 #'
-#' @return
 #' @export
 #'
-#' @examples
 getOM_FTAC <- function(TAC ,
                      df.OM,
                      Fcap = 10){
@@ -283,7 +292,7 @@ getOM_FTAC <- function(TAC ,
 
   parms.in <- list(1)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
+  Fnew <- stats::optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
 
   Fsel <- df.OM$F0[,length(df.OM$years),]
 
@@ -300,10 +309,8 @@ getOM_FTAC <- function(TAC ,
 #' @param Fcap maximum fishing mortality
 
 #'
-#' @return
 #' @export
 #'
-#' @examples
 calcBescape <- function(Btarget ,
                         df.tmb,
                         N_current,
@@ -331,7 +338,7 @@ calcBescape <- function(Btarget ,
 
   parms.in <- list(0.5)
 
-  Fnew <- optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBtarget, data= data.in, method = 'L-BFGS-B')
+  Fnew <- stats::optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBtarget, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
 }
@@ -350,9 +357,12 @@ calcBescape <- function(Btarget ,
 #' @param Fcap Maximum possible F value
 #'
 #' @return
+#' Returns a table with different catch options
 #' @export
 #'
 #' @examples
+#' getForecastTable(df.tmb, sas, TACold = 1e4, HCR = 'Bescape')
+#'
 getForecastTable <- function(df.tmb,
                                 sas,
                                 TACold,

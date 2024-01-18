@@ -3,6 +3,7 @@
 #' @param df list of parameters and life history values
 #'
 #' @return
+#' returns a list of derived and calculated values
 #' @export
 #'
 #' @examples
@@ -556,7 +557,7 @@ run.agebased.sms.op <- function(df){
   if(df$move == TRUE){
     for(i in 1:df$nsurvey){
 
-      survey[,,i] <- apply(survey.true[,,,i], MAR = c(1,2), sum)
+      survey[,,i] <- apply(survey.true[,,,i], MARGIN = c(1,2), sum)
 
 
     }

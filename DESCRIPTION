@@ -12,9 +12,8 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
-    gridExtra,
     patchwork,
-    usethis,
+    reshape,
     magrittr
 LinkingTo: TMB, RcppEigen
 Description: Run the single species SMS model

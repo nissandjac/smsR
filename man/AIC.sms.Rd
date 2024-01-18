@@ -14,6 +14,13 @@
 
 \item{n}{AICc sample size, default = Inf}
 }
+\value{
+return the AIC value of the fitted assessment
+}
 \description{
 Calculate AIC from smsR stock assessment object
+}
+\examples{
+
+AIC(sas)
 }

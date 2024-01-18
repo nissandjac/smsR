@@ -7,8 +7,19 @@
 getSummary(df.tmb, sas)
 }
 \arguments{
-\item{sas}{}
+\item{df.tmb}{list of input parameters for smsR object}
+
+\item{sas}{fitted smsR model}
+}
+\value{
+returns a table of SSB, R, Yield and Fbar with uncertainty
 }
 \description{
 Get summary of derived variables from fitted smsR object
+}
+\examples{
+
+dat <- getSummary(df.tmb, sas)
+
+
 }

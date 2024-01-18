@@ -101,7 +101,7 @@
       if(type=="stack"){
         pls <- ggplot(results, aes(x=years, y=mid))+
           geom_line()+geom_ribbon(aes(ymin=low, ymax=high), alpha=.4, linetype=0)+
-          facet_grid(variable~., scale="free", switch="both")+ylab(NULL)+
+          facet_grid(variable~., scales="free", switch="both")+ylab(NULL)+
           theme(panel.spacing = unit(0, "lines"))+
           geom_hline(data=Blimdat, aes(yintercept=Blim), lty=2)+
           #	theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
@@ -112,7 +112,7 @@
       if(type=="wrap"){
         pls <- ggplot(results, aes(x=years, y=mid))+
           geom_line()+geom_ribbon(aes(ymin=low, ymax=high), alpha=.4, linetype=0)+
-          facet_wrap(~variable, scale="free")+ylab(NULL)+
+          facet_wrap(~variable, scales="free")+ylab(NULL)+
           theme(panel.spacing = unit(0, "lines"))+
           geom_hline(data=Blimdat, aes(yintercept=Blim), lty=2)+
           #	theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
@@ -125,7 +125,7 @@
       if(type=="stack"){
         pls <- ggplot(results, aes(x=years, y=mid))+
           geom_line()+geom_ribbon(aes(ymin=low, ymax=high), alpha=.4, linetype=0)+
-          facet_grid(variable~., scale="free", switch="both")+ylab(NULL)+
+          facet_grid(variable~., scales="free", switch="both")+ylab(NULL)+
           theme(panel.spacing = unit(0, "lines"))+
           #	theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
           theme(legend.position="none")+
@@ -135,7 +135,7 @@
       if(type=="wrap"){
         pls <- ggplot(results, aes(x=years, y=mid))+
           geom_line()+geom_ribbon(aes(ymin=low, ymax=high), alpha=.4, linetype=0)+
-          facet_wrap(~variable, scale="free")+ylab(NULL)+
+          facet_wrap(~variable, scales="free")+ylab(NULL)+
           theme(panel.spacing = unit(0, "lines"))+
           #	theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))+
           theme(legend.position="none")+

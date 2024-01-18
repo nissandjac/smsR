@@ -18,6 +18,6 @@ returns a data frame of weight at aeg
 get the maturity at age from the input data and plot it
 }
 \examples{
-getMat(df.tmb, plotFig = TRUE)
+getMat(df.tmb, plotFig = TRUE) # Plot maturity
 
 }

@@ -38,6 +38,15 @@ mohns_rho(
 
 \item{upper}{upper boundary of parameters}
 }
+\value{
+returnsa list of Mohns rho values, input values, and a Mohns rho plot
+}
 \description{
 Calculate mohns rho.
+}
+\examples{
+
+MR <- mohns_rho(df.tmb, peels = 5, parms)
+
+print(MR$p1()) # plot the results
 }

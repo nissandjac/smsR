@@ -30,6 +30,13 @@ getForecastTable(
 
 \item{Fcap}{Maximum possible F value}
 }
+\value{
+Returns a table with different catch options
+}
 \description{
 Produce an ICES forecast table
+}
+\examples{
+getForecastTable(df.tmb, sas, TACold = 1e4, HCR = 'Bescape')
+
 }

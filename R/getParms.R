@@ -4,9 +4,12 @@
 #' @param parms.true data frame of true parameters
 #'
 #' @return
-#' @export
+#' returns a set of parameters to estimate for an smsR model
 #'
 #' @examples
+#'
+#' parms <- getParms(df.tmb)
+#'
 getParms <- function(df.tmb, parms.true = NULL){
 
 
@@ -95,14 +98,18 @@ getParms <- function(df.tmb, parms.true = NULL){
 
 
 
-#' Title
+#' Get a list of mapped parameters (not estimated)
 #'
 #' @param df.tmb list of tmb input parameters
 #'
 #' @return
-#' @export
+#' returns a list of parameters to be mapped for smsR
 #'
 #' @examples
+#'
+#'# Map the  CV of surveys to the parms value
+#' MPS <- getMPS(df.tmb, parms, mapExtra = 'SDsurvey')
+#'
 getMPS <- function(df.tmb, parms, mapExtra = NA){
 
   # Not estimated parameters

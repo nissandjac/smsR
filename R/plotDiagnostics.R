@@ -1,12 +1,18 @@
 #' Plot all diagnostics of fitted stock assesment model
 #'
-#' @param df.tmb
-#' @param sas
+#' @param df.tmb List of smsR input data
+#' @param sas Fitted smsR model
 #'
 #' @return
+#' returns a list of plots
 #' @export
 #'
 #' @examples
+#' p <- plotDiagnostics(df.tmb, sas)
+#'
+#' print(p$SR) # Print the stock recruitment relationship
+#'
+#'
 plotDiagnostics <- function(df.tmb, sas, mr = NULL){
 
   nseason <- df.tmb$nseason

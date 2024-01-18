@@ -7,8 +7,18 @@
 getSurvey(df.tmb, sas)
 }
 \arguments{
-\item{sas}{}
+\item{df.tmb}{list of input data for smsR}
+
+\item{sas}{fitted smsR assessment model}
+}
+\value{
+returns the estimated survey as a data frame
 }
 \description{
 Get the estimated survey
+}
+\examples{
+
+survest <- getSurvey(df.tmb, sas)
+
 }

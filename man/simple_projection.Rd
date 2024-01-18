@@ -21,6 +21,9 @@ simple_projection(df.tmb, N_current, F0, M, weca, mat, avg_years)
 
 \item{west}{weight at age in stock}
 }
+\value{
+returns a list of derived values from the projection
+}
 \description{
 Do a simple 1 year projection of the stock
 }

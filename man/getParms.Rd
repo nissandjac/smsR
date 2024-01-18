@@ -11,6 +11,14 @@ getParms(df.tmb, parms.true = NULL)
 
 \item{parms.true}{data frame of true parameters}
 }
+\value{
+returns a set of parameters to estimate for an smsR model
+}
 \description{
 Title
+}
+\examples{
+
+parms <- getParms(df.tmb)
+
 }

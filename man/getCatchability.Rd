@@ -11,6 +11,14 @@ getCatchability(df.tmb, sas)
 
 \item{sas}{fitted model object}
 }
+\value{
+returns a table of survey catchability
+}
 \description{
 Get the survey catchability
+}
+\examples{
+
+print(getCatchability(df.tmb, sas))
+
 }

@@ -7,7 +7,11 @@
 getOM_FTAC(TAC, df.OM, Fcap = 10)
 }
 \arguments{
-\item{OM}{}
+\item{TAC}{TAC to optimize for}
+
+\item{df.OM}{list of OM parameters}
+
+\item{Fcap}{Maximum F to test}
 }
 \description{
 calc f required in OM to get TAC

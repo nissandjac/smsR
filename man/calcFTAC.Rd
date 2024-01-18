@@ -17,6 +17,14 @@ calcFTAC(TAC, df.tmb, N_current, Fsel, Fcap = 2)
 
 \item{Fcap}{maximum fishing mortality allowed}
 }
+\value{
+Returns the fishing mortality required to reach the input TAC
+}
 \description{
 Calculate the fishing mortality required to get the assigned TAC
+}
+\examples{
+
+calcFTAC(10000, df.tmb,
+
 }

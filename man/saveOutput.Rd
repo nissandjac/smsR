@@ -7,15 +7,35 @@
 saveOutput(
   df.tmb,
   sas,
-  MR = NULL,
+  mr = NULL,
   savefile = TRUE,
   name = "summary",
   wd = getwd()
 )
 }
 \arguments{
-\item{wd}{}
+\item{df.tmb}{list of smsR input data}
+
+\item{sas}{fitted smsR model}
+
+\item{mr}{mohns rho object from the 'mohns_rho' function}
+
+\item{savefile}{TRUE or FALSE save the file to disc}
+
+\item{name}{name of saved csv file}
+
+\item{wd}{working directory}
+}
+\value{
+Prints a csv file of diagnostic values
 }
 \description{
 Save output to evaluate assessment model
+}
+\examples{
+
+dat <- saveOutput(df.tmb, sas, savefile = FALSE)
+print(dat)
+
+
 }

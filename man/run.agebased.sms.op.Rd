@@ -9,6 +9,9 @@ run.agebased.sms.op(df)
 \arguments{
 \item{df}{list of parameters and life history values}
 }
+\value{
+returns a list of derived and calculated values
+}
 \description{
 Run a full age based model as operating model for SMS
 }

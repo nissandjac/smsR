@@ -1,19 +1,24 @@
 
 #' Save output to evaluate assessment model
 #'
-#' @param df.tmb
-#' @param sas
-#' @param MR
-#' @param save
-#' @param Fbarage
-#' @param name
-#' @param wd
+#' @param df.tmb list of smsR input data
+#' @param sas fitted smsR model
+#' @param mr mohns rho object from the 'mohns_rho' function
+#' @param name name of saved csv file
+#' @param wd working directory
+#' @param savefile TRUE or FALSE save the file to disc
 #'
 #' @return
+#' Prints a csv file of diagnostic values
 #' @export
 #'
 #' @examples
-saveOutput <- function(df.tmb, sas, MR = NULL, savefile = TRUE,
+#'
+#' dat <- saveOutput(df.tmb, sas, savefile = FALSE)
+#' print(dat)
+#'
+#'
+saveOutput <- function(df.tmb, sas, mr = NULL, savefile = TRUE,
                        name = 'summary', wd = getwd()){
 
   # Prepare a table with output stuff

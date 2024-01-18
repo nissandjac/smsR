@@ -1,15 +1,23 @@
-#' Ready parameters for an operating model using a fitted sms model
+#' Prepare parameters for an operating model using a fitted sms model
 #'
-#' @param df.tmb
-#' @param sas
-#' @param move
-#' @param surveySD
-#' @param recruitment
+#' @param df.tmb list of smsR input data
+#' @param sas fitted smsR stock assessment
+#' @param surveySD CV on survey
+#' @param recruitment Type of recruitment function shape
+#' @param nspace number of spatial cells
+#' @param moveinit Initial distribution in spatial cells (must add to 1)
+#' @param movemax maximum movement rate per cell
+#' @param rec.space relative recruitment in cells
+#' @param moveslope slope of the movement function shape
+#' @param movefifty age at 50% movement rate out of a cell
 #'
 #' @return
+#' Returns a list of parameters for an smsR operating model
 #' @export
 #'
 #' @examples
+#' p <- get_OM_parameters(df.tmb)
+#'
 get_OM_parameters <- function(df.tmb, sas = NULL,
                               surveySD = 0.4,
                               recruitment = NULL,
@@ -151,10 +159,6 @@ get_OM_parameters <- function(df.tmb, sas = NULL,
     b = rep(0, df.tmb$nyears),
     last_year = max(df.tmb$years)
   )
-
-
-
-
 
 
   return(df.OM)

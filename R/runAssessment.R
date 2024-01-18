@@ -12,6 +12,7 @@
 #' @export
 #'
 #' @examples
+#' sas <- runAssessment(df.tmb, parms) # Run an assessment
 runAssessment <- function(df.tmb,
                           parms,
                           lwr = list(NA),

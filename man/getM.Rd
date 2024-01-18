@@ -17,3 +17,9 @@ returns a data frame of weight at aeg
 \description{
 get the natural mortality at age from the input data and plot it
 }
+\examples{
+
+M <- getM(df.tmb, plotFig = TRUE) # Plot the natural mortality by age
+
+
+}

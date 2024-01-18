@@ -11,10 +11,12 @@
 #' @param seasons seasons to calc
 #'
 #' @return
-#' @export
+#' Returns a list of data frames
 #'
 #' @examples
-#' x <- getDataSandeel # Not run
+#' wd <- 'C:/testdir/'
+#' x <- getDataSandeel(wd, maxage = 5, survey.age = c(1:2),
+#' survey.years = 2004:2023, survey.quarter = 1, years = 1985:2024, seasons = 1:2) # Not run
 getDataSMS <- function(wd,
                            maxage = NA,
                            survey.age = list(),

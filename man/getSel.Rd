@@ -11,6 +11,9 @@ getSel(df.tmb, sas)
 
 \item{sas}{fitted sms model}
 }
+\value{
+returns a table of estimated fisheries selectivity
+}
 \description{
 Retrieve the fishing selectivity
 }
