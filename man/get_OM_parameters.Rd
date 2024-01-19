@@ -44,7 +44,3 @@ Returns a list of parameters for an smsR operating model
 \description{
 Prepare parameters for an operating model using a fitted sms model
 }
-\examples{
-p <- get_OM_parameters(df.tmb)
-
-}

@@ -26,6 +26,8 @@ getForecastTable(
 
 \item{avg_R}{years to average recruitment}
 
+\item{recruitment}{projected recruitment option ('mean)}
+
 \item{Btarget}{SSB at Btarget}
 
 \item{Fcap}{Maximum possible F value}

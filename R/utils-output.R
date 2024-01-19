@@ -565,7 +565,7 @@ getEstimatedParms <- function(sas){
 
 
 #' Retrieve estimated catch CV
-#'
+#' @param df.tmb Input list for smsR data
 #' @param sas stock assessment output from smsR
 #'
 #' @return
@@ -633,7 +633,9 @@ getSurveyCV <- function(df.tmb,sas){
 #'
 #' @param object Stock assesment object from smsR
 #' @param p penalty on number of parameters, default = 2
+#' @param ... etc
 #' @param n AICc sample size, default = Inf
+#'
 #' @aliases AIC AIC.sms
 #'
 #' @return

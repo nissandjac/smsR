@@ -302,12 +302,11 @@ getOM_FTAC <- function(TAC ,
 
 #' Calculate the fishing mortality required to get the assigned TAC
 #'
-#' @param TAC TAC were are trying to achieve
+#' @param Btarget Target spawning biomass to reach
 #' @param df.tmb SMS input list
 #' @param N_current numbers at age at the beginning of the year
 #' @param Fsel Current selectivity
 #' @param Fcap maximum fishing mortality
-
 #'
 #' @export
 #'
@@ -355,6 +354,7 @@ calcBescape <- function(Btarget ,
 #' @param avg_R years to average recruitment
 #' @param Btarget SSB at Btarget
 #' @param Fcap Maximum possible F value
+#' @param recruitment projected recruitment option ('mean)
 #'
 #' @return
 #' Returns a table with different catch options

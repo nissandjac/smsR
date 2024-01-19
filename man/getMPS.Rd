@@ -7,7 +7,11 @@
 getMPS(df.tmb, parms, mapExtra = NA)
 }
 \arguments{
-\item{df.tmb}{list of tmb input parameters}
+\item{df.tmb}{list of tmb input data}
+
+\item{parms}{list of estimated parameters}
+
+\item{mapExtra}{vector of parameters to map}
 }
 \value{
 returns a list of parameters to be mapped for smsR

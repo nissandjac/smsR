@@ -13,6 +13,8 @@
 \item{p}{penalty on number of parameters, default = 2}
 
 \item{n}{AICc sample size, default = Inf}
+
+\item{...}{etc}
 }
 \value{
 return the AIC value of the fitted assessment

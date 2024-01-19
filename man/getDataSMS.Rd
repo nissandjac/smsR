@@ -35,15 +35,9 @@ getDataSMS(
 \item{years}{years to calculate}
 
 \item{seasons}{seasons to calc}
-}
-\value{
-Returns a list of data frames
+
+\item{scv.tv}{Time varying CV from survey}
 }
 \description{
 Read data from an SMS model
-}
-\examples{
-wd <- 'C:/testdir/'
-x <- getDataSandeel(wd, maxage = 5, survey.age = c(1:2),
-survey.years = 2004:2023, survey.quarter = 1, years = 1985:2024, seasons = 1:2) # Not run
 }

@@ -1,5 +1,5 @@
+
 #' Prepare parameters for an operating model using a fitted sms model
-#'
 #' @param df.tmb list of smsR input data
 #' @param sas fitted smsR stock assessment
 #' @param surveySD CV on survey
@@ -11,14 +11,11 @@
 #' @param moveslope slope of the movement function shape
 #' @param movefifty age at 50% movement rate out of a cell
 #'
-#' @return
-#' Returns a list of parameters for an smsR operating model
+#' @return a list of parameters for the OM
 #' @export
 #'
-#' @examples
-#' p <- get_OM_parameters(df.tmb)
-#'
-get_OM_parameters <- function(df.tmb, sas = NULL,
+get_OM_parameters <- function(df.tmb,
+                              sas = NULL,
                               surveySD = 0.4,
                               recruitment = NULL,
                               nspace = 1,

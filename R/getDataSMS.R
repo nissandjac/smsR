@@ -9,14 +9,12 @@
 #' @param effort set to true to read in effort data
 #' @param years years to calculate
 #' @param seasons seasons to calc
+#' @param scv.tv Time varying CV from survey
 #'
-#' @return
-#' Returns a list of data frames
+#' @return returns a list of input data for smsR from an old sms format
 #'
-#' @examples
-#' wd <- 'C:/testdir/'
-#' x <- getDataSandeel(wd, maxage = 5, survey.age = c(1:2),
-#' survey.years = 2004:2023, survey.quarter = 1, years = 1985:2024, seasons = 1:2) # Not run
+#' @export
+#'
 getDataSMS <- function(wd,
                            maxage = NA,
                            survey.age = list(),

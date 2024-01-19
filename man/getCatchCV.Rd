@@ -7,6 +7,8 @@
 getCatchCV(df.tmb, sas)
 }
 \arguments{
+\item{df.tmb}{Input list for smsR data}
+
 \item{sas}{stock assessment output from smsR}
 }
 \value{

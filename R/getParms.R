@@ -6,6 +6,8 @@
 #' @return
 #' returns a set of parameters to estimate for an smsR model
 #'
+#' @export
+#'
 #' @examples
 #'
 #' parms <- getParms(df.tmb)
@@ -100,10 +102,13 @@ getParms <- function(df.tmb, parms.true = NULL){
 
 #' Get a list of mapped parameters (not estimated)
 #'
-#' @param df.tmb list of tmb input parameters
+#' @param df.tmb list of tmb input data
+#' @param parms list of estimated parameters
+#' @param mapExtra vector of parameters to map
 #'
 #' @return
 #' returns a list of parameters to be mapped for smsR
+#' @export
 #'
 #' @examples
 #'

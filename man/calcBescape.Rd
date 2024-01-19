@@ -7,6 +7,8 @@
 calcBescape(Btarget, df.tmb, N_current, Fsel, Fcap = 2)
 }
 \arguments{
+\item{Btarget}{Target spawning biomass to reach}
+
 \item{df.tmb}{SMS input list}
 
 \item{N_current}{numbers at age at the beginning of the year}
@@ -14,8 +16,6 @@ calcBescape(Btarget, df.tmb, N_current, Fsel, Fcap = 2)
 \item{Fsel}{Current selectivity}
 
 \item{Fcap}{maximum fishing mortality}
-
-\item{TAC}{TAC were are trying to achieve}
 }
 \description{
 Calculate the fishing mortality required to get the assigned TAC
