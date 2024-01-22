@@ -4,6 +4,8 @@
 #' @param sas estimated model.
 #' @param type default, stack, or wrap
 #' @param Blim optional value to graph if type is stack or wrap
+#' @param Bpa optional value to add Bpa (Bescape)
+#' @param printFig
 #'
 #' @return
 #' Returns a figure with SSB, Fbar, recruitment and catch
@@ -18,7 +20,7 @@
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #' @importFrom patchwork plot_layout
 #'
- smsPlots <- function(df.tmb, sas, type="default", Blim=NULL, printFig = TRUE){
+ smsPlots <- function(df.tmb, sas, type="default", Blim=NULL, Bpa = NULL, printFig = TRUE){
 
   SSB <- getSSB(df.tmb, sas)
   rec <- getR(df.tmb,sas)
@@ -31,9 +33,17 @@
 
 
 
-    pssb <- ggplot(SSB, aes(x = years, y = SSB))+geom_line(size = 1.4)+
+    pssb <- ggplot(SSB, aes(x = years, y = SSB))+geom_line(linewidth = 1.4)+
       theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
       scale_y_continuous('SSB')+theme(legend.position = c(0.8,.8))+coord_cartesian(ylim = lims)
+
+    if(is.null(Bpa) == FALSE){
+      pssb <- pssb + geom_hline(aes(yintercept = Bpa), linetype = 2, color = 'black')
+    }
+
+    if(is.null(Blim = FALSE)){
+      pssb <- pssb + geom_hline(aes(yintercept = Blim), linetype = 2, color = 'blue')
+    }
 
     # Plot Recruitment
     # take care of crazy recruitment stuff
