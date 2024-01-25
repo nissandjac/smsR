@@ -4,7 +4,14 @@
 \alias{smsPlots}
 \title{Plot standard stock assessment figures}
 \usage{
-smsPlots(df.tmb, sas, type = "default", Blim = NULL, printFig = TRUE)
+smsPlots(
+  df.tmb,
+  sas,
+  type = "default",
+  Blim = NULL,
+  Bpa = NULL,
+  printFig = TRUE
+)
 }
 \arguments{
 \item{df.tmb}{list of tmb parameters}
@@ -14,6 +21,10 @@ smsPlots(df.tmb, sas, type = "default", Blim = NULL, printFig = TRUE)
 \item{type}{default, stack, or wrap}
 
 \item{Blim}{optional value to graph if type is stack or wrap}
+
+\item{Bpa}{optional value to add Bpa (Bescape)}
+
+\item{printFig}{}
 }
 \value{
 Returns a figure with SSB, Fbar, recruitment and catch

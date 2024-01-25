@@ -97,31 +97,74 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
 
 # Do the internal dredge survey thing
-  snames <- unique(s.exp$survey[1])
+  survey <- reshape::melt(df.tmb$Surveyobs) %>% dplyr::filter(value >0)
 
-  # minimum ages
-  minnames <- as.character(unique(s.exp$age)[1:2])
+  snames <- unique(survey$survey)
+
+  p3 <- list()
+  idx <- 1
+
+  for(i in 1:length(snames)){
+    s.tmp <- survey %>% dplyr::filter(survey == snames[i])
+
+    ages <- unique(s.tmp$age)
+
+    for(j in 1:(length(ages)-1)){
+
+      a1 <- s.tmp %>% dplyr::filter(age == ages[j])
+      names(a1)[4] <- 'Age1'
+
+      a2 <- s.tmp %>% dplyr::filter(age == ages[j+1])
+      a2$year <- a2$year-1
+      names(a2)[4] <- 'Age2'
+
+      ff <- dplyr::left_join(a1, a2, by = c('year','survey'))
+      xmod <- lm(log(Age2) ~ log(Age1), data = ff)
+      sum.lm <- summary(xmod)
+
+      p3[[idx]] <- ggplot2::ggplot(ff, ggplot2::aes(x = log(Age1), y = log(Age2), color = year))+ggplot2::geom_point()+
+        ggplot2::geom_smooth(method = 'lm', color = 'black', se = FALSE)+ggplot2::scale_color_viridis_c()+
+        theme(legend.position = 'top')+theme_classic()+
+        ggplot2::annotate('text', x = mean(log(ff$Age1), na.rm =TRUE), y = log(max(ff$Age1, na.rm = TRUE)),
+                          label = paste(snames[i],' Rsquare =',round(sum.lm$r.squared,2)))+
+        scale_y_continuous(paste('Age',ages[j+1],'(year - 1)',sep=''))+
+        scale_x_continuous(paste('Age',ages[j],'(year)',sep=''))+
+        theme(legend.title = ggplot2::element_blank())
+
+      idx <- idx +1
+
+    }
 
 
-  s.exp$year[s.exp$age == 1] <- s.exp$year[s.exp$age == 1]-1 # Fix 0 and 1 to same cohort
-  dredge <- s.exp[s.exp$survey == snames,] %>% tidyr::pivot_wider(values_from = cpue, names_from = age) %>%
-    dplyr::rename('Age0' = minnames[1],
-           'Age1' = minnames[2])
+
+  }
+
+#
+#   snames <- unique(s.exp$survey)[grep('Dredge', unique(s.exp$survey))]
+#   splot <- s.exp %>% filter(survey %in% snames)
+#   # minimum ages
+#   minnames <- as.character(unique(splot$age)[1:2])
+#
+#
+#   splot$year[splot$age == 1] <- splot$year[splot$age == 1]-1 # Fix 0 and 1 to same cohort
+#   dredge <- splot %>% arrange(year) %>% tidyr::pivot_wider(values_from = cpue, names_from = age) %>%
+#     dplyr::rename('Age0' = minnames[1],
+#            'Age1' = minnames[2])
+#
 
 
-
-  xmod <- lm(log(Age1) ~ log(Age0), data = dredge)
-
-  sum.lm <- summary(xmod)
-
-  p3 <- ggplot2::ggplot(dredge, ggplot2::aes(x = log(Age0), y = log(Age1), color = year))+ggplot2::geom_point()+
-    ggplot2::geom_smooth(method = 'lm', color = 'black', se = FALSE)+ggplot2::scale_color_viridis_c()+
-    theme(legend.position = 'top')+theme_classic()+
-    ggplot2::annotate('text', x = mean(log(dredge$Age0), na.rm =TRUE), y = log(max(dredge$Age0, na.rm = TRUE)),
-             label = paste('Rsquare =',round(sum.lm$r.squared,2)))+
-    scale_y_continuous('Age 1 (year - 1)')+
-    scale_x_continuous('Age 0 (year)')+
-    theme(legend.title = ggplot2::element_blank())
+  # xmod <- lm(log(Age1) ~ log(Age0), data = dredge)
+  #
+  # sum.lm <- summary(xmod)
+  #
+  # p3 <- ggplot2::ggplot(dredge, ggplot2::aes(x = log(Age0), y = log(Age1), color = year))+ggplot2::geom_point()+
+  #   ggplot2::geom_smooth(method = 'lm', color = 'black', se = FALSE)+ggplot2::scale_color_viridis_c()+
+  #   theme(legend.position = 'top')+theme_classic()+
+  #   ggplot2::annotate('text', x = mean(log(dredge$Age0), na.rm =TRUE), y = log(max(dredge$Age0, na.rm = TRUE)),
+  #            label = paste('Rsquare =',round(sum.lm$r.squared,2)))+
+  #   scale_y_continuous('Age 1 (year - 1)')+
+  #   scale_x_continuous('Age 0 (year)')+
+  #   theme(legend.title = ggplot2::element_blank())
 
   # Proportion in catch
   catchdf <- as.data.frame(t(df.tmb$Catchobs[,,1]))

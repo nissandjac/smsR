@@ -194,8 +194,15 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
     }
   }
 
+  N_out <- data.frame(cbind(N_current, N_future))
+  N_out$age <- df.tmb$age
+  names(N_out)[1:df.tmb$nseason] <- paste(df.tmb$years[df.tmb$nyear]+1,1:df.tmb$nseason, sep = '-')
+  names(N_out)[df.tmb$nseason+1] <- paste(df.tmb$years[df.tmb$nyear]+2,1, sep = '-')
+
   return(list(Catch = sum(C_new),
-            SSB = sum(SSB_next)
+            SSB = sum(SSB_next),
+            N_out = N_out,
+            C_out = C_new
             )
 
 
@@ -337,7 +344,7 @@ calcBescape <- function(Btarget ,
 
   parms.in <- list(0.5)
 
-  Fnew <- stats::optim(parms.in, lower = 0.0001, upper = Fcap, fn = optBtarget, data= data.in, method = 'L-BFGS-B')
+  Fnew <- stats::optim(parms.in, lower = 0, upper = Fcap, fn = optBtarget, data= data.in, method = 'L-BFGS-B')
 
   return(Fnew$par)
 }
@@ -370,6 +377,7 @@ getForecastTable <- function(df.tmb,
                                 avg_R = NULL,
                                 recruitment = 'mean',
                                 Btarget = NULL,
+                                TACtarget = NULL,
                                 Fcap = 2){
 
   # Get numbers at age
@@ -442,30 +450,43 @@ getForecastTable <- function(df.tmb,
 
   }
 
+  if(is.null(TACtarget) != 1){
+    F_tac <- calcFTAC(TACtarget, df.tmb, N_current,Fsel, Fcap)
+    F_tac_f <- forecast.sms(df.tmb, N_current, F_tac*Fsel)
+
+  }else{
+    F_tac <- NULL
+    F_tac_f <- NULL
+  }
+
+
   HCRnames = c('Bescapement (Fcap)',
             'F = 0',
             'Bescapement (no cap)',
             'Blim',
-            'F = F_2022')
+            paste('F = F',df.tmb$years[df.tmb$nyears]),
+            'Obs TAC')
 
   TACs <- round(c(fpa$Catch,
             f0$Catch,
             fpa_nocap$Catch,
             flim$Catch,
-            flast$Catch),2)
+            flast$Catch,
+            F_tac_f$Catch),2)
 
   Fs <- round(c(Fpa,
           0,
           Fpa_nocap,
           Flim,
-          Fbar$Fbar[Fbar$years == max(Fbar$years)]
-          ),2)
+          Fbar$Fbar[Fbar$years == max(Fbar$years)],
+          F_tac),2)
 
   SSBout <- round(c(fpa$SSB,
               f0$SSB,
               fpa_nocap$SSB,
               flim$SSB,
-              flast$SSB),2)
+              flast$SSB,
+              F_tac_f$SSB),2)
 
   SSBold <- getSSB(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years+1)) %>% dplyr::select(SSB)
 
@@ -493,7 +514,7 @@ getForecastTable <- function(df.tmb,
 names(df.out) <- c('Basis',
                    paste('Total Catch (', max(df.tmb$years)+1,')', sep = ''),
                    paste('F (', max(df.tmb$years)+1,')', sep = ''),
-                   paste('SSB (', max(df.tmb$years)+1,')', sep = ''),
+                   paste('SSB (', max(df.tmb$years)+2,')', sep = ''),
                    paste('SSB change %'),
                    paste('TAC change %')
   )
@@ -515,7 +536,8 @@ df.fut <- data.frame(
 
 
 return(list(Forecastval = df.fut,
-            Forecast = df.out))
+            Forecast = df.out,
+            N_current = N_current))
 }
 
 

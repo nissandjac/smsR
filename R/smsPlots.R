@@ -41,7 +41,7 @@
       pssb <- pssb + geom_hline(aes(yintercept = Bpa), linetype = 2, color = 'black')
     }
 
-    if(is.null(Blim = FALSE)){
+    if(is.null(Blim) == FALSE){
       pssb <- pssb + geom_hline(aes(yintercept = Blim), linetype = 2, color = 'blue')
     }
 

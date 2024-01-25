@@ -38,6 +38,9 @@ getDataSMS(
 
 \item{scv.tv}{Time varying CV from survey}
 }
+\value{
+returns a list of input data for smsR from an old sms format
+}
 \description{
 Read data from an SMS model
 }

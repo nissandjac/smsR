@@ -39,7 +39,7 @@ get_OM_parameters(
 \item{movefifty}{age at 50% movement rate out of a cell}
 }
 \value{
-Returns a list of parameters for an smsR operating model
+a list of parameters for the OM
 }
 \description{
 Prepare parameters for an operating model using a fitted sms model
