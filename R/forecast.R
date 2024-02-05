@@ -253,7 +253,7 @@ calcFTAC <- function(TAC ,
 
   parms.in <- list(0.5)
 
-  Fnew <- stats::optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
+  Fnew <- stats::optim(parms.in, lower = 0.001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B', control = list(ndeps = 1e-6))
 
   return(Fnew$par)
 }
@@ -453,10 +453,11 @@ getForecastTable <- function(df.tmb,
   if(is.null(TACtarget) != 1){
     F_tac <- calcFTAC(TACtarget, df.tmb, N_current,Fsel, Fcap)
     F_tac_f <- forecast.sms(df.tmb, N_current, F_tac*Fsel)
-
+    F_tac_name <- 'Obs TAC'
   }else{
     F_tac <- NULL
     F_tac_f <- NULL
+    F_tac_name <- NULL
   }
 
 
@@ -465,7 +466,7 @@ getForecastTable <- function(df.tmb,
             'Bescapement (no cap)',
             'Blim',
             paste('F = F',df.tmb$years[df.tmb$nyears]),
-            'Obs TAC')
+            F_tac_name)
 
   TACs <- round(c(fpa$Catch,
             f0$Catch,

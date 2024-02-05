@@ -20,6 +20,8 @@ runAssessment <- function(df.tmb,
                           mps = NULL,
                           silent = TRUE){
 
+# Start timer
+tmm <- Sys.time()
 
 if(is.null(mps)){
   # map the parameters that are not estimated in this model
@@ -138,6 +140,8 @@ if(any(reps$par.fixed == upper)){
   }
 }
 
+opt$date <- tmm
+opt$time_to_eval <- as.numeric(Sys.time()-tmm)
 
 return(structure(list(x = x,
             opt = opt,
