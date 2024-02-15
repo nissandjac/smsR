@@ -4,9 +4,21 @@
 \alias{plot.sms}
 \title{Plot standard stock assessment figures}
 \usage{
-\method{plot}{sms}(sas, type = "default", Blim = sas$dat$betaSR, Bpa = NULL, printFig = TRUE)
+\method{plot}{sms}(
+  sas,
+  type = "default",
+  Blim = sas$dat$betaSR,
+  Bpa = sas$dat$Bpa,
+  printFig = TRUE
+)
 
-\method{plot}{sms}(sas, type = "default", Blim = sas$dat$betaSR, Bpa = NULL, printFig = TRUE)
+\method{plot}{sms}(
+  sas,
+  type = "default",
+  Blim = sas$dat$betaSR,
+  Bpa = sas$dat$Bpa,
+  printFig = TRUE
+)
 }
 \arguments{
 \item{sas}{estimated model.}

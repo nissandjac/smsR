@@ -20,7 +20,7 @@
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #' @importFrom patchwork plot_layout
 #'
-plot.sms <- function(sas, type="default", Blim=sas$dat$betaSR, Bpa = NULL, printFig = TRUE){
+plot.sms <- function(sas, type="default", Blim=sas$dat$betaSR, Bpa = sas$dat$Bpa, printFig = TRUE){
 
   df.tmb <- sas$dat
 
@@ -37,7 +37,7 @@ plot.sms <- function(sas, type="default", Blim=sas$dat$betaSR, Bpa = NULL, print
 
     pssb <- ggplot(SSB, aes(x = years, y = SSB/1000))+geom_line(linewidth = 1.2)+
       theme_classic()+geom_ribbon(aes(ymin = low/1000, ymax = high/1000), fill = alpha('red', 0.2), linetype = 0)+
-      scale_y_continuous('SSB\n(000 t)')+theme(legend.position = c(0.8,.8))+coord_cartesian(ylim = lims)+
+      scale_y_continuous('SSB\n(1000 t)')+theme(legend.position = c(0.8,.8))+coord_cartesian(ylim = lims)+
       scale_x_continuous('')
 
     if(is.null(Bpa) == FALSE){
