@@ -29,13 +29,14 @@
 
   if(type=="default"){
     # Plot SSB
-    lims <- c(min(SSB$SSB)/2, max(SSB$SSB)*2)
+    lims <- c(min(SSB$SSB)/2, max(SSB$SSB)*2)/1000
 
 
 
-    pssb <- ggplot(SSB, aes(x = years, y = SSB))+geom_line(linewidth = 1.4)+
-      theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
-      scale_y_continuous('SSB')+theme(legend.position = c(0.8,.8))+coord_cartesian(ylim = lims)
+    pssb <- ggplot(SSB, aes(x = years, y = SSB/1000))+geom_line(linewidth = 1.2)+
+      theme_classic()+geom_ribbon(aes(ymin = low/1000, ymax = high/1000), fill = alpha('red', 0.2), linetype = 0)+
+      scale_y_continuous('SSB\n(000 t)')+theme(legend.position = c(0.8,.8))+coord_cartesian(ylim = lims)+
+      scale_x_continuous('')
 
     if(is.null(Bpa) == FALSE){
       pssb <- pssb + geom_hline(aes(yintercept = Bpa), linetype = 2, color = 'black')
@@ -47,23 +48,26 @@
 
     # Plot Recruitment
     # take care of crazy recruitment stuff
-    lims <- c(min(rec$R)/2, max(rec$R)*2)
+    lims <- c(min(rec$R)/2, max(rec$R)*2)/1e6
 
-    prec <- ggplot(rec, aes(x = years, y = R))+geom_line(size = 1.4)+
-        theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
-        scale_y_continuous('recruitment')+theme(legend.position = 'none')+coord_cartesian(ylim = lims)
+    prec <- ggplot(rec, aes(x = years, y = R/1e6))+geom_line(size = 1.2)+
+        theme_classic()+geom_ribbon(aes(ymin = low/1e6, ymax = high/1e6), fill = alpha('red', 0.2), linetype = 0)+
+        scale_x_continuous('Year')+
+        scale_y_continuous('Recruitment\n(millions)')+theme(legend.position = 'none')+coord_cartesian(ylim = lims)
 
 
     # Plot Fishing mortality
-    pF0 <-  ggplot(Fbar, aes(x = years, y = Fbar))+geom_line(size = 1.3)+theme_classic()+
+    pF0 <-  ggplot(Fbar, aes(x = years, y = Fbar))+geom_line(size = 1.2)+theme_classic()+
         geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
-        scale_y_continuous('fishing mortality')+theme(legend.position = 'none')
+        scale_x_continuous('Year')+
+        scale_y_continuous('Fbar')+theme(legend.position = 'none')
 
 
     # And catch
-    pCatch <-  ggplot(Catch, aes(x = years, y = Catch))+geom_line(size = 1.4)+
-        theme_classic()+geom_ribbon(aes(ymin = low, ymax = high), fill = alpha('red', 0.2), linetype = 0)+
-        scale_y_continuous('Catch')+theme(legend.position = c(0.8,.8))
+    pCatch <-  ggplot(Catch, aes(x = years, y = Catch/1000))+geom_line(size = 1.2)+
+        theme_classic()+geom_ribbon(aes(ymin = low/1000, ymax = high/1000), fill = alpha('red', 0.2), linetype = 0)+
+        scale_x_continuous('')+
+        scale_y_continuous('Catch\n(1000 t)')+theme(legend.position = c(0.8,.8))
     # Plot SSB, recruitment, catch and fishing mortality
     pls <- (pssb + pCatch)/(prec + pF0)
 

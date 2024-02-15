@@ -12,6 +12,7 @@ getForecastTable(
   avg_R = NULL,
   recruitment = "mean",
   Btarget = NULL,
+  TACtarget = NULL,
   Fcap = 2
 )
 }

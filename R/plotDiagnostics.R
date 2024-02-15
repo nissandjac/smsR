@@ -97,7 +97,7 @@ p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age))+
 
 
 # Do the internal dredge survey thing
-  survey <- reshape::melt(df.tmb$Surveyobs) %>% dplyr::filter(value >0)
+  survey <- reshape2::melt(df.tmb$Surveyobs) %>% dplyr::filter(value >0)
 
   snames <- unique(survey$survey)
 

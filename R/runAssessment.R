@@ -146,5 +146,5 @@ opt$time_to_eval <- as.numeric(Sys.time()-tmm)
 return(structure(list(x = x,
             opt = opt,
             reps = reps,
-            obj = obj), class="sms"))
+            obj = obj, dat = df.tmb), class="sms"))
 }

@@ -906,18 +906,27 @@ getSummaryCVs <- function(df.tmb, sas, verbose = TRUE){
 #'
 #' @examples
 #' getWeight(df.tmb, WW = 'west', plotFig = TRUE) # Plots the weight in the stock
-#' @importFrom reshape melt
+#' @importFrom reshape2 melt
 getWeight <- function(df.tmb, WW = 'weca', plotFig =FALSE){
 
   # Get weight per season
   weca <- df.tmb[WW][[1]]
   dimnames(weca) <- list(age = df.tmb$age, years = c(df.tmb$years,max(df.tmb$years)+1),season = 1:df.tmb$nseason)
 
-  weca<- reshape::melt(weca)
+  weca<- reshape2::melt(weca)
+
+  if(WW == 'weca'){
+    wlab = 'Weight at age\nin catch (g)'
+  }
+
+  if(WW == 'west'){
+    wlab = 'Weight at age\nin stock (g)'
+  }
+
 
   if(plotFig == TRUE){
-  p1 <- ggplot(weca, aes(x = age, y = value*1000, color = years,group = years))+geom_line()+facet_wrap(~season)+theme_classic()+
-    scale_y_continuous(paste(WW,'(g)'))
+  p1 <- ggplot(weca, aes(x = years, y = value*1000, color = factor(age),group = factor(age)))+geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+    scale_y_continuous(wlab)+theme(legend.position = 'top', legend.title = element_blank())
 
   print(p1)
   }
@@ -939,18 +948,19 @@ return(weca)
 #' M <- getM(df.tmb, plotFig = TRUE) # Plot the natural mortality by age
 #'
 #'
-#' @importFrom reshape melt
+#' @importFrom reshape2 melt
 getM <- function(df.tmb, plotFig =FALSE){
 
   # Get weight per season
   M <- df.tmb$M
   dimnames(M) <- list(age = df.tmb$age, years = c(df.tmb$years,max(df.tmb$years)+1),season = 1:df.tmb$nseason)
 
-  M <- reshape::melt(M)
+  M <- reshape2::melt(M)
 
   if(plotFig == TRUE){
-    p1 <- ggplot(M %>% dplyr::filter(value > 0), aes(x = age, y = value, color = years,group = years))+geom_line()+facet_wrap(~season)+theme_classic()+
-      scale_y_continuous('natural mortality (per season)')
+    p1 <- ggplot(M %>% dplyr::filter(value > 0), aes(x = years, y = value, color = factor(age),group = factor(age)))+
+      geom_line()+facet_wrap(~season, nrow = df.tmb$nseason)+theme_classic()+
+      scale_y_continuous('natural mortality \n(per season)')+theme(legend.position = 'top', legend.title = element_blank())
 
     print(p1)
   }
@@ -969,18 +979,21 @@ getM <- function(df.tmb, plotFig =FALSE){
 #' @examples
 #' getMat(df.tmb, plotFig = TRUE) # Plot maturity
 #'
-#' @importFrom reshape melt
+#' @importFrom reshape2 melt
 getMat <- function(df.tmb, plotFig =FALSE){
 
   # Get weight per season
   Mat<- df.tmb$Mat
   dimnames(Mat) <- list(age = df.tmb$age, years = c(df.tmb$years,max(df.tmb$years)+1),season = 1:df.tmb$nseason)
 
-  Mat <- reshape::melt(Mat)
+  Mat <- reshape2::melt(Mat)
 
   if(plotFig == TRUE){
-    p1 <- ggplot(Mat, aes(x = age, y = value, color = years,group = years))+geom_line()+facet_wrap(~season)+theme_classic()+
-      scale_y_continuous('natural mortality (per season)')
+    p1 <- ggplot(Mat, aes(x = years, y = value, color = factor(age),group = factor(age)))+geom_line()+
+      facet_wrap(~season, nrow = df.tmb$nseason)+
+      theme_classic()+
+      scale_y_continuous('Maturity ogive \n(per season)')+
+      theme(legend.position = 'top', legend.title = element_blank())
 
     print(p1)
   }
