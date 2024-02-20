@@ -221,38 +221,44 @@ mohns_rho <- function(df.tmb,
 
   df.plot <- df.save #%>% tidyr::pivot_longer(c(SSB,R,Fbar))
 
-  SSBname <- paste('SSB, rho = ', round(mohns.tot$SSB,3))
-  Fbarname <- paste('Fbar, rho = ', round(mohns.tot$F0,3))
-  Rname <- paste('R, rho = ', round(mohns.tot$R,3))
+  ssbrho <- round(mohns.tot$SSB,3)
+  rrho <- round(mohns.tot$R,3)
+  Frho <- round(mohns.tot$F0,3)
+
+  SSBname <- paste('Mohns rho = ', ssbrho)
+  Fbarname <-paste('Mohns rho = ', Frho)
+  Rname <- paste('Mohns rho = ', rrho)
   #
   #
   if(is.null(limits)){
     limits <- c(min(df.plot$years), max(df.plot$years))
   }
 
-  Rlims <- c(min(df.var$Rmin), max(df.plot$R)*1.5)
+  Rlims <- c(min(df.var$Rmin), max(df.plot$R)*1.5)/1e6
+  SSBlims <- c(min(df.var$SSBmin), max(df.plot$SSB)*1.5)/1000
+
 
   p1 <- function(){
 
-    x1 <- ggplot2::ggplot(df.plot, aes(x = years, y = SSB, color = factor(peel)))+geom_line()+
+    x1 <- ggplot2::ggplot(df.plot, aes(x = years, y = SSB/1000, color = factor(peel)))+geom_line()+
       theme_classic()+theme(legend.position = 'none')+
-      scale_y_continuous('')+coord_cartesian(xlim = limits)+
-      geom_ribbon(data = df.var, aes(ymin = SSBmin, ymax = SSBmax, y = 0), fill = 'red', alpha = .1,
+      scale_y_continuous('SSB\n(1000 t)')+coord_cartesian(xlim = limits, ylim = SSBlims)+
+      geom_ribbon(data = df.var, aes(ymin = SSBmin/1000, ymax = SSBmax/1000, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
       scale_x_continuous('')+
       ggplot2::labs(title=SSBname)
 
-    x2 <- ggplot2::ggplot(df.plot, aes(x = years, y = R, color = factor(peel)))+geom_line()+
+    x2 <- ggplot2::ggplot(df.plot, aes(x = years, y = R/1e6, color = factor(peel)))+geom_line()+
       theme_classic()+theme(legend.position = 'none')+
-      scale_y_continuous('')+coord_cartesian(xlim = limits, ylim = Rlims)+
-      geom_ribbon(data = df.var, aes(ymin = Rmin, ymax = Rmax, y = 0), fill = 'red', alpha = .1,
+      scale_y_continuous(('R\n(millions)'))+coord_cartesian(xlim = limits, ylim = Rlims)+
+      geom_ribbon(data = df.var, aes(ymin = Rmin/1e6, ymax = Rmax/1e6, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
       scale_x_continuous('')+
       ggplot2::labs(title=Rname)
 
     x3 <- ggplot2::ggplot(df.plot, aes(x = years, y = Fbar, color = factor(peel)))+geom_line()+
       theme_classic()+theme(legend.position = 'none')+
-      scale_y_continuous('')+coord_cartesian(xlim = limits)+
+      scale_y_continuous('Fbar')+coord_cartesian(xlim = limits)+
       geom_ribbon(data = df.var, aes(ymin = Fmin, ymax = Fmax, y = 0), fill = 'red', alpha = .1,
                   linetype = 0)+
       ggplot2::labs(title=Fbarname)

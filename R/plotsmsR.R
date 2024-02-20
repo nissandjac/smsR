@@ -160,6 +160,6 @@ plot.sms <- function(sas, type="default", Blim=sas$dat$betaSR, Bpa = sas$dat$Bpa
       }
     }
   }
-  pls
+ print(pls)
   return(pls)
 }

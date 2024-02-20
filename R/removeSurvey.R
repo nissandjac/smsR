@@ -9,6 +9,10 @@
 #' @examples
 #' p1 <-  removeSurvey(sas) #
 #' print(p1) # Plot the figure
+#' @importFrom ggplot2 ggplot aes geom_bar geom_line geom_hline geom_ribbon
+#' @importFrom ggplot2 alpha scale_x_continuous scale_y_continuous coord_cartesian coord_flip
+#' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
+#' @importFrom patchwork plot_layout
 #'
 removeSurvey <- function(sas, parms = NULL){
 
@@ -104,7 +108,7 @@ p1 <- ggplot(dat.sum, aes(x = years, y = SSB/1000, color = surveys))+geom_line()
   theme(legend.position = 'top', legend.title = element_blank())+scale_y_continuous('SSB\n (1000 t)')+
   scale_x_continuous('Year')
 
-p2 <- ggplot(dat.sum %>% filter(years < max(years)), aes(x = years, y = R/1e6, color = surveys))+geom_line()+theme_classic()+
+p2 <- ggplot(dat.sum %>% dplyr::filter(years < max(years)), aes(x = years, y = R/1e6, color = surveys))+geom_line()+theme_classic()+
   geom_ribbon(data = dat.sum %>% dplyr::filter(surveys == 'all'),aes(ymin = Rlow/1e6, ymax = Rhigh/1e6),
               show.legend = FALSE, fill = alpha('gray', alpha = .25), linetype = 0)+
   theme(legend.position = 'none', legend.title = element_blank())+scale_y_continuous('R\n (millions)')+
