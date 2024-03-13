@@ -34,6 +34,7 @@
 #' @param leavesurveyout vector of 1 and 0 to exclude surveys
 #' @param minSDsurvey minimum CV of survey
 #' @param minSDcatch minimum CV of catch
+#' @param maxSDcatch Maximum CV of catch
 #' @param peneps parameter for regulating minimum CV for survey
 #' @param penepsC parameter for regulating minimum CV of catch
 #' @param powers apply powerlaw for density dependent survey observations
@@ -93,6 +94,7 @@ get_TMB_parameters <- function(
   leavesurveyout = rep(1,nsurvey),
   minSDsurvey = 0.3,
   minSDcatch = 0.2,
+  maxSDcatch = sqrt(2),
   peneps = 1e-3,
   penepsC = 1e-3,
   powers = list(NA),
@@ -518,6 +520,7 @@ get_TMB_parameters <- function(
     surveySeason = surveySeason,
     minSDsurvey = minSDsurvey,
     minSDcatch = minSDcatch,
+    maxSDcatch = maxSDcatch,
     peneps = peneps,
     penepsC = penepsC,
     powers = powersexp,

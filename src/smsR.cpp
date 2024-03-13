@@ -46,6 +46,7 @@ Type objective_function<Type>::operator() ()
   DATA_VECTOR(surveySeason);
   DATA_SCALAR(minSDsurvey);
   DATA_SCALAR(minSDcatch); // minium catch CV
+  DATA_SCALAR(maxSDcatch); // Maximum catch CV
   DATA_SCALAR(peneps); // Tuning parameters for min catch and survey CV
   DATA_SCALAR(penepsC);
   DATA_ARRAY(powers);
@@ -654,11 +655,15 @@ if(estCV(1) == 2){ // Calculate the catch CV
 //
 Type penSDcatch;
 penSDcatch= 0;//penalty if SDsurvey is close to minSDsurvey
+Type penSDcatchmax;
+penSDcatchmax = 0;
 
 
 if(estCV(1) == 0){ // Estimate
   // Fix CV of catches
    Type tmpdiffC; //temporarily store SDsurvey-minSDsurvey
+  Type tmpdiffCmax; //temporarily store SDsurvey-minSDsurvey
+
   // // // // // // //
   if(nseason>1){
     for(int k=0;k<(nseason);k++){ // Loop over surveys
@@ -667,6 +672,12 @@ if(estCV(1) == 0){ // Estimate
             tmpdiffC = SDcatch(Cidx_CV(i,k))-minSDcatch;
             tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
             SDcatch(Cidx_CV(i,k)) = tmpdiffC+minSDcatch;
+
+            //
+            tmpdiffCmax = maxSDcatch-SDcatch(Cidx_CV(i,k));
+            tmpdiffCmax = posfun(tmpdiffCmax, penepsC, penSDcatchmax);
+            SDcatch(Cidx_CV(i,k)) = tmpdiffCmax-maxSDcatch;
+
           }
       }
     }
@@ -677,6 +688,12 @@ if(estCV(1) == 0){ // Estimate
           tmpdiffC = posfun(tmpdiffC, penepsC, penSDcatch);
           SDcatch(Cidx_CV(i,0)) = tmpdiffC+minSDcatch;
         //  SDS(i,0) = SDsurvey(Qidx_CV(i,0));
+
+        //
+        tmpdiffCmax = maxSDcatch-SDcatch(Cidx_CV(i,0));
+        tmpdiffCmax = posfun(tmpdiffCmax, penepsC, penSDcatchmax);
+        SDcatch(Cidx_CV(i,0)) = maxSDcatch-tmpdiffCmax;
+
         }
     }
   }
