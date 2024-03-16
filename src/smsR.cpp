@@ -676,7 +676,7 @@ if(estCV(1) == 0){ // Estimate
             //
             tmpdiffCmax = maxSDcatch-SDcatch(Cidx_CV(i,k));
             tmpdiffCmax = posfun(tmpdiffCmax, penepsC, penSDcatchmax);
-            SDcatch(Cidx_CV(i,k)) = tmpdiffCmax-maxSDcatch;
+            SDcatch(Cidx_CV(i,k)) = maxSDcatch-tmpdiffCmax;
 
           }
       }
