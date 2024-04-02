@@ -37,6 +37,7 @@
 #' @param maxSDcatch Maximum CV of catch
 #' @param peneps parameter for regulating minimum CV for survey
 #' @param penepsC parameter for regulating minimum CV of catch
+#' @param penepsCmax parameter for regulating maximum CV of catch
 #' @param powers apply powerlaw for density dependent survey observations
 #' @param scv add time varying survey CV (input matrix)
 #' @param surveyCV survey cv grouping
@@ -97,6 +98,7 @@ get_TMB_parameters <- function(
   maxSDcatch = sqrt(2),
   peneps = 1e-3,
   penepsC = 1e-3,
+  penepsCmax = 1e-3,
   powers = list(NA),
   scv = array(0, dim = c(length(ages),length(years), nsurvey)),
   surveyCV = matrix(c(0,max(ages)), nrow = 2, ncol = nsurvey),
@@ -523,6 +525,7 @@ get_TMB_parameters <- function(
     maxSDcatch = maxSDcatch,
     peneps = peneps,
     penepsC = penepsC,
+    penepsCmax = penepsCmax,
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estCV = estCV,

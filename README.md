@@ -15,3 +15,5 @@ install_github('https://github.com/nissandjac/smsR', dependencies = TRUE)
 ```
 
 See [examples](https://github.com/nissandjac/smsR/tree/main/examples) folder for an example using sandeel in Area 1r in the North Sea
+
+## Setting up the model 

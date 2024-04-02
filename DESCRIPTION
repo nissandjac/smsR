@@ -13,7 +13,7 @@ Imports:
     dplyr,
     tidyr,
     patchwork,
-    reshape,
+    reshape2,
     magrittr
 LinkingTo: TMB, RcppEigen
 Description: Run the single species SMS model in R.

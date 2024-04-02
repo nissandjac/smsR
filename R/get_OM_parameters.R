@@ -1,4 +1,3 @@
-
 #' Prepare parameters for an operating model using a fitted sms model
 #' @param df.tmb list of smsR input data
 #' @param sas fitted smsR stock assessment
@@ -9,7 +8,7 @@
 #' @param movemax maximum movement rate per cell
 #' @param rec.space relative recruitment in cells
 #' @param moveslope slope of the movement function shape
-#' @param movefifty age at 50% movement rate out of a cell
+#' @param movefifty age at 50 percent movement rate out of a cell
 #'
 #' @return a list of parameters for the OM
 #' @export

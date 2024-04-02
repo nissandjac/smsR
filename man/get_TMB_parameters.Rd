@@ -38,8 +38,10 @@ get_TMB_parameters(
   leavesurveyout = rep(1, nsurvey),
   minSDsurvey = 0.3,
   minSDcatch = 0.2,
+  maxSDcatch = sqrt(2),
   peneps = 0.001,
   penepsC = 0.001,
+  penepsCmax = 0.001,
   powers = list(NA),
   scv = array(0, dim = c(length(ages), length(years), nsurvey)),
   surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
@@ -119,9 +121,13 @@ get_TMB_parameters(
 
 \item{minSDcatch}{minimum CV of catch}
 
+\item{maxSDcatch}{Maximum CV of catch}
+
 \item{peneps}{parameter for regulating minimum CV for survey}
 
 \item{penepsC}{parameter for regulating minimum CV of catch}
+
+\item{penepsCmax}{parameter for regulating maximum CV of catch}
 
 \item{powers}{apply powerlaw for density dependent survey observations}
 

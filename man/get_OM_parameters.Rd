@@ -36,7 +36,7 @@ get_OM_parameters(
 
 \item{moveslope}{slope of the movement function shape}
 
-\item{movefifty}{age at 50% movement rate out of a cell}
+\item{movefifty}{age at 50 percent movement rate out of a cell}
 }
 \value{
 a list of parameters for the OM

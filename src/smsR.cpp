@@ -49,6 +49,7 @@ Type objective_function<Type>::operator() ()
   DATA_SCALAR(maxSDcatch); // Maximum catch CV
   DATA_SCALAR(peneps); // Tuning parameters for min catch and survey CV
   DATA_SCALAR(penepsC);
+  DATA_SCALAR(penepsCmax); // Tuning parameter for maximum catch CV
   DATA_ARRAY(powers);
   DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
@@ -647,6 +648,11 @@ if(estCV(1) == 2){ // Calculate the catch CV
           if(no(k, qrts)>0){ // Only calculate if there are any observations
           //SD_catch2(i,qrts) = sqrt(sumx2(k,qrts)/no(k,qrts));
           SD_catch2(i, qrts) = sqrt((no(k,qrts)*sumx2(k,qrts)-pow(sumx(k,qrts),2))/pow(no(k,qrts),2));
+
+          if(no(k,qrts) == 1){
+            SD_catch2(i, qrts) = 0.01; // This is causing an error for sprat
+          }
+
           }
         }
       }
@@ -675,7 +681,7 @@ if(estCV(1) == 0){ // Estimate
 
             //
             tmpdiffCmax = maxSDcatch-SDcatch(Cidx_CV(i,k));
-            tmpdiffCmax = posfun(tmpdiffCmax, penepsC, penSDcatchmax);
+            tmpdiffCmax = posfun(tmpdiffCmax, penepsCmax, penSDcatchmax);
             SDcatch(Cidx_CV(i,k)) = maxSDcatch-tmpdiffCmax;
 
           }
@@ -691,7 +697,7 @@ if(estCV(1) == 0){ // Estimate
 
         //
         tmpdiffCmax = maxSDcatch-SDcatch(Cidx_CV(i,0));
-        tmpdiffCmax = posfun(tmpdiffCmax, penepsC, penSDcatchmax);
+        tmpdiffCmax = posfun(tmpdiffCmax, penepsCmax, penSDcatchmax);
         SDcatch(Cidx_CV(i,0)) = maxSDcatch-tmpdiffCmax;
 
         }
@@ -937,7 +943,7 @@ if(randomF == 1){
 // // // // // // //
 Type ans = 0.0;
 //
-ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch+ansF;
+ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch+penSDcatchmax+ansF;
 // // //
 vector<Type> ansvec(3);
 ansvec(0) = nllsurv;
