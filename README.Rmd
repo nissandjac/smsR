@@ -90,9 +90,11 @@ plot(sas, printFig = FALSE)
 
 Or to evaluate the retrospective patterns as 
 
-```{r, echo = TRUE}
+```{r, echo = TRUE, warning=FALSE, message=FALSE}
 
-mohns_rho(df.tmb, peels = 5, parms = parms)
+mr <- mohns_rho(df.tmb, peels = 5, parms = parms, plotfigure = FALSE)
+
+mr$p1()
 
 ```
 
