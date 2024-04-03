@@ -16,9 +16,12 @@ data frame of spawning stock biomass and 95\% confidence intervals.
 SE is standard error of log SSB
 }
 \description{
-Get a data frame of the spawning stock biomass
+`getSSB()` retrieves the spawning stock biomass per year, and it's associated uncertainty in the 95th confidence region
 }
 \examples{
 SSB <- getSSB(df.tmb, sas)
 print(SSB)
+}
+\seealso{
+[getR()] why are the brackets here
 }

@@ -3,17 +3,19 @@
 
 #' Get a data frame of the spawning stock biomass
 #'
+#' `getSSB()` retrieves the spawning stock biomass per year, and it's associated uncertainty in the 95th confidence region
+#'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
 #' @return
 #' data frame of spawning stock biomass and 95\% confidence intervals.
 #' SE is standard error of log SSB
-#' @export
-#'
+#' @seealso [getR()] why are the brackets here
 #' @examples
 #' SSB <- getSSB(df.tmb, sas)
 #' print(SSB)
+#' @export
 getSSB <- function(df.tmb, sas){
 
   reps <- sas$reps
@@ -41,6 +43,8 @@ getSSB <- function(df.tmb, sas){
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
+#' @seealso [getR()],[getYield()],[getF()],[getCatch()], [getSSB()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],
+#' [getSurvey()]
 #' @return
 #' data frame containing the biomass of each age group.
 #' low and high are the 95\% confidence intervals.
@@ -89,6 +93,8 @@ getBiomass <- function(df.tmb, sas){
 #' data frame containing the biomass of each age group.
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log TSB
+#' @seealso [getR()],[getSSB()],[getYield()],[getF()],[getCatch()], [getBiomass()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],
+#' [getSurvey()]
 #' @export
 #'
 #' @examples

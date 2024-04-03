@@ -19,3 +19,7 @@ SE is standard error of log Biomass
 \description{
 Get a data frame of the biomass of each age group
 }
+\seealso{
+[getR()],[getYield()],[getF()],[getCatch()], [getSSB()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],
+[getSurvey()]
+}
