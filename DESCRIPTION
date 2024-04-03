@@ -13,7 +13,6 @@ Imports:
     dplyr,
     tidyr,
     patchwork,
-    reshape2,
     magrittr
 LinkingTo: TMB, RcppEigen
 Description: Run the single species SMS model in R.
@@ -22,4 +21,4 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Depends: 
-    R (>= 2.10)
+    R (>= 3.50)

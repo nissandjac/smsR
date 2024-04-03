@@ -13,6 +13,8 @@
 #' @return a list of parameters for the OM
 #' @export
 #'
+#' @importFrom abind abind
+#'
 get_OM_parameters <- function(df.tmb,
                               sas = NULL,
                               surveySD = 0.4,

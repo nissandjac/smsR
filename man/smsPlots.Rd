@@ -24,7 +24,7 @@ smsPlots(
 
 \item{Bpa}{optional value to add Bpa (Bescape)}
 
-\item{printFig}{}
+\item{printFig}{TRUE FALSE to return figure as list}
 }
 \value{
 Returns a figure with SSB, Fbar, recruitment and catch

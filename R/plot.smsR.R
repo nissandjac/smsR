@@ -5,7 +5,7 @@
 #' @param type default, stack, or wrap
 #' @param Blim optional value to graph if type is stack or wrap
 #' @param Bpa optional value to add Bpa (Bescape)
-#' @param printFig
+#' @param printFig TRUE FALSE return figure as list
 #'
 #' @return
 #' Returns a figure with SSB, Fbar, recruitment and catch
