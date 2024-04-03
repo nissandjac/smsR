@@ -19,7 +19,7 @@ Imports:
 LinkingTo: TMB, RcppEigen
 Description: smsR is an R implementation of the SMS model used to run seasonal stock assessments for exploited marine populations. 
 URL: https://github.com/nissandjac/smsR
-License: GPL-2
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3

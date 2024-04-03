@@ -2,7 +2,7 @@
 #'
 #' @useDynLib smsR
 #'
-dummy <- function(){
+dummy <- function() {
   return(NULL)
 }
 
