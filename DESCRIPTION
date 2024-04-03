@@ -12,13 +12,19 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
+    magrittr,
     patchwork,
-    magrittr
+    abind,
+    reshape2
 LinkingTo: TMB, RcppEigen
-Description: Run the single species SMS model in R.
+Description: smsR is an R implementation of the SMS model used to run seasonal stock assessments for exploited marine populations. 
+URL: https://github.com/nissandjac/smsR
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Depends: 
     R (>= 3.50)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

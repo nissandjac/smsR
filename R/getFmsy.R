@@ -8,6 +8,7 @@
 #'
 #' @return
 #' returns the fishing mortality that leads to Fmsy
+#' @importFrom abind abind
 getFmsy <- function(df.tmb,
                     sas,
                     nyears = 50,

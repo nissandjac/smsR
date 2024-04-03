@@ -12,6 +12,7 @@
 #'
 #' print(p$SR) # Print the stock recruitment relationship
 #'
+#' @importFrom reshape2 melt
 #'
 plotDiagnostics <- function(df.tmb, sas, mr = NULL){
 

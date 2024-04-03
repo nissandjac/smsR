@@ -22,5 +22,4 @@ p <- plotDiagnostics(df.tmb, sas)
 
 print(p$SR) # Print the stock recruitment relationship
 
-
 }
