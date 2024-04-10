@@ -20,5 +20,5 @@ returns a matrix of observed surveys
 Take a dataframe of surveys and converts them to matrix for smsR
 }
 \examples{
-survey_to_matrix(x,y)
+survey_to_matrix(x, y)
 }

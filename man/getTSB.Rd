@@ -23,7 +23,6 @@ Get the total stock biomass
 
 dat <- getTSB(df.tmb, sas)
 
-
 }
 \seealso{
 [getR()],[getSSB()],[getYield()],[getF()],[getCatch()], [getBiomass()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],

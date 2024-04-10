@@ -22,6 +22,6 @@ Get a list of mapped parameters (not estimated)
 \examples{
 
 # Map the  CV of surveys to the parms value
-MPS <- getMPS(df.tmb, parms, mapExtra = 'SDsurvey')
+MPS <- getMPS(df.tmb, parms, mapExtra = "SDsurvey")
 
 }

@@ -20,7 +20,12 @@
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #' @importFrom patchwork plot_layout
 #'
-plot.sms <- function(df.tmb, sas, type = "default", Blim = NULL, Bpa = NULL, printFig = TRUE) {
+plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = NULL, Bpa = NULL, printFig = TRUE) {
+
+  if(is.null(df.tmb)){
+    df.tmb <- sas$dat
+  }
+
   SSB <- getSSB(df.tmb, sas)
   rec <- getR(df.tmb, sas)
   Fbar <- getFbar(df.tmb, sas)
