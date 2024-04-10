@@ -22,45 +22,45 @@ simple_projection <- function(df.tmb,
                               M,
                               weca,
                               mat,
-                              avg_years){
-
-M <- matrix(rowMeans(df.tmb$M[,(df.tmb$nyears-avg_years[1]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-mat <- matrix(rowMeans(df.tmb$Mat[,(df.tmb$nyears-avg_years[2]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-weca <- matrix(rowMeans(df.tmb$weca[,(df.tmb$nyears-avg_years[3]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-west <- matrix(rowMeans(df.tmb$weca[,(df.tmb$nyears-avg_years[4]+1):df.tmb$nyears,]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
-
-
-N_new <- matrix(NA, df.tmb$nage, df.tmb$nseason)
-N_future <- matrix(NA, df.tmb$nage) # For the following year SSB
-C_new <- matrix(NA, df.tmb$nage, df.tmb$nseason)
-
-Z <- F0 + M
-N_new[,1] <- N_current
+                              avg_years) {
+  M <- matrix(rowMeans(df.tmb$M[, (df.tmb$nyears - avg_years[1] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  mat <- matrix(rowMeans(df.tmb$Mat[, (df.tmb$nyears - avg_years[2] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  weca <- matrix(rowMeans(df.tmb$weca[, (df.tmb$nyears - avg_years[3] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
+  west <- matrix(rowMeans(df.tmb$weca[, (df.tmb$nyears - avg_years[4] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
 
 
-for (qrts in 1:df.tmb$nseason) {
-  for (i in 1:df.tmb$nage){
+  N_new <- matrix(NA, df.tmb$nage, df.tmb$nseason)
+  N_future <- matrix(NA, df.tmb$nage) # For the following year SSB
+  C_new <- matrix(NA, df.tmb$nage, df.tmb$nseason)
 
-    C_new[i,qrts]=(F0[i,qrts]/Z[i,qrts])*N_new[i,qrts]*weca[i,qrts]
+  Z <- F0 + M
+  N_new[, 1] <- N_current
 
-    if(i < df.tmb$nseason){
-      N_new[i, qrts+1] <- N_new*exp(Z[i, qrts])
-    }else{
-      N_future[1] <- 0
-      if(i < df.tmb$nage){
-        N_future[i+1] <- N_new[i]*exp(Z[i,qrts])
-        }else{
-        N_future[i] <- N_future[i,qrts]+N_new[i,qrts]*exp(-Z[i,qrts])
+
+  for (qrts in 1:df.tmb$nseason) {
+    for (i in 1:df.tmb$nage) {
+      C_new[i, qrts] <- (F0[i, qrts] / Z[i, qrts]) * N_new[i, qrts] * weca[i, qrts]
+
+      if (i < df.tmb$nseason) {
+        N_new[i, qrts + 1] <- N_new * exp(Z[i, qrts])
+      } else {
+        N_future[1] <- 0
+        if (i < df.tmb$nage) {
+          N_future[i + 1] <- N_new[i] * exp(Z[i, qrts])
+        } else {
+          N_future[i] <- N_future[i, qrts] + N_new[i, qrts] * exp(-Z[i, qrts])
         }
-       }
-      SSB_next <- sum(N_future*weca*mat)
       }
+      SSB_next <- sum(N_future * weca * mat)
+    }
   }
 
 
-ls.out <- list(TAC = sum(C_new),
-           SSB_next = SSB_next,
-           N_future = N_future)
+  ls.out <- list(
+    TAC = sum(C_new),
+    SSB_next = SSB_next,
+    N_future = N_future
+  )
 
-return(ls.out)
+  return(ls.out)
 }
