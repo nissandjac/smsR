@@ -21,5 +21,4 @@ Get summary of derived variables from fitted smsR object
 
 dat <- getSummary(df.tmb, sas)
 
-
 }

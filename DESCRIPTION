@@ -2,10 +2,10 @@ Package: smsR
 Title: Stochastic MultiSpecies stock assessment model
 Version: 0.0.0.9000
 Authors@R:
-    person(given = "Nis",
-           family = "Sand Jacobsen",
+    person(given = "Anonymous",
+           family = "Fish Modeler",
            role = c("aut", "cre"),
-           email = "nsja@aqua.dtu.dk",
+           email = "fish.stock.modeler@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Imports:
     TMB,
@@ -18,11 +18,11 @@ Imports:
     reshape2
 LinkingTo: TMB, RcppEigen
 Description: smsR is an R implementation of the SMS model used to run seasonal stock assessments for exploited marine populations. 
-URL: https://github.com/nissandjac/smsR
+URL: NA
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Depends: 
     R (>= 3.50)
 Suggests: 

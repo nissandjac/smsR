@@ -20,5 +20,5 @@ returns a data frame of weight at aeg
 get the weight at age from the input data and plot it
 }
 \examples{
-getWeight(df.tmb, WW = 'west', plotFig = TRUE) # Plots the weight in the stock
+getWeight(df.tmb, WW = "west", plotFig = TRUE) # Plots the weight in the stock
 }

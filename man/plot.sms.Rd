@@ -10,7 +10,7 @@
   type = "default",
   Blim = NULL,
   Bpa = NULL,
-  printFig = TRUE
+  printFig = 0
 )
 }
 \arguments{
