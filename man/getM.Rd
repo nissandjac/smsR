@@ -21,5 +21,4 @@ get the natural mortality at age from the input data and plot it
 
 M <- getM(df.tmb, plotFig = TRUE) # Plot the natural mortality by age
 
-
 }

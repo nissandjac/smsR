@@ -20,7 +20,7 @@
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #' @importFrom patchwork plot_layout
 #'
-plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = NULL, Bpa = NULL, printFig = TRUE) {
+plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = sas$dat$betaSR, Bpa = NULL, printFig = 0) {
 
   if(is.null(df.tmb)){
     df.tmb <- sas$dat
@@ -47,11 +47,11 @@ plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = NULL, Bpa = NU
       scale_x_continuous("")
 
     if (is.null(Bpa) == FALSE) {
-      pssb <- pssb + geom_hline(aes(yintercept = Bpa), linetype = 2, color = "black")
+      pssb <- pssb + geom_hline(aes(yintercept = Bpa/1000), linetype = 2, color = "black")
     }
 
     if (is.null(Blim) == FALSE) {
-      pssb <- pssb + geom_hline(aes(yintercept = Blim), linetype = 2, color = "blue")
+      pssb <- pssb + geom_hline(aes(yintercept = Blim/1000), linetype = 2, color = "blue")
     }
 
     # Plot Recruitment
@@ -189,6 +189,6 @@ plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = NULL, Bpa = NU
       }
     }
   }
-  pls
+  #pls
   return(pls)
 }
