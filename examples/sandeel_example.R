@@ -13,19 +13,15 @@ surveySeason = c(1,2) # c(2,1)Which seasons do the surveys occur in
 surveyCV =  list(c(1,2),
                  c(0,1)) #c(1,2)),
 powers = list(NA,
-              0)
+              NA)
 
 
-Catchobs <- df_to_matrix(sandeel_1r[['canum']], season =1:nseason)
-Surveyobs <- survey_to_matrix(sandeel_1r[['survey']], year = years)
-Feffort <- sandeel_1r[['effort']]
-nocatch <- sandeel_1r[['nocatch']]
 
 
 df.tmb <- get_TMB_parameters(
   mtrx = sandeel_1r[['mtrx']], # List that contains M, mat, west, weca
-  Surveyobs = Surveyobs, # Survey observations (dimensions age, year, quarter, number of surveys)
-  Catchobs = Catchobs, # Catch observations  (dimensions age, year, quarter)
+  Surveyobs = sandeel_1r$survey, # Survey observations (dimensions age, year, quarter, number of surveys)
+  Catchobs = sandeel_1r$Catch, # Catch observations  (dimensions age, year, quarter)
   years = years, # Years to run
   nseason = nseason, # Number of seasons
   useEffort = 1,
@@ -37,11 +33,11 @@ df.tmb <- get_TMB_parameters(
   Qmaxage = Qmaxage, #Qmaxage = c(1,3)
   Fbarage = c(1,2),
   isFseason = c(1,0), # Seasons to calculate fishing in
-  effort = Feffort,
+  effort = sandeel_1r$effort,
   powers = powers,
-  blocks = c(1983,1989, 1999,2005 ,2010), # Blocks with unique selectivity
+  blocks = c(1989, 1999 ), # Blocks with unique selectivity
   endFseason = 2, # which season does fishing stop in the final year of data
-  nocatch = as.matrix(nocatch),
+  nocatch = as.matrix(sandeel_1r$nocatch),
   surveyStart = surveyStart, #c(0.75,0)
   surveyEnd =  surveyEnd, # c(1,0) Does the survey last throughout the season it's conducted?
   surveySeason = surveySeason, # c(2,1)Which seasons do the surveys occur in
