@@ -15,10 +15,7 @@ stocks) and sprat in the North Sea.
 You can install the development version of smsR as
 
 ``` r
-# install.packages("devtools")
-require('devtools')
-require('remotes')
-install_local("smsR_0.0.0.9000.tar.gz", dependencies = TRUE)
+remotes::install_github("https://github.com/nissandjac/smsR", dependencies = TRUE)
 ```
 
 ## Using the model

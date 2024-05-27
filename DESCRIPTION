@@ -2,11 +2,11 @@ Package: smsR
 Title: Stochastic MultiSpecies stock assessment model
 Version: 0.0.0.9000
 Authors@R:
-    person(given = "Anonymous",
-           family = "Fish Modeler",
+    person(given = "Nis",
+           family = "Sand Jacobsen",
            role = c("aut", "cre"),
-           email = "fish.stock.modeler@gmail.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "nsja@aqua.dtu.dk",
+           comment = c(ORCID = "https://orcid.org/0000-0001-8754-4518"))
 Imports:
     TMB,
     ggplot2,
