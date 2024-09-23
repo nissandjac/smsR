@@ -5,17 +5,19 @@
 #' @param nyears number of years to simulate
 #' @param recruitment recruitment type to calculate Fmsy. Currently only hockey works.
 #' @param plotMSY TRUE OR FALSE to plot the result
+#' @param stochastic stochastic fmsy?
 #'
-#' @return
-#' returns the fishing mortality that leads to Fmsy
-#' @importFrom abind abind
-getFmsy <- function(df.tmb,
-                    sas,
+#' @return returns the fishing mortality that leads to Fmsy
+#' @export
+#'
+getFmsy <- function(sas,
                     nyears = 50,
                     recruitment = "hockey",
-                    plotMSY = FALSE) {
+                    plotMSY = FALSE,
+                    stochastic = FALSE) {
   #  Number
-  years <- 1:nyears
+  df.tmb <- sas$dat
+  years <- 1:sas$dat$nyears
   nyears <- length(years)
 
 
@@ -24,11 +26,11 @@ getFmsy <- function(df.tmb,
   weca <- array(df.tmb$weca[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   west <- array(df.tmb$west[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
 
-  Fselin <- getSelex(df.tmb, sas)
-
+  Fselin <- getSelectivity(df.tmb, sas)
+  #Fselin <- Fselin[Fselin$block == max(Fselin$block),]
   # I like this scaled to 1 for consistency
 
-  blocks <- unique(Fselin$blocks)
+  # blocks <- unique(Fselin$blocks)
 
 
   # for(i in 1:length(blocks)){
@@ -39,9 +41,9 @@ getFmsy <- function(df.tmb,
 
   for (i in 1:df.tmb$nseason) {
     if (i == 1) {
-      Fsel <- array(Fselin$Fsel[Fselin$years == df.tmb$years[df.tmb$nyears] & Fselin$season == i], dim = c(df.tmb$nage, nyears, 1))
+      Fsel <- array(Fselin$selec[Fselin$season == i], dim = c(df.tmb$nage, nyears, 1))
     } else {
-      tmp <- array(Fselin$Fsel[Fselin$years == df.tmb$years[df.tmb$nyears] & Fselin$season == i], dim = c(df.tmb$nage, nyears, 1))
+      tmp <- array(Fselin$selec[Fselin$season == i], dim = c(df.tmb$nage, nyears, 1))
       Fsel <- abind::abind(Fsel, tmp, along = 3)
     }
   }
@@ -54,9 +56,11 @@ getFmsy <- function(df.tmb,
   if (recruitment == "hockey") {
     alphaSR <- exp(parms.est$value[parms.est$parameter == "logalpha"])
     betaSR <- df.tmb$betaSR
+    R0 <- exp(alphaSR) * df.tmb$betaSR
   } else {
     alphaSR <- NA
     betaSR <- NA
+    R0 <- exp(parms.est$value[parms.est$parameter == "logalpha"])
   }
 
 
@@ -72,6 +76,8 @@ getFmsy <- function(df.tmb,
     age = df.tmb$age,
     nage = length(df.tmb$age),
     Fin = matrix(0, length(years), df.tmb$nseason),
+    propM = df.tmb$propM,
+    propF = df.tmb$propF,
     M = M,
     mat = mat,
     weca = weca,
@@ -91,7 +97,7 @@ getFmsy <- function(df.tmb,
     Ninit = NULL,
     Rin = NA,
     move = FALSE,
-    R0 = exp(alphaSR) * df.tmb$betaSR,
+    R0 = R0,
     SDR = 0,
     alpha = alphaSR,
     b = rep(0, length(years))

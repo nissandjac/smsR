@@ -15,6 +15,7 @@
 #' @importFrom reshape2 melt
 #'
 plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
+
   nseason <- df.tmb$nseason
   years <- df.tmb$years
 
@@ -22,7 +23,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   surv <- df.tmb$Surveyobs
 
   if (is.null(dimnames(surv))) {
-    dimnames(surv) <- list(df.tmb$age, df.tmb$years, 1:df.tmb$nsurvey)
+    dimnames(surv) <- list(age = df.tmb$age, year= df.tmb$years,survey = 1:df.tmb$nsurvey)
   }
 
   surv.fit <- getSurvey(df.tmb, sas) %>% dplyr::rename(
@@ -39,7 +40,13 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
     s.out <- s.out %>%
       tidyr::pivot_longer(as.character(df.tmb$age), values_to = "cpue", names_to = "age") %>%
       tidyr::drop_na(cpue)
-    s.out$survey <- dimnames(surv)$survey[i]
+
+    survey_name <- dimnames(surv)$survey[i]
+    if(is.null(survey_name)){
+      survey_name <- i
+    }
+
+    s.out$survey <- as.character(survey_name)
 
     if (i == 1) {
       s.exp <- s.out
@@ -61,7 +68,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "top") +
     ggplot2::scale_y_log10("survey index") +
-    ggplot2::geom_line(size = .7, linetype = 2, alpha = .2) +
+    ggplot2::geom_line(linewidth = .7, linetype = 2, alpha = .2) +
     ggplot2::geom_line(data = surv.fit, ggplot2::aes(x = years)) +
     ggplot2::geom_ribbon(
       data = surv.fit, ggplot2::aes(x = years, ymin = low, ymax = high, fill = age),
@@ -110,14 +117,22 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
 
 
   # Do the internal dredge survey thing
-  survey <- reshape2::melt(df.tmb$Surveyobs) %>% dplyr::filter(value > 0)
+  survey <- reshape2::melt(surv) %>% dplyr::filter(value > 0)
 
   snames <- unique(survey$survey)
+
+  if(is.null(snames)){
+    snames <- 1:df.tmb$nsurvey
+  }
 
   p3 <- list()
   idx <- 1
 
   for (i in 1:length(snames)) {
+
+    if(df.tmb$Qminage[i] < df.tmb$Qmaxage[i]){
+
+
     s.tmp <- survey %>% dplyr::filter(survey == snames[i])
 
     ages <- unique(s.tmp$age)
@@ -149,6 +164,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
         theme(legend.title = ggplot2::element_blank())
 
       idx <- idx + 1
+    }
     }
   }
 

@@ -26,10 +26,6 @@ getTAC <- function(df.tmb,
                      Fcap = 2
                      ){
 
-
-
-
-
   # Extract N in the beginning of the coming year
 
   # Get the estimated survey

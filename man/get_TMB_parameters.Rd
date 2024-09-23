@@ -31,6 +31,7 @@ get_TMB_parameters(
   useEffort = 0,
   estimateCreep = 0,
   effort = matrix(1, nrow = length(years), ncol = nseason),
+  env_r = 0,
   blocks = FALSE,
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),

@@ -100,8 +100,8 @@ runAssessment <- function(df.tmb,
   system.time(opt <- stats::nlminb(obj$par, obj$fn, obj$gr,
     lower = lower, upper = upper,
     control = list(
-      iter.max = 1e6,
-      eval.max = 1e6
+      iter.max = 1e5,
+      eval.max = 1e5
     )
   )) #
 

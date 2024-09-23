@@ -60,6 +60,10 @@ getParms <- function(df.tmb, parms.true = NULL) {
     parms$Fseason <- matrix(1, nrow = 1, ncol = max(df.tmb$bidx) + 1)
   }
 
+  if(df.tmb$recmodel == 3){
+    parms$logh <- log(0.5)
+  }
+
 
   if (!is.null(parms.true)) {
     pnames <- unique(parms.true$parameter)
@@ -147,7 +151,11 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
     mps$logSDF <- factor(parms$logSDF * NA)
   }
 
-
+  if(df.tmb$recmodel == 3){
+    mps$logalpha <- factor(parms$logalpha * NA)
+    mps$logbeta <- factor(parms$logalpha * NA)
+    mps$logh <- factor(parms$logh * NA)
+  }
 
 
   for (i in 1:length(mapExtra)) {

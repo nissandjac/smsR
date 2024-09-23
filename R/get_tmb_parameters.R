@@ -88,6 +88,7 @@ get_TMB_parameters <- function(
     useEffort = 0,
     estimateCreep = 0,
     effort = matrix(1, nrow = length(years), ncol = nseason),
+    env_r = 0,
     blocks = FALSE,
     surveyStart = rep(0, nsurvey),
     surveyEnd = rep(1, nsurvey),
@@ -110,7 +111,8 @@ get_TMB_parameters <- function(
     nllfactor = rep(1, 3),
     randomF = 0) {
   # Remove surveys for sensitivity analysis
-  if (sum(leavesurveyout) != nsurvey) {
+
+   if (sum(leavesurveyout) != nsurvey) {
     Surveyobs <- Surveyobs[, , leavesurveyout == 1, drop = FALSE]
     Qminage <- Qminage[leavesurveyout == 1]
     Qmaxage <- Qmaxage[leavesurveyout == 1]
@@ -127,6 +129,7 @@ get_TMB_parameters <- function(
   if (nsurvey == 0) {
     warning("probably doesnt work without survey")
   }
+
 
 
 
@@ -392,6 +395,79 @@ get_TMB_parameters <- function(
     propF <- array(0, dim = c(nage, nyear + 1, nseason))
   }
 
+  if(is.null(mtrx$M)){
+    stop('Provide natural mortality')
+  }
+
+
+  if(is.null(dim(mtrx$M))){
+    mtrx$M <- matrix(rep(mtrx$M, each = nage), nrow = nage, ncol = nyear+1)
+    message('Turning M vector into age matrix')
+  }
+
+
+  if(length(mtrx$mat) == nage){
+    mtrx$mat <- matrix(mtrx$mat, nrow = nage, ncol = nyear)
+  }
+
+  # Add a projection year to weca and west
+
+  if(dim(mtrx$weca)[2] == nyear){
+
+    weca.mean <- apply(mtrx$weca[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
+    mtrx$weca <- abind::abind(mtrx$weca, array(weca.mean, dim = c(nage, 1, nseason) ), along = 2)
+
+    warning('add projection year to weca. Using average of last 3 years')
+
+
+  }
+
+
+  if(dim(mtrx$west)[2] == nyear){
+
+    west.mean <- apply(mtrx$west[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
+    mtrx$west <- abind::abind(mtrx$west,array(west.mean, dim = c(nage, 1, nseason) ), along = 2)
+
+    warning('add projection year to weca. Using average of last 3 years')
+
+  }
+
+
+  if(dim(mtrx$mat)[2] == nyear){
+
+    mat.mean <- apply(mtrx$mat[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
+    mtrx$mat <- abind::abind(mtrx$mat,array(mat.mean, dim = c(nage, 1, nseason) ), along = 2)
+
+    warning('add projection year to mat. Using average of last 3 years')
+
+  }
+
+  if(dim(mtrx$M)[2] == nyear){
+
+    M.mean <- apply(mtrx$M[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
+    mtrx$M <- abind::abind(mtrx$M,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+
+    warning('add projection year to M. Using average of last 3 years')
+
+  }
+
+  if(dim(propM)[2] == nyear){
+
+    propM.mean <- apply(propM[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
+    propM <- abind::abind(propM,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+
+    warning('add projection year to propM. Using average of last 3 years')
+
+  }
+
+  if(dim(propF)[2] == nyear){
+
+    propF.mean <- apply(propF[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
+    propF <- abind::abind(propF,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+
+    warning('add projection year to propF. Using average of last 3 years')
+
+  }
 
   if (startYear > min(years)) {
     weca <- mtrx$weca[, c(years %in% startYear:max(years), TRUE), ]
@@ -442,6 +518,10 @@ get_TMB_parameters <- function(
 
 
 
+
+
+
+
   df.tmb <- list(
     weca = weca,
     west = west,
@@ -461,6 +541,7 @@ get_TMB_parameters <- function(
     useEffort = useEffort,
     estimateCreep = estimateCreep,
     effort = effort,
+    env_r = env_r,
     bidx = bidx,
     useBlocks = useBlocks,
     blocks = blocks,
@@ -499,6 +580,9 @@ get_TMB_parameters <- function(
     nllfactor = nllfactor,
     randomF = randomF
   )
+
+  # Check if everything looks right
+  check_tmb_error(df.tmb)
 
   return(df.tmb)
 }
