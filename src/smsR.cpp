@@ -11,6 +11,17 @@ Type posfun(Type x, Type eps, Type &pen) {
 }
 
 template<class Type>
+Type average(vector<Type> xin){
+  Type avgtmp = 0;
+  for(int i=0;i<xin.size();i++){
+    avgtmp += xin(i);
+  }
+Type export_number = avgtmp/xin.size();
+
+return(export_number);
+}
+
+template<class Type>
 Type objective_function<Type>::operator() ()
 {
   // Data input
@@ -18,6 +29,8 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(west); // Weight in catch
   DATA_ARRAY(Surveyobs); // Surveys
   DATA_ARRAY(Catchobs); // Catch observations
+  DATA_ARRAY(env_matrix); // environmental observations
+  DATA_ARRAY(M_matrix); // Predator observations (preferably consumption)
 //   // //
 // // // // Age
   DATA_VECTOR(age); // ages
@@ -26,6 +39,9 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(nseason);
   DATA_INTEGER(nyears); // Number of years
   DATA_INTEGER(nsurvey); // Number of surveys
+  DATA_INTEGER(nenv); // number of environemtnal covariates
+  DATA_INTEGER(nalphaM); // Number of external predators
+  //DATA_INTEGER(nMext); // Number of unique age groupings for external predator s
   DATA_INTEGER(recseason); // Season where recruitment occurs
   DATA_INTEGER(Fminage);
   DATA_INTEGER(Fmaxage); // Max age to fish
@@ -33,11 +49,16 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(useBlocks); // Use blocks for species selectivity?
   DATA_INTEGER(estimateCreep); // Bolean, estimate creep from effort data
   DATA_INTEGER(randomF); // Random walk on F
+  DATA_INTEGER(randomR); // Random walk on R
+  DATA_INTEGER(randomM); // Random walk on M
+  DATA_INTEGER(M_nparms); // Number of M variances and estimates
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
   DATA_IVECTOR(Qmaxage); // Maximum age in survey
   DATA_IVECTOR(Qlastage);
   DATA_IVECTOR(bidx); // Indexes for blocks of fishing mortality
+
+
 
   //DATA_INTEGER(endFseason); // Season in last year where fishing ends
   DATA_VECTOR(isFseason);
@@ -50,6 +71,7 @@ Type objective_function<Type>::operator() ()
   DATA_SCALAR(peneps); // Tuning parameters for min catch and survey CV
   DATA_SCALAR(penepsC);
   DATA_SCALAR(penepsCmax); // Tuning parameter for maximum catch CV
+  DATA_SCALAR(Mprior); // Prior to keep M within reasonable bounds
   DATA_ARRAY(powers);
   DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
@@ -57,6 +79,8 @@ Type objective_function<Type>::operator() ()
   DATA_IVECTOR(Qidx);
   DATA_IARRAY(Qidx_CV); // survey catchability matrix
   DATA_IARRAY(Cidx_CV);
+  DATA_IARRAY(Midx_CV); // Number of M variances and estimates
+  //DATA_IARRAY(Midx); // Index for age grouping on assessing M2
 //   // // // Time varying arrays
 //   //DATA_ARRAY(F0);
   DATA_ARRAY(M); // Natural mortality
@@ -90,6 +114,13 @@ Type objective_function<Type>::operator() ()
   PARAMETER(logbeta);
   PARAMETER(logSDrec);
   PARAMETER(logSDF); // Fishing mortality variability
+  PARAMETER_VECTOR(logSDM); // M time varying
+  PARAMETER_VECTOR(env);
+  PARAMETER_ARRAY(ext_M); // External natural mortality
+  PARAMETER_ARRAY(alphaM); // MICE input of external predators or other mortality inducing things
+  PARAMETER(logR0);
+  PARAMETER(logh);
+
 
 //
 array<Type>Catch(nage,nyears, nseason);
@@ -108,7 +139,9 @@ array<Type>Fsel(nage,nyears,nseason);
 array<Type>p(nage,nsurvey);
 array<Type>Fagein(nage, nyears);
 //array<Type>SDR_catch(nage, nyears);
-
+array<Type>env_in(nenv,nyears);
+array<Type>M_in(nalphaM, nyears);
+array<Type>M_new(nage, nyears,nseason);
 
 vector<Type>SSB(nyears+1);
 vector<Type>TSB(nyears);
@@ -116,11 +149,26 @@ vector<Type>Fyear(nyears);
 vector<Type>Rsave(nyears);
 vector<Type>logRec(nyears);
 vector<Type>term_logN_next(nage); // Numbers at age in the future year
-
+vector<Type>env_tot(nyears);
+vector<Type>M_tot(nyears); // Total predator contribution to M
 vector<Type>Rin(nyears);
 vector<Type>Catchtot(nyears);
 // vector<Type>powerin(nsurvey);
 vector<Type>Q(logQ.size());
+vector<Type>SDM(logSDM.size());
+
+//REPORT(Ravg)
+Type alpha = exp(logalpha);
+Type beta = exp(logbeta);
+Type SDrec = exp(logSDrec);
+Type SDF = exp(logSDF);
+Type Rinit = exp(logR0);
+Type h = exp(logh);
+
+for(int i=0;i<logSDM.size();i++){
+  SDM(i) = exp(logSDM(i));
+}
+
 
 
 Catch.setZero();
@@ -139,13 +187,19 @@ logQsurv.setZero();
 Fsel.setZero();
 log_exp_pattern.setZero();
 Fyear.setZero();
+env_tot.setZero();
+M_tot.setZero();
+env_in.setZero();
+M_new.setZero();
 
 Fyear(0) = 1;
 
 // Retransform and set up for model
-for(int time=0;time<nyears;time++){
-      Rin(time)=exp(logRin(time));
 
+for(int time=0;time<nyears;time++){
+    if(recmodel == 1){
+      Rin(time)=exp(logRin(time));
+    }
       if(time > 0){
         Fyear(time) = exp(logFyear(time-1));
       }
@@ -153,10 +207,88 @@ for(int time=0;time<nyears;time++){
 
 
 
-Type alpha = exp(logalpha);
-Type beta = exp(logbeta);
-Type SDrec = exp(logSDrec);
-Type SDF = exp(logSDF);
+if(nenv >0){
+// Retransform and set up for model
+for(int time=0;time<nyears;time++){
+  for(int k=0;k<nenv;k++){
+  env_in(k,time) = env(k)*env_matrix(k,time);
+    }
+  }
+
+  REPORT(env_in)
+
+  for(int time=0;time<nyears;time++){
+    for(int k=0;k<nenv;k++){
+      env_tot(time) += env_in(k,time);
+    }
+  }
+}
+
+
+
+
+if(randomM == 1){
+
+  if(nalphaM >0){
+  // Retransform and set up for model
+  for(int k=0;k<nalphaM;k++){
+    for(int time=0;time<nyears;time++){
+      for(int i=0;i<(nage);i++){ //
+        M_in(i,time,k) = alphaM(k)*M_matrix(k,time);
+      }
+    }
+  }
+}
+
+  for(int time=0;time<nyears;time++){
+    for(int k=0;k<nalphaM;k++){
+      M_tot(time) += M_in(k,time);
+    }
+  }
+  ADREPORT(M_tot)
+
+  for(int time=0;time<nyears;time++){
+    for(int i=0;i<(nage);i++){ //
+      if(Midx_CV(i) > -1){
+        if(time == 0){
+          M_new(i,time,0) = M(i,time,0)*exp(ext_M(time,Midx_CV(i))+M_tot(time));
+        }else{
+          M_new(i,time,0) = M_new(i, time-1,0)*exp(ext_M(time,Midx_CV(i))+M_tot(time));
+        }
+      }else{
+        M_new(i,time,0) = M(i,time,0);
+      }
+    }
+  }
+}else{
+  for(int time=0;time<nyears;time++){
+    for(int i=0;i<(nage);i++){ //
+      for(int s=0;s<(nseason);s++){
+        M_new(i,time,s) = M(i,time,s);
+        }
+      }
+    }
+  }
+
+
+REPORT(ext_M)
+
+REPORT(M_new)
+ADREPORT(M_new)
+
+REPORT(env_tot)
+
+// Calculate mean R
+
+
+
+//Type Ravg = beta;
+
+for(int time=1;time<nyears;time++){
+  Fyear(time) = exp(logFyear(time-1));
+}
+
+
 
 
 for(int i=0;i<(logQ.size());i++){ //
@@ -320,7 +452,7 @@ if(useEffort == 1){
                 }
               }
 
-             Zsave(i,time,qrts) = F0(i,time,qrts)+M(i,time,qrts);
+             Zsave(i,time,qrts) = F0(i,time,qrts)+M_new(i,time,qrts);
      }
     }
   }
@@ -342,7 +474,7 @@ if(useEffort == 1){
                 log_exp_pattern(i, qrts) = -1000;
               }
             }
-          Zsave(i,time,qrts) = F0(i,time,qrts)+M(i,time,qrts);
+          Zsave(i,time,qrts) = F0(i,time,qrts)+M_new(i,time,qrts);
 
      }
     }
@@ -431,10 +563,6 @@ if(nsurvey>1){
   }
 }
 
-
-
-
-
 // //
 // // // // Set up at Nat age in first Quarter
 Nsave(0,0,0) = 0; // Nothing here in the fist year
@@ -443,32 +571,76 @@ for(int i=1;i<(nage);i++){ // Get initial ages from age 1
   Nsave(i,0,0) = exp(logNinit(i-1));
 }
 //
-for(int time=0;time<(nyears);time++){ // Start time loop
-  Rsave(time) = Rin(time);
+vector<Type> Nzero(nage); // Numbers with no fishing
+Type SSB0 = 0;
+
+if(recmodel == 3){
+Nzero(0) = Rinit*exp(-0.5*SDrec);
+  for(int i=1;i<(nage-1);i++){
+    Nzero(i) = Rinit * exp(-(M_new(i,0,0)*i)-0.5*SDrec);
+    Nsave(i,0,0) = Nzero(i)*exp(logNinit(i-1));
+  }
+  Nzero(nage-1) = (Rinit*exp(-(M_new(nage-2,0,0)*(nage-1))-0.5*SDrec))/(Type(1.0)-exp(-M_new(nage-1,0,0)));
+  Nsave(nage-1,0,0) = Nzero(nage-1)*exp(logNinit(nage-2));
+
+  for(int i=0;i<nage;i++){ // Loop over ages
+      SSB0 += Nzero(i)*west(i,0,0)*Mat(i,0,0)*exp(-(M_new(i,0,0)*propM(i,0,0)));
+    }
+    REPORT(Nzero)
+    REPORT(SSB0)
 }
+
+
+
 // // // // //
 for(int time=0;time<(nyears);time++){ // Start time loop
   for(int qrts=0; qrts<(nseason);qrts++){
       if(qrts == 0){ // Spawning stock biomass is from season 1
         for(int i=0;i<nage;i++){ // Loop over other ages
-             SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0)*exp(-(M(i,time,qrts)*propM(i,time,qrts)+F0(i,time,qrts)*propF(i,time,qrts))); // Fix SSB
+             SSB(time) += Nsave(i,time,0)*west(i,time,0)*Mat(i,time,0)*exp(-(M_new(i,time,qrts)*propM(i,time,qrts)+F0(i,time,qrts)*propF(i,time,qrts))); // Fix SSB
              TSB(time) += Nsave(i,time,0)*west(i,time,0); // TSB in the beginning of the season
           }
       }
       if(qrts == (recseason-1)){ // Recruitment season
-         if(recmodel == 1){ // Different recruitment models
-           Rsave(time) = alpha * SSB(time);
 
-             if(SSB(time) >= beta){
-                Rsave(time) = alpha*beta;
-             }
-            Nsave(0,time,2) = Rsave(time);
-        }
+         if(recmodel == 1){ // Different recruitment models
+             Rsave(time) = Rin(time);
+             Nsave(0,time,qrts) = Rsave(time);
+             logRec(time) = log(Rin(time));
+           }
           if(recmodel == 2){
+
+           if(SSB(time) >= beta){
+             if(time >= (nyears-1)){
+              Rin(time)= alpha*exp(env_tot(time)-0.5*SDrec);
+            }else{
+              Rin(time)=alpha*exp(logRin(time)+env_tot(time)-0.5*SDrec);
+            }
+          }else{
+            if(time >= (nyears-1)){
+              Rin(time) = (alpha/beta)*SSB(time)*exp(env_tot(time)-0.5*SDrec);
+            }else{
+              Rin(time) = (alpha/beta)*SSB(time)*exp(logRin(time)+env_tot(time)-0.5*SDrec);
+            }
+          }
             Rsave(time) = Rin(time);
             Nsave(0,time,qrts) = Rsave(time);
             logRec(time) = log(Rin(time));
           }
+
+          if(recmodel == 3){
+            if(time >= (nyears-1)){
+              Rin(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*SDrec+env_tot(time));
+          }else{
+              Rin(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*SDrec+logRin(time)+env_tot(time));
+
+          }
+
+            Rsave(time) = Rin(time);
+            Nsave(0,time,qrts) = Rsave(time);
+            logRec(time) = log(Rin(time));
+          }
+
        }
         if(qrts < (nseason-1)){
          for(int i=0;i<(nage);i++){ // Loop over other ages
@@ -531,7 +703,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 // // // Calculate SSB and recruitment in the new year
 // //
 for(int i=0;i<nage;i++){ // Loop over other ages
-     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(-(M(i,nyears,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0))); //
+     SSB(nyears) += Nsave(i,nyears,0)*west(i,nyears,0)*Mat(i,nyears,0)*exp(-(M_new(i,nyears-1,0)*propM(i,nyears,0)+F0(i,nyears-1,0)*propF(i,nyears,0))); //
      term_logN_next(i) = log(Nsave(i, nyears,0));
 }
 // // // // //
@@ -547,18 +719,26 @@ for(int time=0;time<(nyears);time++){ // Loop over years
      //      SRpred(time) = alpha+log(beta);
      // }
      //
-
-       if(SSB(time)<=beta){
+     if(recmodel == 1){
+       if(SSB(time)< beta){
            xR(time) = log(Rsave(time))-(log(alpha)+log(SSB(time)));
            xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(SSB(time))),2);
-           SRpred(time) = exp(log(alpha)+log(SSB(time)));
-
+           //SRpred(time) = exp(log(alpha)+log(SSB(time)));
+           SRpred(time) = alpha*exp(env_tot(time)-0.5*SDrec);
          }else{
            xR(time)  = log(Rsave(time))-(log(alpha)+log(beta));
            xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(beta)),2);
-           SRpred(time) = exp(log(alpha)+log(beta));
+           SRpred(time) = alpha*exp(env_tot(time)-0.5*SDrec);
          }
+        }
 
+        if(recmodel == 3){
+        SRpred(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*SDrec+env_tot(time));
+        }
+
+        if(recmodel == 2){
+          SRpred(time) = alpha;
+        }
 
   }
 
@@ -596,6 +776,7 @@ array<Type> sumx2(ncatch,nseason);
 
 
 REPORT(ncatch)
+REPORT(Rin)
 
 if(estCV(1) == 2){
   for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
@@ -867,7 +1048,31 @@ for(int i=0;i<nyears;i++){ // Loop over years
   pXr += xR2(i);
 }
 
-Type prec = nyears*log(sqrt(SDrec2))+pXr*0.5/SDrec2;   // likelihood
+Type prec = 0.0;
+
+  if(randomR == 1){
+
+    if(recmodel > 1){
+    for(int time=0;time<(nyears-1);time++){ // Loop over years
+    prec += -dnorm(logRin(time), Type(0.0) , SDrec2, true);
+    }
+    }
+
+      if(recmodel == 1){ // Assume random walk if randomR is one with recmodel 1
+        for(int time=1;time<(nyears);time++){ // Loop over years
+          prec += -dnorm(logRin(time), logRin(time-1) , SDrec2, true);
+        }
+    }
+
+  }else{
+    prec = nyears*log(sqrt(SDrec2))+pXr*0.5/SDrec2;   // likelihood
+  }
+
+  if(recmodel == 3){
+    for(int i=0;i<(nage-1);i++){ // Loop over years
+      prec+= -dnorm(logNinit(i), Type(0.0), SDrec2, true);
+    }
+  }
 
 // // // // // // //
 
@@ -933,22 +1138,42 @@ if(randomF == 1){
 
   for(int time=1;time<nyears;time++){ // Loop over years
     ansF += -dnorm(Fyear(time), Fyear(time-1), SDF, true);
+    //ansR += -dnorm(Fyear(time), Fyear(time-1), SDR, true);
   }
 }
 
+// add random F possibility
+Type ansM = 0.0;
+
+if(randomM == 1){
+
+  for(int time=0;time<(nyears);time++){ // Loop over years
+    for(int i=0;i<M_nparms;i++){ // Loop over ages
+  //  ansM += -dnorm(M_new(0,time,0), M_new(0,time-1,0), SDM, true);
+    ansM += -dnorm(ext_M(time, i), Type(0.0), SDM(i), true);
+  }
+}
+
+  for(int time=0;time<(nyears);time++){ // Loop over years
+    ansM += -dnorm(M_new(Midx_CV(0),time,0), M(Midx_CV(0),time,0), Type(Mprior), true); // Penalty for deviations from initial year
+      }
 
 
-// // // // // prec += pCV;
-// // // // // // //
-// // // // // // //
+
+//  ansM += dnorm(SDM, Type(0.2), Type(0.01), true);
+}
+
+// Do a penalty for too low ansM
+
 Type ans = 0.0;
 //
-ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch+penSDcatchmax+ansF;
+ans = nllsurv*nllfactor(0)+nllC*nllfactor(1)+prec*nllfactor(2)+penSDsurvey+penSDcatch+penSDcatchmax+ansF+ansM;
 // // //
-vector<Type> ansvec(3);
+vector<Type> ansvec(4);
 ansvec(0) = nllsurv;
 ansvec(1) = nllC;
 ansvec(2) = prec;
+ansvec(3) = ansM;
 //
 
 REPORT(ansvec)
@@ -1020,6 +1245,8 @@ ADREPORT(logbeta)
 ADREPORT(SDrec2)
 ADREPORT(SRpred)
 ADREPORT(logFavg)
+ADREPORT(SSB0)
+ADREPORT(M_new)
 // //
 // Type ans = 0.0;
 

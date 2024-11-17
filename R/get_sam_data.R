@@ -20,6 +20,7 @@ read.sam.data <- function(wd){
 
   cn <- read.table(file.path(wd, 'cn.dat'), skip = 5)
   colnames(cn) <- cn.age
+
   if(cn.age[1] >0){
     age.idx = 0
     while(age.idx < min(cn.age)){
@@ -38,10 +39,17 @@ read.sam.data <- function(wd){
   cw.age <- cw.age[1]:cw.age[2]
 
   cw <- read.table(file.path(wd, 'cw.dat'), skip = 5)
-  colnames(cw) <- cn.age
+  colnames(cw) <- cw.age
 
+  if(cw.age[1] >0){
+    age.idx = 0
+    while(age.idx < min(cw.age)){
+      cw <- cbind(data.frame(age.idx = rep(0, length(cw.yr))),cw)
+      age.idx <- age.idx + 1
+    }
+  }
   # Turn into matrix
-  weca <- array(t(as.matrix(cw)), dim = c(length(cw.age), length(cw.yr),1))
+  weca <- array(t(as.matrix(cw)), dim = c(length(0:max(cw.age)), length(cw.yr),1))
 
 
   sw.yr <- scan(file.path(wd,'sw.dat'), skip = 2, nlines=1, quiet = TRUE)
@@ -53,7 +61,15 @@ read.sam.data <- function(wd){
   colnames(sw) <- sw.age
 
   # Turn into matrix
-  west <- array(t(as.matrix(sw)), dim = c(length(sw.age), length(sw.yr),1))
+  if(sw.age[1] >0){
+    age.idx = 0
+    while(age.idx < min(sw.age)){
+      sw <- cbind(data.frame(age.idx = rep(0, length(sw.yr))),sw)
+      age.idx <- age.idx + 1
+    }
+  }
+
+    west <- array(t(as.matrix(sw)), dim = c(length(0:max(sw.age)), length(sw.yr),1))
 
 
   # Maturity
@@ -66,8 +82,17 @@ read.sam.data <- function(wd){
   mat <- read.table(file.path(wd, 'mo.dat'), skip = 5)
   colnames(mat) <- mat.age
 
+  if(mat.age[1] >0){
+    age.idx = 0
+    while(age.idx < min(mat.age)){
+      mat <- cbind(data.frame(age.idx = rep(0, length(mat.yr))),mat)
+      age.idx <- age.idx + 1
+    }
+  }
+
+
   # Turn into matrix
-  mat <- array(t(as.matrix(mat)), dim = c(length(mat.age), length(mat.yr),1))
+  mat <- array(t(as.matrix(mat)), dim = c(length(0:max(mat.age)), length(mat.yr),1))
 
 
   # PropF
@@ -79,8 +104,19 @@ read.sam.data <- function(wd){
   propF <- read.table(file.path(wd, 'pf.dat'), skip = 5)
   colnames(propF) <- propF.age
 
+
+  if(propF.age[1] >0){
+    age.idx = 0
+    while(age.idx < min(propF.age)){
+      propF <- cbind(data.frame(age.idx = rep(0, length(propF.yr))),propF)
+      age.idx <- age.idx + 1
+    }
+  }
+
+
+
   # Turn into propFrix
-  propF <- array(t(as.matrix(propF)), dim = c(length(propF.age), length(propF.yr),1))
+  propF <- array(t(as.matrix(propF)), dim = c(length(0:max(propF.age)), length(propF.yr),1))
 
   # PropM
   propM.yr <- scan(file.path(wd,'pm.dat'), skip = 2, nlines=1, quiet = TRUE)
@@ -91,8 +127,16 @@ read.sam.data <- function(wd){
   propM <- read.table(file.path(wd, 'pm.dat'), skip = 5)
   colnames(propM) <- propM.age
 
+   if(propM.age[1] >0){
+    age.idx = 0
+    while(age.idx < min(propM.age)){
+      propM <- cbind(data.frame(age.idx = rep(0, length(propM.yr))),propM)
+      age.idx <- age.idx + 1
+    }
+  }
+
   # Turn into propMrix
-  propM <- array(t(as.matrix(propM)), dim = c(length(propM.age), length(propM.yr),1))
+  propM <- array(t(as.matrix(propM)), dim = c(length(0:max(propM.age)), length(propM.yr),1))
 
   # M2
   M2.yr <- scan(file.path(wd,'nm.dat'), skip = 2, nlines=1, quiet = TRUE)
@@ -103,8 +147,16 @@ read.sam.data <- function(wd){
   M2 <- read.table(file.path(wd, 'nm.dat'), skip = 5)
   colnames(M2) <- M2.age
 
+  if(M2.age[1] >0){
+    age.idx = 0
+    while(age.idx < min(M2.age)){
+      M2 <- cbind(data.frame(age.idx = rep(as.numeric(M2[1]), length(M2.yr))),M2)
+      age.idx <- age.idx + 1
+    }
+  }
+
   # Turn into M2rix
-  M2 <- array(t(as.matrix(M2)), dim = c(length(M2.age), length(M2.yr),1))
+  M2 <- array(t(as.matrix(M2)), dim = c(length(0:max(M2.age)), length(M2.yr),1))
 
   # Surveys (might be several)
   n_surv_lines <- nrow(read.table(file.path(wd, 'survey.dat'), fill = TRUE, flush = TRUE))
@@ -147,7 +199,7 @@ read.sam.data <- function(wd){
   }
 
   nsurvey <- i-1
-  ages <- sw.age
+  ages <- 0:max(sw.age)
   years <- sw.yr
 
   surv.out <- array(-1, dim = c(length(ages), length(years), nsurvey))

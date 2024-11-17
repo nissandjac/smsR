@@ -24,8 +24,8 @@
 #' @importFrom ggplot2 alpha scale_y_continuous coord_cartesian theme facet_wrap
 
 mohns_rho <- function(df.tmb,
-                      peels = 5,
                       parms,
+                      peels = 5,
                       mps = NULL,
                       useSSBprojection = TRUE,
                       lwr = list(NA),
@@ -48,7 +48,6 @@ mohns_rho <- function(df.tmb,
 
   # Save the results to a data frame
   asses1 <- runAssessment(df.tmb, parms = parms, mps = mps)
-
 
   SSB.base <- getSSB(df.tmb, asses1)
   recruit.base <- getR(df.tmb, asses1)
@@ -137,11 +136,27 @@ mohns_rho <- function(df.tmb,
     df.new$Surveyobs <- df.new$Surveyobs[, 1:df.new$nyears, , drop = F]
     df.new$Catchobs <- df.new$Catchobs[, 1:df.new$nyears, , drop = F]
     df.new$nocatch <- df.new$nocatch[1:df.new$nyears, , drop = F]
+    df.new$env_matrix <- df.new$env_matrix[,1:df.new$nyears, drop = F]
+    df.new$west <- df.new$west[,1:(df.new$nyears+1),, drop = F]
+    df.new$weca <- df.new$weca[,1:(df.new$nyears+1),, drop = F]
+    df.new$propM <- df.new$propM[,1:(df.new$nyears+1),, drop = F]
+    df.new$propF <- df.new$propF[,1:(df.new$nyears+1),, drop = F]
+    df.new$Mat <- df.new$Mat[,1:(df.new$nyears+1),, drop = F]
+    df.new$M <- df.new$M[,1:(df.new$nyears+1),, drop = F]
+    df.new$M_matrix <- df.new$M_matrix[,1:df.new$nyears, drop = F]
+#
+#
+#     parms.new <- parms
+#
+#     parms.new$logRin <- parms.new$logRin[1:df.new$nyears]
+#     parms.new$Fyear <- parms.new$Fyear[1:(df.new$nyears-1)]
+#     parms.new$ext_M <- parms.new$ext_M[1:df.new$nyears,, drop =FALSE]
 
+#
+#     if(df.new$recmodel > 1){
+#       parms.new$logRin <- parms.new$logRin[1:(length(parms.new$logRin)-1)]
+#     }
 
-    parms.new <- parms
-    parms.new$logRin <- parms.new$logRin[1:df.new$nyears]
-    parms.new$Fyear <- parms.new$Fyear[1:df.new$nyears]
 
     if (max(df.new$bidx) > 0) {
       if (max(df.new$years) < max(df.new$years[df.new$bidx])) {
@@ -157,9 +172,19 @@ mohns_rho <- function(df.tmb,
 
     if ("logRin" %in% names(mps.new)) {
       mps.new$logRin <- factor(rep(NA, df.new$nyears))
+
+      if(recmodel > 1){
+        mps.new$logRin <- factor(rep(NA, df.new$nyears-1))
+      }
     }
 
-    assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new)
+    if ("ext_M" %in% names(mps.new)) {
+      mps.new$ext_M <- factor(rep(NA, df.new$nyears))
+    }
+
+    parms.new <- getParms(df.new)
+
+    assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new, silent = TRUE)
 
 
     SSB.tmb <- getSSB(df.new, assess.new)

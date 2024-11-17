@@ -39,6 +39,17 @@ getParms <- function(df.tmb, parms.true = NULL) {
     Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(unique(df.tmb$bidx)))
   }
 
+  if(df.tmb$nenv == 0){
+    nenv = 1
+  }
+
+  if(df.tmb$nalphaM == 0){
+    nalphaM <- 1
+  }else{
+    nalphaM <- df.tmb$nalphaM
+  }
+
+
   parms <- list(
     logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
     logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage - 1),
@@ -53,15 +64,33 @@ getParms <- function(df.tmb, parms.true = NULL) {
     logalpha = 2,
     logbeta = log(betaSR),
     logSDrec = log(1),
-    logSDF = log(1)
+    logSDF = log(0.2),
+    logSDM = log(rep(0.2, nalphaM)),
+    env = rep(0, nenv),
+    ext_M = matrix(0, ncol = nalphaM, nrow = df.tmb$nyears),
+    alphaM = matrix(0, nalphaM),
+    logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
+    logh = log(0.5)
   )
 
   if (df.tmb$nseason == 1) {
     parms$Fseason <- matrix(1, nrow = 1, ncol = max(df.tmb$bidx) + 1)
   }
 
+
   if(df.tmb$recmodel == 3){
-    parms$logh <- log(0.5)
+
+    parms$logRin <- 0 * parms$logRin # R is estimates as deviates from the mean
+    parms$logRin <- parms$logRin[1:(df.tmb$nyears-1)] # R is estimates as deviates from the mean
+    parms$logNinit <- 0 * parms$logNinit
+
+  }
+
+  if(df.tmb$recmodel == 2){
+
+    parms$logRin <- 0 * parms$logRin # R is estimates as deviates from the mean
+    parms$logRin <- parms$logRin[1:(df.tmb$nyears-1)] # R is estimates as deviates from the mean
+
   }
 
 
@@ -154,8 +183,40 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
   if(df.tmb$recmodel == 3){
     mps$logalpha <- factor(parms$logalpha * NA)
     mps$logbeta <- factor(parms$logalpha * NA)
-    mps$logh <- factor(parms$logh * NA)
   }
+
+  if(df.tmb$recmodel != 3){
+    mps$logR0 <- factor(NA)
+  }
+
+
+
+  if(df.tmb$randomM == 0){
+    mps$ext_M <- factor(parms$ext_M * NA)
+    mps$logSDM <- factor(NA)
+    mps$alphaM <- factor(NA * parms$alphaM)
+
+  }
+
+
+  if(all(is.na(df.tmb$Pred_in))){
+    mps$alphaM <- factor(NA * parms$alphaM)
+  }
+
+
+  mps$logh <- factor(parms$logh * NA)
+
+
+  if(df.tmb$nenv == 0){
+    mps$env <- rep(factor(NA), 1) # Ignore the environmental input in
+
+  }
+
+
+  if(df.tmb$nalphaM == 0){
+    mps$alphaM <- factor(rep(factor(NA),1))
+  }
+
 
 
   for (i in 1:length(mapExtra)) {

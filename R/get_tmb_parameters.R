@@ -47,7 +47,15 @@
 #' @param betaSR hockey stick break point
 #' @param nllfactor negative log likelihood weighting
 #' @param randomF try random effect fishing mortality
+#' @param randomM Random effect estimating time varying M
+#' @param randomR Estimate R deviations as a random efffect
+#' @param nenv Number of environemntal covariates on  R
+#' @param Mprior Prior SD on M deviations from the first year of the time series
+#' @param nalphaM Number of external predators
 #'
+#' @param M_min minimum age for time varying M
+#' @param M_max maximum age for time varying M
+#' @param MCV Age distribution of time varying M CV
 #'
 #' @return
 #' returns a
@@ -88,7 +96,6 @@ get_TMB_parameters <- function(
     useEffort = 0,
     estimateCreep = 0,
     effort = matrix(1, nrow = length(years), ncol = nseason),
-    env_r = 0,
     blocks = FALSE,
     surveyStart = rep(0, nsurvey),
     surveyEnd = rep(1, nsurvey),
@@ -100,16 +107,24 @@ get_TMB_parameters <- function(
     peneps = 1e-3,
     penepsC = 1e-3,
     penepsCmax = 1e-3,
+    Mprior = 0.5,
     powers = list(NA),
+    Pred_in = NA,
+    M_min = 0,
+    M_max = max(ages),
     scv = array(0, dim = c(length(ages), length(years), nsurvey)),
     surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
     catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
-    recmodel = 2,
+    MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
     estCV = c(0, 0, 0),
     CVmin = c(0.2, 0.2, 0.2),
-    betaSR = NULL,
+    betaSR = 0,
     nllfactor = rep(1, 3),
-    randomF = 0) {
+    randomF = 0,
+    randomM = 0,
+    randomR = 0,
+    recmodel = 1,
+    nenv = 0) {
   # Remove surveys for sensitivity analysis
 
    if (sum(leavesurveyout) != nsurvey) {
@@ -122,8 +137,17 @@ get_TMB_parameters <- function(
   }
 
 
+  if(length(Pred_in) == 1){
+    nalphaM <- length(MCV[[1]])
+  }else{
+    nalphaM <- nrow(Pred_in)
+  }
 
-
+  if(randomM == 1 & all(is.na(Pred_in))){
+    nalphaM_CV <- 1
+  }else{
+    nalphaM_CV <- nrow(Pred_in)
+  }
 
   nsurvey <- dim(Surveyobs)[3]
   if (nsurvey == 0) {
@@ -131,6 +155,11 @@ get_TMB_parameters <- function(
   }
 
 
+  for(i in 1:nsurvey){
+    if(surveyEnd[i] == surveyStart[i]){
+      surveyEnd[i] <- surveyStart[i]*1.001 # Small hack
+    }
+  }
 
 
   Qidx <- rep(0, nsurvey)
@@ -184,10 +213,53 @@ get_TMB_parameters <- function(
   Qidx.CV <- Qidx.CV - 1 # Scale to c++ indexing
 
 
+  # Fix the survey CV groups
+
+  if(randomM == 1){
+
+    Midx.CV <- matrix(0, nage, nalphaM_CV)
+    no <- 1
+    maxage <- max(ages)
 
 
+    for (k in 1:nalphaM_CV) {
+    tmpCV <- MCV[[k]] + 1 # Go from age to index
+    vec <- rep(0, nage)
+
+    if (length(tmpCV) == 1) {
+      vec[tmpCV:(maxage + 1)] <- no
+      no <- no + 1
+    } else {
+      for (i in 1:(length(tmpCV))) {
+        if (i < length(tmpCV)) {
+          tmp.idx <- tmpCV[i]:(tmpCV[i + 1] - 1)
+          vec[tmp.idx] <- no
+          no <- no + 1
+        } else {
+          vec[tmpCV[length(tmpCV)]:(tmpCV[i] + 1)] <- no
+          no <- no + 1
+        }
+      }
+
+      vec[max(tmpCV):nage] <- vec[max(tmpCV)]
+    }
+
+    # Expand the tmp CV into a nage length  vector
+
+    rm.idx <- which(0:maxage < M_min[k] | 0:maxage > M_max[k])
+    vec[rm.idx] <- -98
+    Midx.CV[, k] <- vec
+  }
 
 
+  Midx.CV <- Midx.CV - 1 # Scale to c++ indexing
+
+  M_nparms <- length(unique(Midx.CV[Midx.CV > -1]))
+
+  }else{
+    Midx.CV <- matrix(1, 1)
+    M_nparms <- 1
+  }
 
   nyear <- length(years)
   # Turn the block into an index
@@ -497,28 +569,29 @@ get_TMB_parameters <- function(
 
 
   if (endYear < max(years)) {
-    weca <- mtrx$weca[, c(years %in% startYear:endYear, TRUE), ]
-    west <- mtrx$west[, c(years %in% startYear:endYear, TRUE), ]
-    M <- mtrx$M[, c(years %in% startYear:endYear, TRUE), ]
-    Mat <- mtrx$mat[, c(years %in% startYear:endYear, TRUE), ]
-    propM <- propM[, c(years %in% startYear:endYear, TRUE), ]
-    propF <- propF[, c(years %in% startYear:endYear, TRUE), ]
+    weca <- mtrx$weca[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
+    west <- mtrx$west[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
+    M <- mtrx$M[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
+    Mat <- mtrx$mat[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
+    propM <- propM[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
+    propF <- propF[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
 
-    Surveyobs <- Surveyobs[, which(years %in% startYear:endYear), ]
-    Catchobs <- Catchobs[, which(years %in% startYear:endYear), ]
+    Surveyobs <- Surveyobs[, which(years %in% startYear:endYear), , drop = FALSE]
+    Catchobs <- Catchobs[, which(years %in% startYear:endYear), , drop = FALSE]
 
-    scv <- scv[, which(years %in% startYear:endYear), ]
-    effort <- effort.in[which(years %in% startYear:endYear), ]
-    nocatch <- nocatch[which(years %in% startYear:endYear), ]
-    bidx <- bidx[which(years %in% startYear:endYear)]
+    scv <- scv[, which(years %in% startYear:endYear), , drop = FALSE]
+    effort <- effort.in[which(years %in% startYear:endYear), , drop = FALSE]
+    nocatch <- nocatch[which(years %in% startYear:endYear), , drop = FALSE]
+    bidx <- bidx[which(years %in% startYear:endYear), drop = FALSE]
 
     years <- startYear:endYear
     nyears <- length(years)
   }
 
 
-
-
+ # Fill environmental matrix with 0's if its not there
+  env_matrix <- matrix(0,  nenv,length(years))
+  M_matrix <- matrix(0, nalphaM, length(years))
 
 
 
@@ -541,7 +614,6 @@ get_TMB_parameters <- function(
     useEffort = useEffort,
     estimateCreep = estimateCreep,
     effort = effort,
-    env_r = env_r,
     bidx = bidx,
     useBlocks = useBlocks,
     blocks = blocks,
@@ -554,11 +626,13 @@ get_TMB_parameters <- function(
     Qidx_CV = Qidx.CV,
     Cidx_CV = Cidx.CV,
     catchCV = catchCVout,
+    Midx_CV = Midx.CV,
     isFseason = isFseason, # Fishing mortality in how many quarterS? ,
     endFseason = endFseason,
     CminageSeason = CminageSeason,
     nocatch = nocatch,
     M = M,
+    Pred_in = Pred_in,
     Mat = Mat,
     scv = scv,
     surveyStart = surveyStart,
@@ -572,13 +646,21 @@ get_TMB_parameters <- function(
     peneps = peneps,
     penepsC = penepsC,
     penepsCmax = penepsCmax,
+    Mprior = Mprior,
+    nalphaM = nalphaM,
+    M_nparms = M_nparms,
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estCV = estCV,
     CVmin = CVmin,
     betaSR = betaSR,
     nllfactor = nllfactor,
-    randomF = randomF
+    randomF = randomF,
+    randomR = randomR,
+    randomM = randomM,
+    nenv = nenv,
+    env_matrix = env_matrix,# Number of environmental parameters,
+    M_matrix = M_matrix
   )
 
   # Check if everything looks right
