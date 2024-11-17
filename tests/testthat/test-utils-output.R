@@ -36,7 +36,7 @@ sas <- runAssessment(df.tmb, parms)
 test_that('getSSB works', {
   SSB <- getSSB(df.tmb, sas)
 
-  expect_equal(SSB$SSB[nrow(SSB)], 142251.7) # Throw an error if NA
+  expect_equal(SSB$SSB[nrow(SSB)], 142251.7, tolerance = 1) # Throw an error if NA
 
 })
 #

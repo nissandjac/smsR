@@ -22,7 +22,7 @@ simple_projection <- function(df.tmb,
                               M,
                               weca,
                               mat,
-                              avg_years) {
+                              ag_years) {
   M <- matrix(rowMeans(df.tmb$M[, (df.tmb$nyears - avg_years[1] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
   mat <- matrix(rowMeans(df.tmb$Mat[, (df.tmb$nyears - avg_years[2] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)
   weca <- matrix(rowMeans(df.tmb$weca[, (df.tmb$nyears - avg_years[3] + 1):df.tmb$nyears, ]), nrow = df.tmb$nage, ncol = df.tmb$nseason)

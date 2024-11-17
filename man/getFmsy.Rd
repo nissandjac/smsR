@@ -4,11 +4,15 @@
 \alias{getFmsy}
 \title{Calculate Fmsy from a sms model}
 \usage{
-getFmsy(df.tmb, sas, nyears = 50, recruitment = "hockey", plotMSY = FALSE)
+getFmsy(
+  sas,
+  nyears = 50,
+  recruitment = "hockey",
+  plotMSY = FALSE,
+  stochastic = FALSE
+)
 }
 \arguments{
-\item{df.tmb}{sms data frame}
-
 \item{sas}{Fitted sms model}
 
 \item{nyears}{number of years to simulate}
@@ -16,6 +20,10 @@ getFmsy(df.tmb, sas, nyears = 50, recruitment = "hockey", plotMSY = FALSE)
 \item{recruitment}{recruitment type to calculate Fmsy. Currently only hockey works.}
 
 \item{plotMSY}{TRUE OR FALSE to plot the result}
+
+\item{stochastic}{stochastic fmsy?}
+
+\item{df.tmb}{sms data frame}
 }
 \value{
 returns the fishing mortality that leads to Fmsy

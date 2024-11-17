@@ -825,6 +825,7 @@ getSelectivity <- function(df.tmb, sas) {
   tmp$low <- tmp$selec - 2 * tmp$SE
   tmp$high <- tmp$selec + 2 * tmp$SE
   tmp$ages <- df.tmb$age
+  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
 
   tmp$selec[tmp$selec < -100] <- -Inf
 
@@ -960,6 +961,42 @@ getM <- function(df.tmb, plotFig = FALSE) {
   }
   return(M)
 }
+
+#' get the natural mortality at age from the assesment model
+#'
+#' @param df.tmb smsR list of input parameters
+#' @param plotFig plot the data (TRUE OR FALSE)
+#'
+#' @return returns a data frame of weight at aeg
+#'
+#' @export
+#'
+#' @examples
+#'
+#' M <- getM(df.tmb, plotFig = TRUE) # Plot the natural mortality by age
+#'
+#' @importFrom reshape2 melt
+#'
+getM_var <- function(df.tmb, sas, plotFig = FALSE) {
+
+  reps <- sas$reps
+  sdrep <- summary(reps)
+  rep.values <- rownames(sdrep)
+  years <- df.tmb$years
+
+  tmp <- data.frame(M_var = sdrep[rep.values == "M_new", 1])
+  tmp$SE <- sdrep[rep.values == "M_new", 2]
+  tmp$low <- tmp$M_var - 2 * tmp$SE
+  tmp$high <- tmp$M_var + 2 * tmp$SE
+  tmp$ages <- df.tmb$age
+  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
+  tmp$years <- rep(df.tmb$years, each = df.tmb$nage * df.tmb$nseason)
+
+
+return(tmp)
+}
+
+
 
 #' get the maturity at age from the input data and plot it
 #'

@@ -20,7 +20,7 @@ remotes::install_github("https://github.com/nissandjac/smsR", dependencies = TRU
 
 ## Using the model
 
-The model can be run with the provided data set `{r} sandeel_1r` and the
+The model can be run with the provided data set `sandeel_1r` and the
 Sandeel 1r standard configuration as
 
 ``` r
@@ -72,7 +72,7 @@ showing SSB, Catch, recruitment and Fbar as
 plot(sas, printFig = FALSE)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 Or to evaluate the retrospective patterns as
 
@@ -82,4 +82,4 @@ mr <- mohns_rho(df.tmb, peels = 5, parms = parms, plotfigure = FALSE)
 mr$p1()
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />

@@ -10,6 +10,7 @@
 #' run.agebased.true.catch(df) # runs the model
 #'
 run.agebased.sms.op <- function(df) {
+
   nseason <- df$nseason
 
   df$tEnd <- length(df$years) * nseason
@@ -230,6 +231,12 @@ run.agebased.sms.op <- function(df) {
   }
   # p.save <-matrix(NA,tEnd)
 
+  if(is.null(df$rec.space)){
+      df$rec.space <- rep(1/df$nspace, df$nspace)
+  }
+
+
+
 
   for (space in 1:nspace) {
     # if (season == 1){
@@ -323,10 +330,6 @@ run.agebased.sms.op <- function(df) {
           }
         }
 
-
-
-
-
         Mseason <- Myear[, 1, space, season]
 
 
@@ -356,14 +359,15 @@ run.agebased.sms.op <- function(df) {
         }
 
         if (season < nseason) {
-          if (spaceidx[k] > 1 & (spaceidx[k] < nspace)) {
-            space_multiplier <- 0.5 # Assume that the diffusion left and right is the same
-          } else {
-            space_multiplier <- 1 #
-          }
 
 
           for (k in 1:length(spaceidx)) {
+
+            if (spaceidx[k] > 1 & (spaceidx[k] < nspace)) {
+              space_multiplier <- 0.5 # Assume that the diffusion left and right is the same
+            } else {
+              space_multiplier <- 1 #
+            }
             Nin.tmp <- N.save.age[, yr, spaceidx[k], season] * exp(-Z) * (movemat[, year, spaceidx[k], season]) * space_multiplier # add the ones come to the surrounding areas
 
             if (k == 1) {
