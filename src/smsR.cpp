@@ -234,7 +234,7 @@ if(randomM == 1){
   for(int k=0;k<nalphaM;k++){
     for(int time=0;time<nyears;time++){
       for(int i=0;i<(nage);i++){ //
-        M_in(i,time,k) = alphaM(k)*M_matrix(k,time);
+        M_in(i,time,k) = alphaM(k,0)*M_matrix(k,time);
       }
     }
   }
