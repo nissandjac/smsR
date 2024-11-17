@@ -41,6 +41,8 @@ getParms <- function(df.tmb, parms.true = NULL) {
 
   if(df.tmb$nenv == 0){
     nenv = 1
+  }else{
+    nenv = df.tmb$nenv
   }
 
   if(df.tmb$nalphaM == 0){
@@ -68,7 +70,7 @@ getParms <- function(df.tmb, parms.true = NULL) {
     logSDM = log(rep(0.2, nalphaM)),
     env = rep(0, nenv),
     ext_M = matrix(0, ncol = nalphaM, nrow = df.tmb$nyears),
-    alphaM = matrix(0, nalphaM),
+    alphaM = rep(0, nalphaM),
     logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
     logh = log(0.5)
   )
