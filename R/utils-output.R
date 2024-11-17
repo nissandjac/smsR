@@ -78,7 +78,7 @@ getBiomass <- function(df.tmb, sas) {
   Biomass.df$years <- as.numeric(as.character(Biomass.df$years))
 
   Biomass.df <- Biomass.df %>% dplyr::select(Biomass, SE, low, high, ages, season, years)
-  Biomass.df <- Biomass.df[-which(Biomass.df$Biomass == 0), ]
+  Biomass.df <- Biomass.df %>% filter(Biomass != 0)
   Biomass.df$Biomass <- exp(Biomass.df$Biomass)
   Biomass.df$low <- exp(Biomass.df$low)
   Biomass.df$high <- exp(Biomass.df$high)

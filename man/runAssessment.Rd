@@ -2,7 +2,7 @@
 % Please edit documentation in R/runAssessment.R
 \name{runAssessment}
 \alias{runAssessment}
-\title{Run the sms model}
+\title{run the assessment with the data and the estimated parameters}
 \usage{
 runAssessment(
   df.tmb,
@@ -10,28 +10,25 @@ runAssessment(
   lwr = list(NA),
   upr = list(NA),
   mps = NULL,
-  silent = TRUE
+  silent = TRUE,
+  dll = "smsR"
 )
 }
 \arguments{
-\item{df.tmb}{list of tmb parameters}
+\item{df.tmb}{list of input data}
 
-\item{parms}{optional parameter input}
+\item{parms}{parameters}
 
-\item{mps}{optional mapping input}
+\item{lwr}{optional list of user evaluated lower bounds}
 
-\item{silent}{Supress TMB output}
+\item{upr}{optional list of user evaluated lower bounds}
 
-\item{lower}{lower bounds}
+\item{mps}{optional list of parameteres to be mapped}
 
-\item{upper}{upper bounds}
-}
-\value{
-a list of derived variables
+\item{silent}{silent or verbose}
+
+\item{dll}{optional file in case of custom stuff}
 }
 \description{
-Run the sms model
-}
-\examples{
-sas <- runAssessment(df.tmb, parms) # Run an assessment
+run the assessment with the data and the estimated parameters
 }

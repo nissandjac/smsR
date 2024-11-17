@@ -31,7 +31,6 @@ get_TMB_parameters(
   useEffort = 0,
   estimateCreep = 0,
   effort = matrix(1, nrow = length(years), ncol = nseason),
-  env_r = 0,
   blocks = FALSE,
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(1, nsurvey),
@@ -43,16 +42,24 @@ get_TMB_parameters(
   peneps = 0.001,
   penepsC = 0.001,
   penepsCmax = 0.001,
+  Mprior = 0.5,
   powers = list(NA),
+  Pred_in = NA,
+  M_min = 0,
+  M_max = max(ages),
   scv = array(0, dim = c(length(ages), length(years), nsurvey)),
   surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
   catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
-  recmodel = 2,
+  MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
   estCV = c(0, 0, 0),
   CVmin = c(0.2, 0.2, 0.2),
-  betaSR = NULL,
+  betaSR = 0,
   nllfactor = rep(1, 3),
-  randomF = 0
+  randomF = 0,
+  randomM = 0,
+  randomR = 0,
+  recmodel = 1,
+  nenv = 0
 )
 }
 \arguments{
@@ -130,7 +137,13 @@ get_TMB_parameters(
 
 \item{penepsCmax}{parameter for regulating maximum CV of catch}
 
+\item{Mprior}{Prior SD on M deviations from the first year of the time series}
+
 \item{powers}{apply powerlaw for density dependent survey observations}
+
+\item{M_min}{minimum age for time varying M}
+
+\item{M_max}{maximum age for time varying M}
 
 \item{scv}{add time varying survey CV (input matrix)}
 
@@ -138,7 +151,7 @@ get_TMB_parameters(
 
 \item{catchCV}{catch cv grouping}
 
-\item{recmodel}{recruitment model}
+\item{MCV}{Age distribution of time varying M CV}
 
 \item{estCV}{which CVs to estimate as parameters}
 
@@ -149,6 +162,16 @@ get_TMB_parameters(
 \item{nllfactor}{negative log likelihood weighting}
 
 \item{randomF}{try random effect fishing mortality}
+
+\item{randomM}{Random effect estimating time varying M}
+
+\item{randomR}{Estimate R deviations as a random efffect}
+
+\item{recmodel}{recruitment model}
+
+\item{nenv}{Number of environemntal covariates on  R}
+
+\item{nalphaM}{Number of external predators}
 }
 \value{
 returns a

@@ -6,8 +6,8 @@
 \usage{
 mohns_rho(
   df.tmb,
-  peels = 5,
   parms,
+  peels = 5,
   mps = NULL,
   useSSBprojection = TRUE,
   lwr = list(NA),
@@ -20,9 +20,9 @@ mohns_rho(
 \arguments{
 \item{df.tmb}{list of tmb parameters}
 
-\item{peels}{number of peels}
-
 \item{parms}{parameters that are estimated}
+
+\item{peels}{number of peels}
 
 \item{mps}{parameters that are mapped}
 

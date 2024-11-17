@@ -117,7 +117,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(logSDM); // M time varying
   PARAMETER_VECTOR(env);
   PARAMETER_ARRAY(ext_M); // External natural mortality
-  PARAMETER_ARRAY(alphaM); // MICE input of external predators or other mortality inducing things
+  PARAMETER_VECTOR(alphaM); // MICE input of external predators or other mortality inducing things
   PARAMETER(logR0);
   PARAMETER(logh);
 
@@ -234,7 +234,7 @@ if(randomM == 1){
   for(int k=0;k<nalphaM;k++){
     for(int time=0;time<nyears;time++){
       for(int i=0;i<(nage);i++){ //
-        M_in(i,time,k) = alphaM(k)*M_matrix(k,time);
+        M_in(k,time) = alphaM(k)*M_matrix(k,time);
       }
     }
   }
