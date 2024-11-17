@@ -4,7 +4,7 @@
 \alias{simple_projection}
 \title{Do a simple 1 year projection of the stock}
 \usage{
-simple_projection(df.tmb, N_current, F0, M, weca, mat, avg_years)
+simple_projection(df.tmb, N_current, F0, M, weca, mat, ag_years)
 }
 \arguments{
 \item{df.tmb}{list of sms parameters}
