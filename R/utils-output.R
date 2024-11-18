@@ -984,10 +984,11 @@ getM_var <- function(df.tmb, sas, plotFig = FALSE) {
   rep.values <- rownames(sdrep)
   years <- df.tmb$years
 
-  tmp <- data.frame(M_var = sdrep[rep.values == "M_new", 1])
-  tmp$SE <- sdrep[rep.values == "M_new", 2]
-  tmp$low <- tmp$M_var - 2 * tmp$SE
-  tmp$high <- tmp$M_var + 2 * tmp$SE
+  tmp <- data.frame(M_var = sdrep[rep.values == "logM", 1])
+  tmp$SE <- sdrep[rep.values == "logM", 2]
+  tmp$low <- exp(tmp$M_var - 2 * tmp$SE)
+  tmp$high <- exp(tmp$M_var + 2 * tmp$SE)
+  tmp$M_var <- exp(tmp$M_var)
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
   tmp$years <- rep(df.tmb$years, each = df.tmb$nage * df.tmb$nseason)
