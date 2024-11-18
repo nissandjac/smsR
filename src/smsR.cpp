@@ -1081,6 +1081,7 @@ vector<Type>logSSB(nyears+1);
 vector<Type>logTSB(nyears);
 vector<Type>logCatchtot(nyears);
 array<Type>logF0(nage, nyears, nseason);
+array<Type>logM(nage, nyears, nseason);
 array<Type>logCatch(nage,nyears, nseason);
 array<Type>logCatchN(nage,nyears, nseason);
 array<Type>logN(nage,nyears, nseason);
@@ -1097,6 +1098,7 @@ logCatch.setZero();
 logCatchtot.setZero();
 logCatchN.setZero();
 logBiomass.setZero();
+logM.setZero();
 Favg.setZero();
 //
 for(int time=0;time<(nyears);time++){ // Loop over other years
@@ -1120,6 +1122,7 @@ for(int time=0;time<nyears;time++){ // Loop over years
         if(Nsave(i,time,k) > 0){
           logN(i,time,k) = log(Nsave(i,time,k));
           logBiomass(i,time,k) = log(Nsave(i,time,k)*west(i,time,k));
+          logM(i, time, k) = log(M_new(i,time,k));
         }
 
         if((age(i)>=Fbarage(0)) && (age(i)<=Fbarage(1))){
@@ -1246,7 +1249,7 @@ ADREPORT(SDrec2)
 ADREPORT(SRpred)
 ADREPORT(logFavg)
 ADREPORT(SSB0)
-ADREPORT(M_new)
+ADREPORT(logM)
 // //
 // Type ans = 0.0;
 
