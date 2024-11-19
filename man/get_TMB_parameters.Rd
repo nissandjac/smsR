@@ -43,6 +43,7 @@ get_TMB_parameters(
   penepsC = 0.001,
   penepsCmax = 0.001,
   Mprior = 0.5,
+  SDMprior = 0.2,
   powers = list(NA),
   Pred_in = NA,
   M_min = 0,
@@ -141,6 +142,8 @@ get_TMB_parameters(
 
 \item{powers}{apply powerlaw for density dependent survey observations}
 
+\item{Pred_in}{}
+
 \item{M_min}{minimum age for time varying M}
 
 \item{M_max}{maximum age for time varying M}
@@ -170,8 +173,6 @@ get_TMB_parameters(
 \item{recmodel}{recruitment model}
 
 \item{nenv}{Number of environemntal covariates on  R}
-
-\item{nalphaM}{Number of external predators}
 }
 \value{
 returns a
