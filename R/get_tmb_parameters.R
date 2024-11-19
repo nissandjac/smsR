@@ -51,11 +51,11 @@
 #' @param randomR Estimate R deviations as a random efffect
 #' @param nenv Number of environemntal covariates on  R
 #' @param Mprior Prior SD on M deviations from the first year of the time series
-#' @param nalphaM Number of external predators
-#'
 #' @param M_min minimum age for time varying M
 #' @param M_max maximum age for time varying M
 #' @param MCV Age distribution of time varying M CV
+#' @param SDMprior
+#' @param Pred_in
 #'
 #' @return
 #' returns a
@@ -108,6 +108,7 @@ get_TMB_parameters <- function(
     penepsC = 1e-3,
     penepsCmax = 1e-3,
     Mprior = 0.5,
+    SDMprior = 0.2,
     powers = list(NA),
     Pred_in = NA,
     M_min = 0,
@@ -158,6 +159,7 @@ get_TMB_parameters <- function(
   for(i in 1:nsurvey){
     if(surveyEnd[i] == surveyStart[i]){
       surveyEnd[i] <- surveyStart[i]*1.001 # Small hack
+
     }
   }
 
@@ -647,6 +649,7 @@ get_TMB_parameters <- function(
     penepsC = penepsC,
     penepsCmax = penepsCmax,
     Mprior = Mprior,
+    SDMprior = SDMprior,
     nalphaM = nalphaM,
     M_nparms = M_nparms,
     powers = powersexp,

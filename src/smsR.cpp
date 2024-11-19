@@ -72,6 +72,7 @@ Type objective_function<Type>::operator() ()
   DATA_SCALAR(penepsC);
   DATA_SCALAR(penepsCmax); // Tuning parameter for maximum catch CV
   DATA_SCALAR(Mprior); // Prior to keep M within reasonable bounds
+  DATA_SCALAR(SDMprior); // Prior on SDM
   DATA_ARRAY(powers);
   DATA_ARRAY(no); // Number of catch observations
   DATA_ARRAY(nocatch); // Matrix sized (year x season) determines wehter F>0
@@ -686,7 +687,7 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 
             if(qrts == (surveySeason(k)-1)){
              if(surveyEnd(k) == 0){
-              survey(i,time,k) =  Nsave(i,time,qrts+1);//*Qsurv(i,k);
+              survey(i,time,k) =  Nsave(i,time,qrts);//*Qsurv(i,k);
             }else{
               Type Ntmp = Nsave(i,time,qrts)*(exp(-Zsave(i,time,qrts)*surveyStart(k)));
               survey(i,time,k) = Ntmp*(1-exp(-Zsave(i,time,qrts)*(surveyEnd(k)-surveyStart(k))))/(Zsave(i,time,qrts)*(surveyEnd(k)-surveyStart(k)));//*Qsurv(i,k)*;
@@ -1157,10 +1158,13 @@ if(randomM == 1){
   }
 }
 
+for(int i=0;i<M_nparms;i++){ // Loop over ages
+  ansM += -dnorm(SDM(i), Type(0.4), Type(SDMprior), true); // Penalty for deviations from initial year
+}
+
   for(int time=0;time<(nyears);time++){ // Loop over years
     ansM += -dnorm(M_new(Midx_CV(0),time,0), M(Midx_CV(0),time,0), Type(Mprior), true); // Penalty for deviations from initial year
       }
-
 
 
 //  ansM += dnorm(SDM, Type(0.2), Type(0.01), true);
