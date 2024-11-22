@@ -45,7 +45,7 @@ df.tmb <- get_TMB_parameters(
   Fbarage = c(1, 2), # Age use to calculate Fbar
   effort = sandeel_1r$effort, # Effort input
   blocks = c(1983, 1999), # Blocks with unique selectivity
-  nocatch = sandeel_1r$nocatch, # Seasons where F is not calculated
+  nocatch = sandeel_1r$nocatch, # Seasons where F is calculated (1) or not (0)
   surveyStart = c(0.75, 0), #
   surveyEnd = c(1, 0), #
   surveySeason = c(2, 1), #
