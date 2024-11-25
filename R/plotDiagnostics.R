@@ -354,13 +354,18 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   SR$CV <- NA
 
   if (df.tmb$nsurvey == 1) {
-    SR$survey <- dimnames(df.tmb$Surveyobs)[[3]]
-    surveyCV$survey <- dimnames(df.tmb$Surveyobs)[[3]]
+    snametmp <- dimnames(df.tmb$Surveyobs)[[3]]
+
+    if(is.null(snametmp)){snametmp <- 1}
+    SR$survey <- snametmp
+    surveyCV$survey <- snametmp
   }
 
 
 
   snames <- dimnames(df.tmb$Surveyobs)[[3]]
+
+  if(is.null(snames)){snames <- 1:df.tmb$nsurvey}
 
   for (i in 1:df.tmb$nsurvey) {
     svtmp <- surveyCV[surveyCV$survey == snames[i], ]
@@ -373,6 +378,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
 
 
   ss <- c(round(range(abs(SR$ResidSurvey))[1]), max(abs(SR$ResidSurvey)) * 3)
+
 
   p8 <- ggplot(SR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
     ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey)), alpha = .3) +

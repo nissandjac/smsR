@@ -739,12 +739,14 @@ getSR <- function(df.tmb, sas) {
   years <- df.tmb$years
   SSB <- getSSB(df.tmb, sas)
 
-  alpha <- sdrep[rep.values == "logalpha", 1]
-  SE <- (sdrep[rep.values == "logalpha", 2])
-  low <- alpha - 2 * SE
-  high <- alpha + 2 * SE
-  SSBrange <- seq(1, max(SSB$SSB), length.out = 100)
 
+  SR <- sdrep[rep.values == "SRpred", 1]
+  SE <- (sdrep[rep.values == "SRpred", 2])
+  low <- SR - 2 * SE
+  high <- SR + 2 * SE
+
+  if(df.tmb$recmodel == 1){
+  SSBrange <- seq(1, max(SSB$SSB), length.out = 100)
   SR <- exp(alpha + log(SSBrange))
   SR[SSBrange > df.tmb$betaSR] <- exp(alpha + log(df.tmb$betaSR))
 
@@ -752,7 +754,7 @@ getSR <- function(df.tmb, sas) {
   mins[SSBrange > df.tmb$betaSR] <- exp(low + log(df.tmb$betaSR))
   maxs <- exp(high + log(SSBrange))
   maxs[SSBrange > df.tmb$betaSR] <- exp(high + log(df.tmb$betaSR))
-
+  }
 
   SR.out <- data.frame(SR = SR, minSR = mins, maxSR = maxs, SSB = SSBrange)
 
