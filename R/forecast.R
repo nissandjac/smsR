@@ -47,6 +47,19 @@ getTAC <- function(df.tmb,
     N_temp[1] <- log(exp(mean(log(Rold$R[Rold$years %in% R.index]), na.rm = TRUE)))
   }
 
+  if(recruitment == 'BH_env'){
+    SSB <- getSSB(df.tmb, sas)$SSB[df.tmb$nyears+1]
+    R0 <- exp(sas$reps$par.fixed[names(sas$reps$par.fixed) == 'logR0'])
+    SDR <- exp(sas$reps$par.fixed[names(sas$reps$par.fixed) == 'logSDrec'])
+    SSB0 <- sas$reps$value[names(sas$reps$value) == 'SSB0']
+    # assumme steepness is mapped for now
+    h <- exp(sas$obj$env$parList()$logh)
+    env <- sas$reps$par.fixed[names(sas$reps$par.fixed) == 'env']
+    env_tot <- sum(df.tmb$env_new * env)
+    N_temp[1] <- log((4*h*R0*SSB/(as.numeric(SSB0)*(1-h)+ SSB*(5*h-1)))*exp(-0.5*SDR+env_tot))
+  }
+
+
   N_temp <- exp(N_temp)
 
 
