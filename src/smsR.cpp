@@ -642,6 +642,24 @@ for(int time=0;time<(nyears);time++){ // Start time loop
             logRec(time) = log(Rin(time));
           }
 
+          if(recmodel == 4){
+
+
+             if(time >= (nyears-1)){
+              Rin(time)= alpha*exp(env_tot(time)-0.5*SDrec);
+            }else{
+              Rin(time)=alpha*exp(logRin(time)+env_tot(time)-0.5*SDrec);
+            }
+
+            Rsave(time) = Rin(time);
+            Nsave(0,time,qrts) = Rsave(time);
+            logRec(time) = log(Rin(time));
+          }
+
+
+
+
+
        }
         if(qrts < (nseason-1)){
          for(int i=0;i<(nage);i++){ // Loop over other ages
@@ -738,6 +756,10 @@ for(int time=0;time<(nyears);time++){ // Loop over years
         }
 
         if(recmodel == 2){
+          SRpred(time) = alpha;
+        }
+
+        if(recmodel == 4){
           SRpred(time) = alpha;
         }
 
