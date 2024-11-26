@@ -72,10 +72,12 @@ get_OM_parameters <- function(df.tmb,
   }
 
   # Turn life history parameters into spatial objects
+
+  if(is.null(sas)){
+    stop('add smsR object to calculate fishing mortality and selectivty')
+  }
   F0 <- getF(df.tmb, sas)
   Fsel <- getSel(df.tmb, sas)
-
-
 
   # Into matrix
   F0_flat <- array(F0$F0, dim = c(df.tmb$nage, df.tmb$nyears, 1, df.tmb$nseason))

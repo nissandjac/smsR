@@ -9,7 +9,7 @@
 #' @examples
 #' run.agebased.true.catch(df) # runs the model
 #'
-run.agebased.sms.op <- function(df) {
+run.agebased.sms.op <- function(df, simulate = FALSE) {
 
   nseason <- df$nseason
 
@@ -78,7 +78,7 @@ run.agebased.sms.op <- function(df) {
     F0 <- array(F0, dim = c(nage, nyear, 1, nseason))
   }
 
-  selin <- df$sel
+  selin <- df$Fsel
 
   if (length(dim(selin)) != 4) {
     selin <- array(selin, dim = c(nage, nyear, 1, nseason))
