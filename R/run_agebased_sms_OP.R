@@ -368,7 +368,7 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
             } else {
               space_multiplier <- 1 #
             }
-            Nin.tmp <- N.save.age[, yr, spaceidx[k], season] * exp(-Z) * (movemat[, year, spaceidx[k], season]) * space_multiplier # add the ones come to the surrounding areas
+            Nin.tmp <- N.save.age[, yr, spaceidx[k], season] * exp(-Z) * (movemat[, yr, spaceidx[k], season]) * space_multiplier # add the ones come to the surrounding areas
 
             if (k == 1) {
               Nin <- Nin.tmp
