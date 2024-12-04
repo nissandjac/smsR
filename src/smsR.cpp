@@ -743,11 +743,11 @@ for(int time=0;time<(nyears);time++){ // Loop over years
            xR(time) = log(Rsave(time))-(log(alpha)+log(SSB(time)));
            xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(SSB(time))),2);
            //SRpred(time) = exp(log(alpha)+log(SSB(time)));
-           SRpred(time) = alpha*exp(env_tot(time)-0.5*SDrec);
+           SRpred(time) = exp(log(alpha) + log(SSB(time)));
          }else{
            xR(time)  = log(Rsave(time))-(log(alpha)+log(beta));
            xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(beta)),2);
-           SRpred(time) = alpha*exp(env_tot(time)-0.5*SDrec);
+           SRpred(time) = exp(log(alpha) + log(beta));
          }
         }
 

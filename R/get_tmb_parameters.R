@@ -54,15 +54,15 @@
 #' @param M_min minimum age for time varying M
 #' @param M_max maximum age for time varying M
 #' @param MCV Age distribution of time varying M CV
-#' @param SDMprior
-#' @param Pred_in
+#' @param SDMprior prior on M CV
+#' @param Pred_in Matrix of input predators for MICE
 #'
 #' @return
 #' returns a
 #' @export
 #'
 #' @examples
-#' get_TMB_paramters(
+#' get_TMB_parameters(
 #'   mtrx = sandeel_1r$lhs,
 #'   Surveyobs = sandeel_1r$survey,
 #'   Catchobs = sandeel_1r$Catch,
@@ -125,7 +125,8 @@ get_TMB_parameters <- function(
     randomM = 0,
     randomR = 0,
     recmodel = 1,
-    nenv = 0) {
+    nenv = 0,
+    warn = FALSE) {
   # Remove surveys for sensitivity analysis
 
    if (sum(leavesurveyout) != nsurvey) {
@@ -491,8 +492,9 @@ get_TMB_parameters <- function(
     weca.mean <- apply(mtrx$weca[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
     mtrx$weca <- abind::abind(mtrx$weca, array(weca.mean, dim = c(nage, 1, nseason) ), along = 2)
 
+    if(warn == TRUE){
     warning('add projection year to weca. Using average of last 3 years')
-
+    }
 
   }
 
@@ -501,9 +503,11 @@ get_TMB_parameters <- function(
 
     west.mean <- apply(mtrx$west[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
     mtrx$west <- abind::abind(mtrx$west,array(west.mean, dim = c(nage, 1, nseason) ), along = 2)
+    if(warn == TRUE){
 
     warning('add projection year to weca. Using average of last 3 years')
 
+    }
   }
 
 
@@ -511,36 +515,43 @@ get_TMB_parameters <- function(
 
     mat.mean <- apply(mtrx$mat[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
     mtrx$mat <- abind::abind(mtrx$mat,array(mat.mean, dim = c(nage, 1, nseason) ), along = 2)
+    if(warn == TRUE){
 
     warning('add projection year to mat. Using average of last 3 years')
-
+}
   }
 
   if(dim(mtrx$M)[2] == nyear){
 
     M.mean <- apply(mtrx$M[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
     mtrx$M <- abind::abind(mtrx$M,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+    if(warn == TRUE){
 
     warning('add projection year to M. Using average of last 3 years')
 
+    }
   }
 
   if(dim(propM)[2] == nyear){
 
     propM.mean <- apply(propM[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
     propM <- abind::abind(propM,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+    if(warn == TRUE){
 
     warning('add projection year to propM. Using average of last 3 years')
 
+    }
   }
 
   if(dim(propF)[2] == nyear){
 
     propF.mean <- apply(propF[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
     propF <- abind::abind(propF,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+    if(warn == TRUE){
 
     warning('add projection year to propF. Using average of last 3 years')
 
+    }
   }
 
   if (startYear > min(years)) {

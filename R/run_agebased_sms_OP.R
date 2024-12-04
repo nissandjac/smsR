@@ -301,10 +301,11 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
 
 
           if (df$recruitment == "hockey") {
-            R <- df$alpha + log(SSB[yr, space])
+            R <- log(df$R0/df$betaSR) + log(SSB[yr, space])
 
-            if (SSB[yr, space] > df$betaSR) {
-              R <- df$alpha + log(df$betaSR)
+            if (SSB[yr, space] >= df$betaSR) {
+              R <- log(df$R0)
+              print(R)
             }
 
             R <- exp(R)
@@ -315,6 +316,22 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
 
             N.save.age[1, yr, space, season] <- R * R.err
             R.save[yr, space] <- R * R.err
+          }
+
+          if(df$recruitment == 'Rmean'){
+
+
+            R <- df$R0
+
+            # add error
+            Ry <- rnorm(1, mean = 0, sd = df$SDR)
+            R.err <- exp(-0.5 * df$b[yr] * SDR^2 + Ry)
+
+            N.save.age[1, yr, space, season] <- R * R.err
+            R.save[yr, space] <- R * R.err
+
+
+
           }
 
 
@@ -489,7 +506,7 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
 
         if (df$surveyEnd[surv] == 0) {
           survey[, yr, surv] <- N.save.age[, yr, , df$surveySeason[surv]] *
-            exp(-Z.save[, yr, space, df$surveySeason[surv]]) * df$Q[, surv] * exp(rnorm(df$nage, mean = 0, sd = 0.3)) # Change this
+            exp(-Z.save[, yr, space, df$surveySeason[surv]]) * df$Q[, surv] * exp(rnorm(df$nage, mean = 0, sd = df$surveySD)) # Change this
         } else {
           Ntmp.s <- N.save.age[, yr, , df$surveySeason[surv]] * (exp(-Z.save[, yr, space, df$surveySeason[surv]] * df$surveyStart[surv]))
           survey[, yr, surv] <- Ntmp.s * (1 - exp(-Z.save[, yr, space, df$surveySeason[surv]] * (df$surveyEnd[surv] - df$surveyStart[surv]))) /
@@ -499,7 +516,7 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
         for (space in 1:nspace) {
           if (df$surveyEnd[surv] == 0) {
             survey.true[, yr, space, surv] <- N.save.age[, yr, space, df$surveySeason[surv]] *
-              exp(-Z.save[, yr, space, df$surveySeason[surv]]) * df$Q[, surv] * exp(rnorm(df$nage, mean = 0, sd = 0.3)) # Change this
+              exp(-Z.save[, yr, space, df$surveySeason[surv]]) * df$Q[, surv] * exp(rnorm(df$nage, mean = 0, sd = df$surveySD)) # Change this
           } else {
             Ntmp.s <- N.save.age[, yr, space, df$surveySeason[surv]] * (exp(-Z.save[, yr, space, df$surveySeason[surv]] * df$surveyStart[surv]))
             survey.true[, yr, space, surv] <- Ntmp.s * (1 - exp(-Z.save[, yr, space, df$surveySeason[surv]] * (df$surveyEnd[surv] - df$surveyStart[surv]))) /
@@ -594,6 +611,7 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
     Catch = Catch,
     Catch.age = Catch.age,
     survey = survey,
+   # survey.true = survey.true,
     Fbar = Fbar,
     age_comps_OM = age_comps_OM,
     age_catch = age_comps_catch,

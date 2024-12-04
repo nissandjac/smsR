@@ -4,7 +4,7 @@
 \alias{run.agebased.sms.op}
 \title{Run a full age based model as operating model for SMS}
 \usage{
-run.agebased.sms.op(df)
+run.agebased.sms.op(df, simulate = FALSE)
 }
 \arguments{
 \item{df}{list of parameters and life history values}

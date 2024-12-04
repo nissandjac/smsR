@@ -140,9 +140,11 @@ get_TMB_parameters(
 
 \item{Mprior}{Prior SD on M deviations from the first year of the time series}
 
+\item{SDMprior}{prior on M CV}
+
 \item{powers}{apply powerlaw for density dependent survey observations}
 
-\item{Pred_in}{}
+\item{Pred_in}{Matrix of input predators for MICE}
 
 \item{M_min}{minimum age for time varying M}
 
@@ -181,7 +183,7 @@ returns a
 Prepare data input for an smsR model
 }
 \examples{
-get_TMB_paramters(
+get_TMB_parameters(
   mtrx = sandeel_1r$lhs,
   Surveyobs = sandeel_1r$survey,
   Catchobs = sandeel_1r$Catch,

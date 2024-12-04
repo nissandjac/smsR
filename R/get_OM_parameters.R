@@ -89,22 +89,32 @@ get_OM_parameters <- function(df.tmb,
 
   # Abind to two spatial objects
   # This assumes the same M, weca, F, and mat in the number of areas
-  for (i in 1:(nspace - 1)) {
-    if (i == 1) {
-      F0 <- F0_flat
-      mat <- mat_flat
-      weca <- weca_flat
-      west <- west_flat
-      M <- M_flat
-      Fsel <- Fsel_flat
-    }
+  if(nspace > 1){
+    for (i in 1:(nspace - 1)) {
+      if (i == 1) {
+        F0 <- F0_flat
+        mat <- mat_flat
+        weca <- weca_flat
+        west <- west_flat
+        M <- M_flat
+        Fsel <- Fsel_flat
+      }else{
 
-    F0 <- abind::abind(F0, F0_flat, along = 3)
-    mat <- abind::abind(mat, mat_flat, along = 3)
-    west <- abind::abind(west, west_flat, along = 3)
-    weca <- abind::abind(weca, weca_flat, along = 3)
-    M <- abind::abind(M, M_flat, along = 3)
-    Fsel <- abind::abind(Fsel, Fsel_flat, along = 3)
+        F0 <- abind::abind(F0, F0_flat, along = 3)
+        mat <- abind::abind(mat, mat_flat, along = 3)
+        west <- abind::abind(west, west_flat, along = 3)
+        weca <- abind::abind(weca, weca_flat, along = 3)
+        M <- abind::abind(M, M_flat, along = 3)
+        Fsel <- abind::abind(Fsel, Fsel_flat, along = 3)
+      }
+    }
+  }else{
+    F0 <- F0_flat
+    mat <- mat_flat
+    weca <- weca_flat
+    west <- west_flat
+    M <- M_flat
+    Fsel <- Fsel_flat
   }
 
   Q <- getCatchability(df.tmb, sas)
@@ -124,6 +134,8 @@ get_OM_parameters <- function(df.tmb,
     age = df.tmb$age,
     nage = length(df.tmb$age),
     F0 = F0,
+    Catchobs = df.tmb$Catchobs,
+    Surveyobs = df.tmb$Surveyobs, # Historical survey and catch might be observed values
     M = M,
     mat = mat,
     weca = weca,

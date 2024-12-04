@@ -90,11 +90,12 @@ runAssessment <- function(df.tmb,
   upper[names(upper) == "SDsurvey"] <- 2
   upper[names(upper) == "logSDrec"] <- log(4)
   upper[names(upper) == "logFyear"] <- log(10)
-  upper[names(upper) == "SDcatch"] <- sqrt(2)
+  upper[names(upper) == "SDcatch"] <- sqrt(2.5)
   upper[names(upper) == "creep"] <- 0.2
   upper[names(upper) == 'logh'] <- log(0.99)
   upper[names(upper) == 'logSDM'] <- log(2)
   upper[names(upper) == 'ext_M'] <- .5
+  upper[names(upper) == 'logalpha'] <- 10
   # Add custom boundaries to parameters
   for (i in 1:length(lwr)) {
     if (is.na(lwr[[1]][1]) == 0) {
