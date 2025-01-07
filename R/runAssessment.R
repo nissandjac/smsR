@@ -4,11 +4,17 @@
 #' @param parms parameters
 #' @param lwr optional list of user evaluated lower bounds
 #' @param upr optional list of user evaluated lower bounds
-#' @param mps optional list of parameteres to be mapped
+#' @param mps optional list of parameters to be mapped
 #' @param silent silent or verbose
 #' @param dll optional file in case of custom stuff
 #'
-#' @return
+#' @return A list containing:
+#' \describe{
+#'   \item{\code{fitted_model}}{The fitted stock assessment model object.}
+#'   \item{\code{estimated_params}}{A list of estimated parameters with their values.}
+#'   \item{\code{convergence_status}}{An indicator of whether the optimization converged successfully.}
+#'   \item{\code{diagnostics}}{Diagnostics and additional information about the model fit.}
+#' }
 #' @export
 #'
 #' @examples
@@ -95,7 +101,6 @@ runAssessment <- function(df.tmb,
   upper[names(upper) == 'logh'] <- log(0.99)
   upper[names(upper) == 'logSDM'] <- log(2)
   upper[names(upper) == 'ext_M'] <- .5
-  upper[names(upper) == 'logalpha'] <- 10
   # Add custom boundaries to parameters
   for (i in 1:length(lwr)) {
     if (is.na(lwr[[1]][1]) == 0) {

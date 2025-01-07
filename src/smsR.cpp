@@ -176,6 +176,7 @@ Catch.setZero();
 CatchN.setZero();
 Catchtot.setZero();
 Rsave.setZero();
+Rin.setZero();
 SSB.setZero();
 TSB.setZero();
 Zsave.setZero();
@@ -196,16 +197,13 @@ M_new.setZero();
 Fyear(0) = 1;
 
 // Retransform and set up for model
+if(recmodel == 1){
 
-for(int time=0;time<nyears;time++){
-    if(recmodel == 1){
+  for(int time=0;time<nyears;time++){
       Rin(time)=exp(logRin(time));
     }
-      if(time > 0){
-        Fyear(time) = exp(logFyear(time-1));
-      }
 }
-
+REPORT(Rin)
 
 
 if(nenv >0){
@@ -799,7 +797,6 @@ array<Type> sumx2(ncatch,nseason);
 
 
 REPORT(ncatch)
-REPORT(Rin)
 
 if(estCV(1) == 2){
   for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
