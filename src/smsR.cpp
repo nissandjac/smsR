@@ -52,6 +52,8 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(randomR); // Random walk on R
   DATA_INTEGER(randomM); // Random walk on M
   DATA_INTEGER(M_nparms); // Number of M variances and estimates
+  DATA_INTEGER(quick); // Flag to save all output
+  DATA_INTEGER(debug); // Flag for saving REPORT output
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
   DATA_IVECTOR(Qmaxage); // Maximum age in survey
@@ -203,7 +205,6 @@ if(recmodel == 1){
       Rin(time)=exp(logRin(time));
     }
 }
-REPORT(Rin)
 
 
 if(nenv >0){
@@ -214,7 +215,6 @@ for(int time=0;time<nyears;time++){
     }
   }
 
-  REPORT(env_in)
 
   for(int time=0;time<nyears;time++){
     for(int k=0;k<nenv;k++){
@@ -244,7 +244,6 @@ if(randomM == 1){
       M_tot(time) += M_in(k,time);
     }
   }
-  ADREPORT(M_tot)
 
   for(int time=0;time<nyears;time++){
     for(int i=0;i<(nage);i++){ //
@@ -270,12 +269,6 @@ if(randomM == 1){
   }
 
 
-REPORT(ext_M)
-
-REPORT(M_new)
-ADREPORT(M_new)
-
-REPORT(env_tot)
 
 // Calculate mean R
 
@@ -388,7 +381,7 @@ if(useBlocks == 0){
   }
 }
 //
-REPORT(Fquarter)
+
 // REPORT(Fagein)
 // REPORT(Fyear)
 //
@@ -493,8 +486,7 @@ for(int i=0;i<nage;i++){ // Loop over other ages //
      }
     }
   }
-//
-REPORT(p)
+
 // //
 // //
 // // //
@@ -826,8 +818,7 @@ if(estCV(1) == 2){
        }
      }
    }
-   REPORT(sumx2)
-  REPORT(sumx)
+
 // //
 // // // Now assign SDR to each age
 array<Type>SD_catch2(nage, nseason);
@@ -957,7 +948,7 @@ if(estCV(1) == 0){ // Estimate
 
 
 // //
-REPORT(SD_catch2)
+
 // Add survey residuals
 array<Type> resid_survey(nage,nyears,nsurvey); // Save residuals for SDR calculation
 Type sumsurv = 0;
@@ -1049,9 +1040,8 @@ if(estCV(2) == 2){// Calculate the standard deviation of recruitment
 }else{
   SDrec2 = SDrec;
 }
-REPORT(SDrec2)
-REPORT(resid_x)
-REPORT(resid_x2)
+
+
 // // //
 //Type prec = Type(0.0);
 Type pXr = Type(0.0);
@@ -1202,6 +1192,7 @@ ansvec(2) = prec;
 ansvec(3) = ansM;
 //
 
+if(debug == 1){
 REPORT(ansvec)
 REPORT(SRpred)
 REPORT(xR2)
@@ -1226,6 +1217,17 @@ REPORT(SDSout)
 REPORT(p)
 REPORT(logFavg)
 REPORT(effort_creep)
+REPORT(ext_M)
+REPORT(M_new)
+REPORT(Fquarter)
+REPORT(p)
+REPORT(sumx2)
+REPORT(sumx)
+REPORT(SD_catch2)
+REPORT(SDrec2)
+REPORT(resid_x)
+REPORT(resid_x2)
+}
 // REPORT(survey)
 // REPORT(ans)
 // REPORT(alpha)
@@ -1237,44 +1239,44 @@ REPORT(effort_creep)
 // REPORT(nll)
 // //
 // //
+ADREPORT(logRec)
 ADREPORT(logSSB)
-ADREPORT(logTSB)
-ADREPORT(logF0)
+ADREPORT(log_exp_pattern)
+ADREPORT(term_logN_next)
 ADREPORT(logCatch)
+ADREPORT(logF0)
+
+
+if(quick == 0){
+
+ADREPORT(logTSB)
 ADREPORT(logCatchN)
 ADREPORT(logN)
 ADREPORT(ansvec)
 ADREPORT(SDrec)
 ADREPORT(logCatchtot)
-ADREPORT(logRec)
-ADREPORT(logBiomass)
 ADREPORT(Fsel)
-// ADREPORT(F0)
-// ADREPORT(Catch)
-// ADREPORT(CatchN)
 ADREPORT(logQsurv)
 ADREPORT(Nsave)
 ADREPORT(Surveyout)
 ADREPORT(SDS)
 ADREPORT(SDSout)
 ADREPORT(SD_catch2)
-ADREPORT(Rsave)
 ADREPORT(resid_catch)
 ADREPORT(resid_survey)
 ADREPORT(xR)
-ADREPORT(log_exp_pattern)
-ADREPORT(term_logN_next)
 ADREPORT(effort_creep)
 ADREPORT(resid_x_export)
-//ADREPORT(Catchtot)
 ADREPORT(logbeta)
 ADREPORT(SDrec2)
 ADREPORT(SRpred)
 ADREPORT(logFavg)
 ADREPORT(SSB0)
 ADREPORT(logM)
-// //
-// Type ans = 0.0;
+ADREPORT(M_new)
+ADREPORT(M_tot)
+
+}
 
 
   return ans;

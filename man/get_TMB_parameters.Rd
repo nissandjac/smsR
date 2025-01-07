@@ -60,7 +60,8 @@ get_TMB_parameters(
   randomM = 0,
   randomR = 0,
   recmodel = 1,
-  nenv = 0
+  nenv = 0,
+  warn = FALSE
 )
 }
 \arguments{
