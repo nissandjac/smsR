@@ -423,8 +423,17 @@ getForecastTable <- function(df.tmb,
     N_current[1, df.tmb$recseason] <- N_temp[1]
 
     Fsel <- getF(df.tmb, sas)
-    Fsel <- matrix(Fsel$F0[Fsel$years == max(df.tmb$years)], nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    Fsel <- matrix(Fsel$F0[Fsel$years == (max(df.tmb$years))], nrow = df.tmb$nage, ncol = df.tmb$nseason)
     Fsel[df.tmb$age < df.tmb$Fminage] <- 0
+
+    # fix if Fsel = 0
+
+    if(sum(Fsel) == 0){
+    Fsel <- smsR::getSelectivity(df.tmb, sas)
+    Fsel <- matrix(Fsel$selec, nrow = df.tmb$nage, ncol = df.tmb$nseason)
+
+    warning('No selectivity effort combination in last year. Using estimated selectivity')
+    }
 
 
     Fsel <- (Fsel/mean(rowSums(Fsel)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])) # Scale selectivity to Fbar
