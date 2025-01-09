@@ -136,6 +136,7 @@ get_TMB_parameters <- function(
     Qlastage <- Qlastage[leavesurveyout == 1]
     powers <- powers[leavesurveyout == 1]
     surveyCV <- surveyCV[leavesurveyout == 1]
+    nsurvey <- sum(leavesurveyout)
   }
 
 

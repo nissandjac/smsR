@@ -575,7 +575,7 @@ getCatchCV <- function(df.tmb, sas) {
   rep.values <- rownames(sdrep)
 
   tmp <- data.frame(catchCV = sdrep[rep.values == "SD_catch2", 1])
-
+  tmp$catchCV <- tmp$catchCV
   tmp$SE <- sdrep[rep.values == "SD_catch2", 2]
   tmp$low <- tmp$catchCV - 2 * tmp$SE
   tmp$high <- tmp$catchCV + 2 * tmp$SE
