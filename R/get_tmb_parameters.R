@@ -137,6 +137,7 @@ get_TMB_parameters <- function(
     powers <- powers[leavesurveyout == 1]
     surveyCV <- surveyCV[leavesurveyout == 1]
     nsurvey <- sum(leavesurveyout)
+    surveySeason <- surveySeason[leavesurveyout == 1]
   }
 
 
