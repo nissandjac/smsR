@@ -85,8 +85,8 @@ get_TMB_parameters <- function(
     recseason = 1,
     Fminage = 0,
     Fmaxage = max(ages),
-    Qminage = rep(0, length(ages)),
-    Qmaxage = rep(max(ages), length(ages)),
+    Qminage = rep(0, nsurvey),
+    Qmaxage = rep(max(ages), nsurvey),
     Qlastage = Qmaxage,
     isFseason = rep(1, nseason),
     CminageSeason = rep(0, nseason),
@@ -133,7 +133,7 @@ get_TMB_parameters <- function(
     Surveyobs <- Surveyobs[, , leavesurveyout == 1, drop = FALSE]
     Qminage <- Qminage[leavesurveyout == 1]
     Qmaxage <- Qmaxage[leavesurveyout == 1]
-    Qlastage <- Qlastage[leavesurveyout == 1]
+  #  Qlastage <- Qlastage[leavesurveyout == 1]
     powers <- powers[leavesurveyout == 1]
     surveyCV <- surveyCV[leavesurveyout == 1]
     nsurvey <- sum(leavesurveyout)

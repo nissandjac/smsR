@@ -166,8 +166,8 @@ mohns_rho <- function(df.tmb,
 
     mps.new <- mps
 
-    if ("Fyear" %in% names(mps.new)) {
-      mps.new$Fyear <- factor(rep(NA, df.new$nyears))
+    if ("logFyear" %in% names(mps.new)) {
+      mps.new$logFyear <- factor(rep(NA, df.new$nyears-1))
     }
 
     if ("logRin" %in% names(mps.new)) {
