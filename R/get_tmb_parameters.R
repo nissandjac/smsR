@@ -556,6 +556,27 @@ get_TMB_parameters <- function(
     }
   }
 
+  # Add dimension names to variables
+
+  dnames <- list(ages = ages, years = c(years, max(years)+1), seasons = 1:nseason)
+
+  dimnames(mtrx$weca) <- dnames
+  dimnames(mtrx$west) <- dnames
+  dimnames(mtrx$M) <- dnames
+  dimnames(mtrx$mat) <- dnames
+  dimnames(propM) <- dnames
+  dimnames(propF) <- dnames
+
+  dnames <- list(ages = ages, years = c(years), seasons = 1:nseason)
+
+  dimnames(Surveyobs) <- dnames
+  dimnames(Catchobs) <- dnames
+
+  # Some other things
+  dimnames(effort.in) <- list(years = years, seasons = 1:nseason)
+  dimnames(nocatch) <- list(years = years, seasons = 1:nseason)
+
+
   if (startYear > min(years)) {
     weca <- mtrx$weca[, c(years %in% startYear:max(years), TRUE), ]
     west <- mtrx$west[, c(years %in% startYear:max(years), TRUE), ]
