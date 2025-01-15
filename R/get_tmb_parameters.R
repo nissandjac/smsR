@@ -568,10 +568,12 @@ get_TMB_parameters <- function(
   dimnames(propF) <- dnames
 
   dnames <- list(ages = ages, years = c(years), seasons = 1:nseason)
-
-  dimnames(Surveyobs) <- dnames
   dimnames(Catchobs) <- dnames
 
+  if(is.null(dimnames(Surveyobs))){
+  dnames <- list(ages = ages, years = c(years), seasons = 1:nsurvey)
+  dimnames(Surveyobs) <- dnames
+  }
   # Some other things
   dimnames(effort.in) <- list(years = years, seasons = 1:nseason)
   dimnames(nocatch) <- list(years = years, seasons = 1:nseason)
