@@ -25,7 +25,7 @@ if(all(dim(df.tmb$west) != c(nage, nyears+1, nseason))){
   stop(paste(cstring, 'west'))
 }
 
-if(all(dim(df.tmb$Catchobs) != c(nage, nyears, nseason))){
+if(all(dim(df.tmb$Catchobs) != c(nage, nyears, nseason, df.tmb$nfleets))){
   stop(paste(cstring, 'Catchobs'))
 }
 

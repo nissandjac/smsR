@@ -80,6 +80,7 @@ get_TMB_parameters <- function(
     endYear = max(years),
     nseason = 4,
     nsurvey = 2,
+    nfleets = 1,
     ages = 0:20,
     Fbarage = c(1, max(ages)),
     recseason = 1,
@@ -95,7 +96,7 @@ get_TMB_parameters <- function(
     nocatch = matrix(rep(1, nseason), nrow = length(years), ncol = nseason),
     useEffort = 0,
     estimateCreep = 0,
-    effort = matrix(1, nrow = length(years), ncol = nseason),
+    effort = array(1, dim = c(length(years),nseason, nfleets)),
     blocks = FALSE,
     surveyStart = rep(0, nsurvey),
     surveyEnd = rep(1, nsurvey),
@@ -138,6 +139,16 @@ get_TMB_parameters <- function(
     surveyCV <- surveyCV[leavesurveyout == 1]
     nsurvey <- sum(leavesurveyout)
     surveySeason <- surveySeason[leavesurveyout == 1]
+  }
+
+  # Add the fleet parameter to catches and effort
+
+  if(length(dim(Catchobs)) == 3){
+    dim(Catchobs) <- c(dim(Catchobs),nfleets)
+  }
+
+  if(length(dim(effort)) == 2){
+    dim(effort) <- c(dim(effort), nfleets)
   }
 
 
@@ -268,7 +279,7 @@ get_TMB_parameters <- function(
 
   nyear <- length(years)
   # Turn the block into an index
-  effort.in <- matrix(0, nyear, nseason)
+  effort.in <- array(0, dim = c(nyear, nseason, nfleets))
 
 
   if (blocks[1] != FALSE) {
@@ -289,11 +300,11 @@ get_TMB_parameters <- function(
     for (i in 1:nblocks) {
       tmpidx <- which((bidx + 1) == i)
 
-      tmpeffort <- effort[tmpidx, ]
+      tmpeffort <- effort[tmpidx, ,]
 
       Meffort <- sum(tmpeffort) / length(tmpeffort[tmpeffort > 0])
 
-      effort.in[tmpidx, ] <- effort[tmpidx, ] / Meffort
+      effort.in[tmpidx, ,] <- effort[tmpidx, ,] / Meffort
 
       # }
     }
@@ -450,7 +461,7 @@ get_TMB_parameters <- function(
           idx <- (catchCVout[i] + 1):nage
         }
 
-        Out <- Catchobs[idx, , qrts]
+        Out <- Catchobs[idx, , qrts,]
 
         no[i, qrts] <- length(Out[Out > 0])
       }
@@ -567,7 +578,7 @@ get_TMB_parameters <- function(
   dimnames(propM) <- dnames
   dimnames(propF) <- dnames
 
-  dnames <- list(ages = ages, years = c(years), seasons = 1:nseason)
+  dnames <- list(ages = ages, years = c(years), seasons = 1:nseason, fleets = 1:nfleets)
   dimnames(Catchobs) <- dnames
 
   if(is.null(dimnames(Surveyobs))){
@@ -575,7 +586,7 @@ get_TMB_parameters <- function(
   dimnames(Surveyobs) <- dnames
   }
   # Some other things
-  dimnames(effort.in) <- list(years = years, seasons = 1:nseason)
+  dimnames(effort.in) <- list(years = years, seasons = 1:nseason, fleets = 1:nfleets)
   dimnames(nocatch) <- list(years = years, seasons = 1:nseason)
 
 
@@ -588,10 +599,10 @@ get_TMB_parameters <- function(
     propF <- propF[, c(years %in% startYear:max(years), TRUE), ]
 
     Surveyobs <- Surveyobs[, which(years %in% startYear:max(years)), ]
-    Catchobs <- Catchobs[, which(years %in% startYear:max(years)), ]
+    Catchobs <- Catchobs[, which(years %in% startYear:max(years)),, ]
 
     scv <- scv[, which(years %in% startYear:max(years)), ]
-    effort <- effort.in[which(years %in% startYear:max(years)), ]
+    effort <- effort.in[which(years %in% startYear:max(years)), ,]
     nocatch <- nocatch[which(years %in% startYear:max(years)), ]
     bidx <- bidx[which(years %in% startYear:max(years))]
 
@@ -615,10 +626,10 @@ get_TMB_parameters <- function(
     propF <- propF[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
 
     Surveyobs <- Surveyobs[, which(years %in% startYear:endYear), , drop = FALSE]
-    Catchobs <- Catchobs[, which(years %in% startYear:endYear), , drop = FALSE]
+    Catchobs <- Catchobs[, which(years %in% startYear:endYear), , ,drop = FALSE]
 
     scv <- scv[, which(years %in% startYear:endYear), , drop = FALSE]
-    effort <- effort.in[which(years %in% startYear:endYear), , drop = FALSE]
+    effort <- effort.in[which(years %in% startYear:endYear), , , drop = FALSE]
     nocatch <- nocatch[which(years %in% startYear:endYear), , drop = FALSE]
     bidx <- bidx[which(years %in% startYear:endYear), drop = FALSE]
 
@@ -646,6 +657,7 @@ get_TMB_parameters <- function(
     Fbarage = Fbarage,
     nage = length(ages),
     nseason = nseason,
+    nfleets = nfleets,
     nyears = length(years),
     nsurvey = dim(Surveyobs)[3],
     recseason = recseason,

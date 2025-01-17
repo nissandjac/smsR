@@ -28,15 +28,15 @@ getParms <- function(df.tmb, parms.true = NULL) {
 
 
   if (df.tmb$useEffort == 1) {
-    Fseason <- matrix(1, nrow = df.tmb$nseason - 1, ncol = length(unique(df.tmb$bidx)))
+    Fseason <- array(1, dim = c(df.tmb$nseason - 1,length(unique(df.tmb$bidx)), df.tmb$nfleets))
   } else {
     srows <- sum(df.tmb$isFseason)
     scol <- length(df.tmb$CminageSeason[1]:max(df.tmb$age))
-    Fseason <- matrix(1, nrow = srows, ncol = scol)
+    Fseason <- array(1, dim = c(srows,scol,nfleets))
   }
 
   if (df.tmb$useEffort == 0 & df.tmb$useBlocks == 1) {
-    Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(unique(df.tmb$bidx)))
+    Fseason <- array(1, dim = c(df.tmb$nseason, length(unique(df.tmb$bidx)), df.tmb$nfleets))
   }
 
   if(df.tmb$nenv == 0){
@@ -55,9 +55,9 @@ getParms <- function(df.tmb, parms.true = NULL) {
   parms <- list(
     logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
     logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage - 1),
-    logFyear = rep(log(1), df.tmb$nyears - 1), # Mapped out
+    logFyear = matrix(log(1), df.tmb$nyears - 1, df.tmb$nfleets),
     Fseason = Fseason,
-    logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
+    logFage = array(log(1), dim = c(length(df.tmb$Fminage:df.tmb$Fmaxage),length(unique(df.tmb$bidx)), df.tmb$nfleets)),
     SDsurvey = SDsurvey,
     SDcatch = as.matrix(SDCatch),
     creep = 0,
@@ -71,12 +71,12 @@ getParms <- function(df.tmb, parms.true = NULL) {
     env = rep(0, nenv),
     ext_M = matrix(0, ncol = nalphaM, nrow = df.tmb$nyears),
     alphaM = rep(0, nalphaM),
-    logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
+    logR0 = log(sum(df.tmb$Catchobs[,1,,])*5),
     logh = log(0.5)
   )
 
   if (df.tmb$nseason == 1) {
-    parms$Fseason <- matrix(1, nrow = 1, ncol = max(df.tmb$bidx) + 1)
+    parms$Fseason <- matrix(1, c(1, max(df.tmb$bidx) + 1, df.tmb$nfleets))
   }
 
 
