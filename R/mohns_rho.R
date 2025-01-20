@@ -131,10 +131,10 @@ mohns_rho <- function(df.tmb,
     df.new$years <- df.new$years[-rmidx]
 
     df.new$nyears <- length(df.new$years)
-    df.new$effort <- df.new$effort[1:df.new$nyears, , drop = F]
+    df.new$effort <- df.new$effort[1:df.new$nyears, , ,drop = F]
     df.new$bidx <- df.new$bidx[1:df.new$nyears]
     df.new$Surveyobs <- df.new$Surveyobs[, 1:df.new$nyears, , drop = F]
-    df.new$Catchobs <- df.new$Catchobs[, 1:df.new$nyears, , drop = F]
+    df.new$Catchobs <- df.new$Catchobs[, 1:df.new$nyears, , ,drop = F]
     df.new$nocatch <- df.new$nocatch[1:df.new$nyears, , drop = F]
     df.new$env_matrix <- df.new$env_matrix[,1:df.new$nyears, drop = F]
     df.new$west <- df.new$west[,1:(df.new$nyears+1),, drop = F]

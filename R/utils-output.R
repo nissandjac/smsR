@@ -337,14 +337,29 @@ getCatchN <- function(df.tmb, sas) {
   rep.values <- rownames(sdrep)
   years <- df.tmb$years
 
+  # CatchN_tmp <- reshape2::melt(array(sdrep[rep.values == "logCatchN", 1],
+  #                     dim = c(df.tmb$nage, df.tmb$nyear, df.tmb$nseason, df.tmb$nfleet),
+  #                     dimnames = list('age' = df.tmb$age,
+  #                                     'years' = df.tmb$years,
+  #                                     'season' = 1:df.tmb$nseason,
+  #                                     'fleets' = 1:df.tmb$nfleets)
+  # ))
+
+
   tmp <- data.frame(CatchN = sdrep[rep.values == "logCatchN", 1])
   tmp$SE <- sdrep[rep.values == "logCatchN", 2]
   tmp$low <- tmp$CatchN - 2 * tmp$SE
   tmp$high <- tmp$CatchN + 2 * tmp$SE
   tmp$ages <- df.tmb$age
-  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears))
+
+  tmp$season <- rep(rep(1:df.tmb$nseason, each = df.tmb$nage * df.tmb$nyears), df.tmb$nfleets)# * df.tmb$nfleets* df.tmb$nyears ) #
   tmp$years <- rep(years, each = df.tmb$nage)
+  tmp$fleets <- rep(1:df.tmb$nfleets, each = df.tmb$nage * df.tmb$nseason * df.tmb$nyears)
+
   tmp <- tmp[-which(tmp$CatchN == 0), ]
+
+
+  #ggplot(tmp, aes(x = years, y= CatchN, color = factor(season)))+geom_line()+facet_grid(~ages)
 
 
   tmp$CatchN <- exp(tmp$CatchN)
@@ -478,6 +493,18 @@ getResidCatch <- function(df.tmb, sas) {
   rep.values <- rownames(sdrep)
   years <- df.tmb$years
 
+
+  # CatchN_tmp <- reshape2::melt(array(sdrep[rep.values == "logCatchN", 1],
+  #                     dim = c(df.tmb$nage, df.tmb$nyear, df.tmb$nseason, df.tmb$nfleet),
+  #                     dimnames = list('age' = df.tmb$age,
+  #                                     'years' = df.tmb$years,
+  #                                     'season' = 1:df.tmb$nseason,
+  #                                     'fleets' = 1:df.tmb$nfleets)
+  # ))
+
+
+
+
   tmp <- data.frame(ResidCatch = sdrep[rep.values == "resid_catch", 1])
   tmp$ResidCatch[tmp$ResidCatch == -99] <- NA
 
@@ -486,8 +513,10 @@ getResidCatch <- function(df.tmb, sas) {
   # tmp$low <- tmp$ResidCatch-2*tmp$SE
   # tmp$high <- tmp$ResidCatch+2*tmp$SE
   tmp$ages <- df.tmb$age
-  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears))
-  tmp$years <- rep(years, each = df.tmb$nage)
+  tmp$season <- rep(rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears)),df.tmb$nfleets)
+  tmp$years <- rep(rep(years, each = df.tmb$nage), df.tmb$nfleets)
+  tmp$fleets <- rep(1:df.tmb$nfleets, each = df.tmb$nage * df.tmb$nyears * df.tmb$nseason)
+
 
   tmp <- tmp[-which(is.na(tmp$ResidCatch)), ]
 

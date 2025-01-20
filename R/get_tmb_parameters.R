@@ -599,10 +599,10 @@ get_TMB_parameters <- function(
     propF <- propF[, c(years %in% startYear:max(years), TRUE), ]
 
     Surveyobs <- Surveyobs[, which(years %in% startYear:max(years)), ]
-    Catchobs <- Catchobs[, which(years %in% startYear:max(years)),, ]
+    Catchobs <- Catchobs[, which(years %in% startYear:max(years)),, ,]
 
     scv <- scv[, which(years %in% startYear:max(years)), ]
-    effort <- effort.in[which(years %in% startYear:max(years)), ,]
+    effort <- effort.in[which(years %in% startYear:max(years)), , ,]
     nocatch <- nocatch[which(years %in% startYear:max(years)), ]
     bidx <- bidx[which(years %in% startYear:max(years))]
 

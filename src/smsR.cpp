@@ -105,7 +105,7 @@ Type objective_function<Type>::operator() ()
    // Parameters
   PARAMETER_VECTOR(logRin); // Recruitment
   PARAMETER_VECTOR(logNinit); // Initial distribution
-  PARAMETER_VECTOR(logFyear);
+  PARAMETER_ARRAY(logFyear);
   PARAMETER_ARRAY(Fseason);
   PARAMETER_ARRAY(logFage);
   PARAMETER_VECTOR(SDsurvey); // Survey variation
@@ -149,7 +149,7 @@ array<Type>M_new(nage, nyears,nseason);
 
 vector<Type>SSB(nyears+1);
 vector<Type>TSB(nyears);
-vector<Type>Fyear(nyears, nfleets);
+array<Type>Fyear(nyears, nfleets);
 vector<Type>Rsave(nyears);
 vector<Type>logRec(nyears);
 vector<Type>term_logN_next(nage); // Numbers at age in the future year
@@ -271,12 +271,6 @@ if(randomM == 1){
   }
 
 
-
-// Calculate mean R
-
-
-
-//Type Ravg = beta;
   for(int time=1;time<nyears;time++){
     for(int k=0;k<(nfleets);k++){
       Fyear(time,k) = exp(logFyear(time-1,k));
@@ -289,7 +283,7 @@ for(int i=0;i<(logQ.size());i++){ //
 }
 
 // Age contribution of fishing mortality
-//
+
 Fagein.setZero();
 //
 for(int i=0;i<(nage);i++){ //
@@ -306,9 +300,9 @@ for(int i=0;i<(nage);i++){ //
    }
  }
 }
-
+//
 REPORT(Fagein)
-// //
+//
 // // // Seasonal contribution of fishing mortality
 Fquarter.setZero();
 // //
@@ -340,7 +334,7 @@ if(useBlocks == 0){
         }else{
 
           if(i < CminageSeason(qrts)){
-          Fquarter(i,j,qrts) = 0;//Type(1);
+          Fquarter(i,j,qrts,k) = 0;//Type(1);
           }else{
           if(i == 0){
             if(nseason == 2){
@@ -388,8 +382,8 @@ if(useBlocks == 0){
 }
 //
 
-// REPORT(Fagein)
-// REPORT(Fyear)
+REPORT(Fagein)
+REPORT(Fyear)
 // //
 // // // // // // // Annual contribution of fishing mortality
 array<Type>effort_creep(nyears);
@@ -427,13 +421,13 @@ if(useEffort == 1){
     }
   }
 }
-//
-//
-//
-//
-// // F0.setZero();
-// // //
-// // //
+
+
+
+
+// F0.setZero();
+// //
+// //
 if(useEffort == 1){
   for(int time=0;time<(nyears);time++){ // Loop over years excluding last one
     for(int i=0;i<nage;i++){ // Loop over other ages (recruits excluded)
@@ -525,10 +519,10 @@ for(int i=0;i<nage;i++){ // Loop over other ages //
      }
     }
   }
-
-// //
-// //
+//
 // // //
+// // //
+// // // //
 if(nsurvey>1){
   for(int i=0;i<nage;i++){ // Loop over other ages (recruits excluded)
     for(int k=0;k<(nsurvey);k++){ // Loop over surveys
@@ -761,7 +755,7 @@ for(int i=0;i<nage;i++){ // Loop over other ages
 vector<Type> SRpred(nyears);
 vector<Type> xR(nyears);
 vector<Type> xR2(nyears);
-
+//
 for(int time=0;time<(nyears);time++){ // Loop over years
 
 // SRpred(time) = alpha + log(SSB(time));
@@ -820,8 +814,8 @@ for(int time=0;time<(nyears);time++){ // No catches in last year
     }
   }
 }
-//
-// // Calculate catch CV internally
+// //
+// // // Calculate catch CV internally
 int ncatch = catchCV.rows();
 int astart = 0;
 int aend = 1;
@@ -852,8 +846,8 @@ if(estCV(1) == 2){
           for(int k=0;k<nfleets;k++){
             if(Catchobs(i,time,qrts,k)> 0 && CatchN(i,time,qrts,k) > 0){ // Log likelihood
           //      if(i >= CminageSeason(qrts)){
-                sumx(k,qrts) += log(CatchN(i,time,qrts,k))-log(Catchobs(i,time,qrts,k)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
-                sumx2(k,qrts) += pow(log(CatchN(i,time,qrts,k))-log(Catchobs(i,time,qrts,k)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
+                sumx(j,qrts) += log(CatchN(i,time,qrts,k))-log(Catchobs(i,time,qrts,k)); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
+                sumx2(j,qrts) += pow(log(CatchN(i,time,qrts,k))-log(Catchobs(i,time,qrts,k)),2); //resid_catch(i,time,qrts)*resid_catch(i,time,qrts);
             //    }
           }
             }
@@ -863,8 +857,8 @@ if(estCV(1) == 2){
      }
    }
 
-// //
-// // // Now assign SDR to each age
+// // //
+// // // // Now assign SDR to each age
 array<Type>SD_catch2(nage, nseason);
 
 SD_catch2.setZero();
@@ -1030,7 +1024,7 @@ Type nllC = 0.0; // log likelihood for Catch
    }
  }
 }
-
+//
 Type nllsurv = Type(0.0); // log likelihood for survey observations
 array<Type> Surveyout(nage,nyears,nsurvey); // Save residuals for SDR calculation
 array<Type> SDSout(nage,nyears,nsurvey);// Total SD
@@ -1057,12 +1051,12 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
       }
     }
  }
-
-
-
-
-// // // //
-// // // // // Penalty function for recruitment errors
+//
+//
+//
+//
+// // // // //
+// // // // // // Penalty function for recruitment errors
 Type resid_x = 0;
 Type resid_x2 = 0;
 vector<Type> resid_x_export(nyears);
@@ -1086,10 +1080,10 @@ if(estCV(2) == 2){// Calculate the standard deviation of recruitment
 }else{
   SDrec2 = SDrec;
 }
-
-
-// // //
-//Type prec = Type(0.0);
+//
+//
+// // // //
+// //Type prec = Type(0.0);
 Type pXr = Type(0.0);
 // vector<Type>ptest(nyears);
 // //
@@ -1129,10 +1123,10 @@ Type prec = 0.0;
       prec+= -dnorm(logNinit(i), Type(0.0), SDrec2, true);
     }
   }
-
-// // // // // // //
-
-// Do some reporting in log space
+//
+// // // // // // // //
+//
+// // Do some reporting in log space
 vector<Type>logSSB(nyears+1);
 vector<Type>logTSB(nyears);
 vector<Type>logCatchtot(nyears);
@@ -1144,8 +1138,8 @@ array<Type>logN(nage,nyears, nseason);
 array<Type>logBiomass(nage, nyears, nseason);
 vector<Type>Favg(nyears);
 vector<Type>logFavg(nyears);
-
 //
+// //
 logSSB.setZero();
 logTSB.setZero();
 logF0.setZero();
@@ -1169,8 +1163,8 @@ logSSB(nyears) = log(SSB(nyears));
 for(int time=0;time<nyears;time++){ // Loop over years
   for(int i=0;i<nage;i++){ // Loop over ages
       for(int qrts=0;qrts<nseason;qrts++){ // Loop over seasons
-        if(F0(i, time,qrts) >0){
-          for(int k=0;k<nfleets;k++){ // Loop over seasons
+        for(int k=0;k<nfleets;k++){ // Loop over seasons
+          if(F0(i, time,qrts,k) >0){
           logF0(i,time,qrts,k) = log(F0(i,time,qrts,k));
           logCatch(i, time, qrts,k) = log(Catch(i,time,qrts,k));
           logCatchN(i,time,qrts,k) = log(CatchN(i,time,qrts,k));
@@ -1184,26 +1178,28 @@ for(int time=0;time<nyears;time++){ // Loop over years
         }
 
         if((age(i)>=Fbarage(0)) && (age(i)<=Fbarage(1))){
-          Favg(time) +=F0(i,time,qrts)/(Fbarage(1)-Fbarage(0)+1);
+          Favg(time) +=Ftotal(i,time,qrts)/(Fbarage(1)-Fbarage(0)+1);
         }
       }
     }
     logFavg(time)=log(Favg(time));
   }
-
-
-// add random F possibility
+//
+//
+// // add random F possibility
 Type ansF = 0.0;
-
+//
 if(randomF == 1){
 
   for(int time=1;time<nyears;time++){ // Loop over years
-    ansF += -dnorm(Fyear(time), Fyear(time-1), SDF, true);
+    for(int k=0;k<nfleets;k++){ // Loop over years
+    ansF += -dnorm(Fyear(time,k), Fyear(time-1, k), SDF, true);
     //ansR += -dnorm(Fyear(time), Fyear(time-1), SDR, true);
+    }
   }
 }
-
-// add random F possibility
+//
+// // add random F possibility
 Type ansM = 0.0;
 
 if(randomM == 1){
@@ -1325,6 +1321,7 @@ ADREPORT(M_new)
 ADREPORT(M_tot)
 
 }
+// Type ans = 0.0;
 
   return ans;
 }

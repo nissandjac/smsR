@@ -80,29 +80,32 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
 
   catch <- df.tmb$Catchobs
   catch.fit <- getCatchN(df.tmb, sas) %>% dplyr::rename("age" = ages)
-
-  for (i in 1:df.tmb$nseason) {
-    c.out <- as.data.frame(t(catch[, , i]))
-    names(c.out) <- as.character(df.tmb$age)
-    c.out$year <- df.tmb$years
-
-
-    c.out <- c.out %>%
-      tidyr::pivot_longer(as.character(df.tmb$age), values_to = "CatchN", names_to = "age")
-    c.out$season <- i
-
-    if (i == 1) {
-      c.exp <- c.out
-    } else {
-      c.exp <- rbind(c.out, c.exp)
-    }
-  }
-
+  c.exp <- reshape2::melt(catch, value.name = 'CatchN') %>% dplyr::rename('year' = years,
+                                                                          'season' = seasons,
+                                                                          'age' = ages)
+  # for (i in 1:df.tmb$nseason) {
+  #   for(j in 1:df.tmb$nfleets){
+  #   c.out <- as.data.frame(t(catch[, , i,j]))
+  #   names(c.out) <- as.character(df.tmb$age)
+  #   c.out$year <- df.tmb$years
+  #
+  #
+  #   c.out <- c.out %>%
+  #     tidyr::pivot_longer(as.character(df.tmb$age), values_to = "CatchN", names_to = "age")
+  #   c.out$season <- i
+  #   c.out$fleet <- j
+  #   if (i == 1 & j == 1) {
+  #     c.exp <- c.out
+  #   } else {
+  #     c.exp <- rbind(c.out, c.exp)
+  #     }
+  #   }
+  # }
   catch.fit$age <- as.character(catch.fit$age)
   c.exp$CatchN[c.exp$CatchN == 0] <- NA
   catch.fit$CatchN[catch.fit$CatchN == 0] <- NA
 
-  p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age)) +
+  p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = factor(fleets))) +
     ggplot2::geom_point() +
     ggplot2::facet_grid(season ~ age, scales = "free") +
     ggplot2::theme_bw() +
@@ -110,8 +113,8 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
     ggplot2::scale_y_log10("catch (numbers)") +
     ggplot2::geom_line(data = catch.fit, ggplot2::aes(x = years)) +
     ggplot2::geom_ribbon(
-      data = catch.fit, ggplot2::aes(x = years, ymin = low, ymax = high, fill = age),
-      alpha = .1, linetype = 0
+      data = catch.fit, ggplot2::aes(x = years, ymin = low, ymax = high, fill = factor(fleets)),
+      alpha = .2, linetype = 0
     )
 
 
@@ -194,21 +197,25 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   #   scale_y_continuous('Age 1 (year - 1)')+
   #   scale_x_continuous('Age 0 (year)')+
   #   theme(legend.title = ggplot2::element_blank())
-
+p4 <- list()
   # Proportion in catch
-  catchdf <- as.data.frame(t(df.tmb$Catchobs[, , 1]))
+  for(j in 1:df.tmb$nfleets){
+
+  catchdf <- as.data.frame(t(df.tmb$Catchobs[, , 1,j]))
 
   names(catchdf) <- df.tmb$age
   catchdf$season <- 1
   catchdf$year <- df.tmb$years
+  catchdf$fleet <- (1:df.tmb$nfleets)[j]
   catchdf[, 1:df.tmb$nage] <- catchdf[, 1:df.tmb$nage] / rowSums(catchdf[, 1:df.tmb$nage], na.rm = TRUE)
 
   if (nseason > 1) {
     for (i in 2:df.tmb$nseason) {
-      tmp <- as.data.frame(t(df.tmb$Catchobs[, , i]))
+      tmp <- as.data.frame(t(df.tmb$Catchobs[, , i,j]))
       names(tmp) <- df.tmb$age
       tmp$season <- i
       tmp$year <- df.tmb$years
+      tmp$fleet <- j
       tmp[, 1:df.tmb$nage] <- tmp[, 1:df.tmb$nage] / rowSums(tmp[, 1:df.tmb$nage])
 
 
@@ -217,17 +224,18 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   }
   # `take the average for the plot
 
+
   catchdf.plot <- catchdf %>%
     tidyr::pivot_longer(paste(df.tmb$age), names_to = "Age", values_to = "canum") %>%
     dplyr::group_by(Age, year) %>%
     dplyr::summarise(catch = mean(canum, na.rm = TRUE))
 
-  p4 <- ggplot(catchdf.plot, ggplot2::aes(x = year, y = catch, fill = Age)) +
+  p4[[j]] <- ggplot(catchdf.plot, ggplot2::aes(x = year, y = catch, fill = Age)) +
     geom_bar(position = "fill", stat = "identity") +
     scale_y_continuous("proportion at age \n in catch") +
     theme_classic()
 
-
+  }
   # Plot mean weight at age
 
   wdf <- as.data.frame(t(df.tmb$weca[, , 1]))
@@ -309,9 +317,11 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   ss <- c(round(range(abs(CR$ResidCatch))[1]), max(abs(CR$ResidCatch)) * 1.5)
 
 
+  CR$fleets <- paste('fleet', CR$fleets, sep = ' ')
+
   p6 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
     ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch)), alpha = .3) +
-    facet_wrap(~season, nrow = df.tmb$nseason) +
+    facet_grid(fleets~season) +
     theme_classic() +
     ggplot2::scale_size(range = ss) +
     ggplot2::scale_color_manual(values = c("red", "blue")) +
