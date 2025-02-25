@@ -2,14 +2,14 @@
 % Please edit documentation in R/utils-output.R
 \name{getCatchN}
 \alias{getCatchN}
-\title{Get the number of catch individuals per age}
+\title{Get the number of catch individuals at age. Units are numbers.}
 \usage{
 getCatchN(df.tmb, sas)
 }
 \arguments{
-\item{df.tmb}{input parameters}
+\item{df.tmb}{input parameters from \code{\link{get_TMB_parameters}}}
 
-\item{sas}{fitted smsR model}
+\item{sas}{fitted smsR object from \code{\link{runAssessment}}}
 }
 \value{
 data frame containing the numbers of individuals by age in the catch each year.
@@ -17,7 +17,7 @@ low and high are the 95\% confidence intervals.
 SE is standard error of log N
 }
 \description{
-Get the number of catch individuals per age
+Get the number of catch individuals at age. Units are numbers.
 }
 \examples{
 CatchN <- getCatchN(df.tmb, sas)

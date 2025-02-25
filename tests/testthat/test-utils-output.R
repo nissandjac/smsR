@@ -30,7 +30,7 @@ df.tmb <- get_TMB_parameters(
 )
 
 parms <- getParms(df.tmb)
-sas <- runAssessment(df.tmb, parms)
+sas <- runAssessment(df.tmb, parms, save_all = TRUE, debug = TRUE)
 
 
 test_that('getSSB works', {
@@ -40,7 +40,7 @@ test_that('getSSB works', {
 
 })
 #
-test_that('geBiomass works', {
+test_that('getBiomass works', {
   B <- getBiomass(df.tmb, sas)
   expect_equal(sum(B$Biomass), 65856316) # Throw an error if NA
 })

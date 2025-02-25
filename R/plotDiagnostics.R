@@ -218,14 +218,14 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   # `take the average for the plot
 
   catchdf.plot <- catchdf %>%
-    tidyr::pivot_longer(paste(df.tmb$age), names_to = "Age", values_to = "canum") %>%
-    dplyr::group_by(Age, year) %>%
-    dplyr::summarise(catch = mean(canum, na.rm = TRUE))
+    tidyr::pivot_longer(paste(df.tmb$age), names_to = "Age", values_to = "canum") #%>%
+    # dplyr::group_by(Age, year) %>%
+    # dplyr::summarise(catch = sum(canum, na.rm = TRUE))
 
-  p4 <- ggplot(catchdf.plot, ggplot2::aes(x = year, y = catch, fill = Age)) +
+  p4 <- ggplot(catchdf.plot, ggplot2::aes(x = year, y = canum, fill = Age)) +
     geom_bar(position = "fill", stat = "identity") +
     scale_y_continuous("proportion at age \n in catch") +
-    theme_classic()
+    theme_classic()+facet_wrap(~season)
 
 
   # Plot mean weight at age

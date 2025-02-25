@@ -23,7 +23,7 @@ getTAC <- function(df.tmb,
 #                     avg_years = rep(3, 4),
                      avg_R = NULL,
                      Btarget = NULL,
-                     Fcap = 2
+                     Flimit = NULL
                      ){
 
   # Extract N in the beginning of the coming year
@@ -35,7 +35,7 @@ getTAC <- function(df.tmb,
 
   N_temp <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
 
-  Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
+  #Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
 
   if(is.null(avg_R)){
     R.index <- df.tmb$years
@@ -88,27 +88,37 @@ getTAC <- function(df.tmb,
 
   if(HCR == 'Fmsy'){ # Calc Fmsy from assessment model
 
-    Fmsy <- getFmsy(df.tmb, sas, recruitment = 'hockey')
-    F0 <- matrix(Fsel*Fmsy$Fmsy, nrow = df.tmb$nage, ncol = df.tmb$nseason)
+    if(is.null(Flimit)){
+      Flimit = 0.2
+      warning('No Fmsy supplied. Using 0.2 per year')
+    }
+    # Fix this later
+    #Fmsy <- getFmsy(df.tmb, sas, recruitment = 'hockey')
+    F0 <- matrix(Fsel*Flimit, nrow = df.tmb$nage, ncol = df.tmb$nseason)
     fc <- forecast.sms(df.tmb, N_current, F0)
+
+    Fmsy  <- Flimit
 
   }
 
   if(HCR == 'Bescape'){
 
-    if(is.null(Fcap)){warning('assuming Fcap = 2yr-1')}
+    if(is.null(Flimit)){
+      #warning('assuming Fcap = 2yr-1')
+      Flimit <- 2
+      }
 
     if(is.null(Btarget)){
       stop('Give a target Btarget to calc Bescape')}
 
     # Find the fishing mortality leading to Bescape
-    F0 <- calcBescape(Btarget, df.tmb, N_current, Fsel, Fcap)*Fsel
+    F0 <- calcBescape(Btarget, df.tmb, N_current, Fsel, Flimit)*Fsel
     # Do forecast
     fc <- forecast.sms(df.tmb , N_current , F0)
     Fmsy <- mean(rowSums(F0)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])
 
 
-    Fmsy <- list(Fmsy = Fmsy, MSY = NA)
+    Fmsy <- NA
 
 
   }
@@ -120,8 +130,7 @@ getTAC <- function(df.tmb,
     Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
 
     fc <- forecast.sms(df.tmb, N_current, Fsel)
-    Fmsy  <- list(Fmsy = NA,
-                  MSY = NA)
+    Fmsy  <- NA
 
     F0 <- Fsel
   }
@@ -130,9 +139,8 @@ getTAC <- function(df.tmb,
 
 ls.out <- list(TAC = fc$Catch,
                SSB = fc$SSB,
-               Fmsy = Fmsy$Fmsy,
-               Fnext = F0,
-               MSY = Fmsy$MSY)
+               Fmsy = Fmsy,
+               Fnext = F0)
 
   return(ls.out)
     }
@@ -369,7 +377,7 @@ calcBescape <- function(Btarget ,
 #' @param HCR Harvest control rule to use - options Bescape or Fmsy
 #' @param avg_R years to average recruitment
 #' @param Btarget SSB at Btarget
-#' @param Fcap Maximum possible F value
+#' @param Flimit Maximum possible F value (HCR = 'Bescape') or Fmsy (HCR = 'Fmsy')
 #' @param recruitment projected recruitment option ('mean)
 #'
 #' @return
@@ -381,13 +389,13 @@ calcBescape <- function(Btarget ,
 #'
 getForecastTable <- function(df.tmb,
                                 sas,
-                                TACold,
+                                TACold = NULL,
                                 HCR = 'Bescape',
                                 avg_R = NULL,
                                 recruitment = 'mean',
                                 Btarget = NULL,
                                 TACtarget = NULL,
-                                Fcap = 2){
+                                Flimit = NULL){
 
   # Get numbers at age
   # Get the estimated survey
@@ -412,7 +420,7 @@ getForecastTable <- function(df.tmb,
 
   if(df.tmb$nseason == 1){
     Fsel <- getF(df.tmb, sas)
-    Fsel <- Fsel$Fsel[Fsel$years == max(df.tmb$years)]
+    Fsel <- Fsel$F0[Fsel$years == max(df.tmb$years)]
     Fsel[df.tmb$age < df.tmb$Fminage & df.tmb$age > df.tmb$Fmaxage] <- 0
 
     Fsel <- (Fsel/mean(Fsel[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])) # Scale selectivity to Fbar
@@ -451,22 +459,50 @@ getForecastTable <- function(df.tmb,
   Fbar <- getFbar(df.tmb, sas)
 
   # Btarget = Blim
-  Flim <- calcBescape(Btarget = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 2)
+  Flim <- calcBescape(Btarget = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 10)
   flim <- forecast.sms(df.tmb , N_current , Flim*Fsel)
 
 
   # Regular Btarget
-  if(is.null(Btarget) != 1){
-   Fpa <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Fcap)
-   Fpa_sel <- Fpa * Fsel
-   fpa <- forecast.sms(df.tmb , N_current , Fpa_sel)
 
-   Fpa_nocap <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Fcap  = 2)
-   Fpa_sel <- Fpa_nocap * Fsel
-   fpa_nocap <- forecast.sms(df.tmb , N_current , Fpa_sel)
 
+  if(HCR == 'Bescape'){
+    if(is.null(Btarget) != 1){
+      if(is.null(Flimit)){
+        Flimit <- 2
+      }
+
+
+      Fpa <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Flimit)
+      Fpa_sel <- Fpa * Fsel
+      fpa <- forecast.sms(df.tmb , N_current , Fpa_sel)
+
+      Fpa_nocap <- calcBescape(Btarget = Btarget, df.tmb, N_current, Fsel, Fcap  = 10)
+      Fpa_sel <- Fpa_nocap * Fsel
+      fpa_nocap <- forecast.sms(df.tmb , N_current , Fpa_sel)
+
+
+    }else{
+      if(HCR == 'Bescape'){
+        stop('Provide Bpa for the Bescape rule.')
+      }
+    }
 
   }
+
+  if(HCR == 'Fmsy'){
+
+    if(is.null(Btarget) != 1){
+
+      if(is.null(Flimit)){
+        message('No Fmsy provided. Using 0.2 per year')
+        Flimit <- 0.2
+      }
+    }
+
+      fpa <- forecast.sms(df.tmb , N_current , Fsel * Flimit)
+  }
+
 
   if(is.null(TACtarget) != 1){
     F_tac <- calcFTAC(TACtarget, df.tmb, N_current,Fsel, Fcap)
@@ -479,6 +515,7 @@ getForecastTable <- function(df.tmb,
   }
 
 
+  if(HCR == 'Bescape'){
   HCRnames = c('Bescapement (Fcap)',
             'F = 0',
             'Bescapement (no cap)',
@@ -487,31 +524,61 @@ getForecastTable <- function(df.tmb,
             F_tac_name)
 
   TACs <- round(c(fpa$Catch,
-            f0$Catch,
-            fpa_nocap$Catch,
-            flim$Catch,
-            flast$Catch,
-            F_tac_f$Catch),2)
+                  f0$Catch,
+                  fpa_nocap$Catch,
+                  flim$Catch,
+                  flast$Catch,
+                  F_tac_f$Catch),2)
 
   Fs <- round(c(Fpa,
-          0,
-          Fpa_nocap,
-          Flim,
-          Fbar$Fbar[Fbar$years == max(Fbar$years)],
-          F_tac),2)
+                0,
+                Fpa_nocap,
+                Flim,
+                Fbar$Fbar[Fbar$years == max(Fbar$years)],
+                F_tac),2)
 
   SSBout <- round(c(fpa$SSB,
-              f0$SSB,
-              fpa_nocap$SSB,
-              flim$SSB,
-              flast$SSB,
-              F_tac_f$SSB),2)
+                    f0$SSB,
+                    fpa_nocap$SSB,
+                    flim$SSB,
+                    flast$SSB,
+                    F_tac_f$SSB),2)
+  }
+
+  if(HCR == 'Fmsy'){
+    HCRnames = c('Fmsy',
+                 'F = 0',
+                 'Blim',
+                 paste('F = F',df.tmb$years[df.tmb$nyears]),
+                 F_tac_name)
+
+
+    TACs <- round(c(fpa$Catch,
+                    f0$Catch,
+                    flim$Catch,
+                    flast$Catch,
+                    F_tac_f$Catch),2)
+
+    Fs <- round(c(Flimit,
+                  0,
+                  Flim,
+                  Fbar$Fbar[Fbar$years == max(Fbar$years)],
+                  F_tac),2)
+
+    SSBout <- round(c(fpa$SSB,
+                      f0$SSB,
+                      flim$SSB,
+                      flast$SSB,
+                      F_tac_f$SSB),2)
+  }
+
+
 
   SSBold <- getSSB(df.tmb, sas) %>% dplyr::filter(years == max(df.tmb$years+1)) %>% dplyr::select(SSB)
 
 
-  if(TACold == 0){
-    TACold = 0.001
+  if(TACold == 0 || is.null(TACold)){
+    TACold = 0.0001
   }
 
 
@@ -519,7 +586,8 @@ getForecastTable <- function(df.tmb,
   SSBrel <- round((SSBout-as.numeric(SSBold))/as.numeric(SSBold), 2)*100
   TACrel <- round((TACs-as.numeric(TACold))/as.numeric(TACold), 2)*100
 
-
+  TACrel[TACrel >1000] <-'>1000%'
+  #if(SSBrel > 1000){TACrel = '>1000%'}
  # Create a nice table
   df.out <- data.frame(
     HCRnames,

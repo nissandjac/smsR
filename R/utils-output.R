@@ -78,7 +78,7 @@ getBiomass <- function(df.tmb, sas) {
   Biomass.df$years <- as.numeric(as.character(Biomass.df$years))
 
   Biomass.df <- Biomass.df %>% dplyr::select(Biomass, SE, low, high, ages, season, years)
-  Biomass.df <- Biomass.df %>% filter(Biomass != 0)
+  Biomass.df <- Biomass.df %>% dplyr::filter(Biomass > 0)
   Biomass.df$Biomass <- exp(Biomass.df$Biomass)
   Biomass.df$low <- exp(Biomass.df$low)
   Biomass.df$high <- exp(Biomass.df$high)
@@ -124,10 +124,10 @@ getTSB <- function(df.tmb, sas) {
 }
 
 
-#' Retrieve the total catch from a fitted smsR object
+#' Retrieve the total catch weight from a fitted smsR object. Standard unit is kg.
 #'
-#' @param df.tmb input parameters
-#' @param sas fitted smsR object
+#' @param df.tmb input parameters from \code{\link{get_TMB_parameters}}
+#' @param sas fitted smsR object from \code{\link{runAssessment}}
 #'
 #' @return
 #' data frame containing the biomass of catch each year.
@@ -316,10 +316,10 @@ getN <- function(df.tmb, sas) {
 
 
 
-#' Get the number of catch individuals per age
+#' Get the number of catch individuals at age. Units are numbers.
 #'
-#' @param df.tmb input parameters
-#' @param sas fitted smsR model
+#' @param df.tmb input parameters from \code{\link{get_TMB_parameters}}
+#' @param sas fitted smsR object from \code{\link{runAssessment}}
 #'
 #' @return
 #' data frame containing the numbers of individuals by age in the catch each year.
@@ -674,7 +674,7 @@ logLik.sms <- function(object, ...) {
 #' @importFrom stats nobs
 #' @export
 nobs.sms <- function(object, ...) {
-  sum(object$x$resid_survey != -99) + sum(object$x$resid_catch != -99)
+  sum(object$obj$report()$resid_survey != -99) + sum(object$obj$report()$resid_catch != -99)
 }
 
 

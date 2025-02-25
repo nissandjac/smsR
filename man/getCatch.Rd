@@ -2,14 +2,14 @@
 % Please edit documentation in R/utils-output.R
 \name{getCatch}
 \alias{getCatch}
-\title{Retrieve the total catch from a fitted smsR object}
+\title{Retrieve the total catch weight from a fitted smsR object. Standard unit is kg.}
 \usage{
 getCatch(df.tmb, sas)
 }
 \arguments{
-\item{df.tmb}{input parameters}
+\item{df.tmb}{input parameters from \code{\link{get_TMB_parameters}}}
 
-\item{sas}{fitted smsR object}
+\item{sas}{fitted smsR object from \code{\link{runAssessment}}}
 }
 \value{
 data frame containing the biomass of catch each year.
@@ -17,7 +17,7 @@ low and high are the 95\% confidence intervals.
 SE is standard error of log Catch
 }
 \description{
-Retrieve the total catch from a fitted smsR object
+Retrieve the total catch weight from a fitted smsR object. Standard unit is kg.
 }
 \examples{
 catch <- getCatch(df.tmb, sas)

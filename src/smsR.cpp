@@ -52,7 +52,6 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(randomR); // Random walk on R
   DATA_INTEGER(randomM); // Random walk on M
   DATA_INTEGER(M_nparms); // Number of M variances and estimates
-  DATA_INTEGER(quick); // Flag to save all output
   DATA_INTEGER(debug); // Flag for saving REPORT output
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
@@ -1247,8 +1246,6 @@ ADREPORT(logCatch)
 ADREPORT(logF0)
 
 
-if(quick == 0){
-
 ADREPORT(logTSB)
 ADREPORT(logCatchN)
 ADREPORT(logN)
@@ -1274,9 +1271,9 @@ ADREPORT(logFavg)
 ADREPORT(SSB0)
 ADREPORT(logM)
 ADREPORT(M_new)
+ADREPORT(logBiomass)
 ADREPORT(M_tot)
 
-}
 
 
   return ans;
