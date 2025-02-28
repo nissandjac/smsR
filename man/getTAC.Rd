@@ -11,7 +11,7 @@ getTAC(
   HCR = "Bescape",
   avg_R = NULL,
   Btarget = NULL,
-  Fcap = 2
+  Flimit = NULL
 )
 }
 \arguments{

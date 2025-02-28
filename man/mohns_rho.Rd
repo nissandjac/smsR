@@ -2,7 +2,7 @@
 % Please edit documentation in R/mohns_rho.R
 \name{mohns_rho}
 \alias{mohns_rho}
-\title{Calculate mohns rho.}
+\title{Calculate Mohns \eqn{\rho}.}
 \usage{
 mohns_rho(
   df.tmb,
@@ -39,14 +39,19 @@ mohns_rho(
 \item{upper}{upper boundary of parameters}
 }
 \value{
-returnsa list of Mohns rho values, input values, and a Mohns rho plot
+returns a list of Mohns rho values, input values, and a Mohns rho plot
 }
 \description{
-Calculate mohns rho.
+Calculate the retrospective patterns of a fitted stock assessment model from `smsR`.
+The function calculates Mohn's \eqn{\rho} (Mohn 1999) on SSB, Fbar and R, and by default takes 5 peels off.
 }
 \examples{
 
 MR <- mohns_rho(df.tmb, peels = 5, parms)
 
 print(MR$p1()) # plot the results
+}
+\references{
+Mohn, R. (1999). The retrospective problem in sequential population analysis:
+An investigation using cod stock in the Northwest Atlantic. *ICES Journal of Marine Science*, 56(4), 473–488. \url{10.1006/jmsc.1999.0481}
 }

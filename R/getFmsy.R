@@ -56,7 +56,7 @@ getFmsy <- function(sas,
   if (recruitment == "hockey") {
     alphaSR <- exp(parms.est$value[parms.est$parameter == "logalpha"])
     betaSR <- df.tmb$betaSR
-    R0 <- exp(alphaSR) * df.tmb$betaSR
+    R0 <- alphaSR * df.tmb$betaSR
   } else {
     alphaSR <- NA
     betaSR <- NA
@@ -76,6 +76,7 @@ getFmsy <- function(sas,
     age = df.tmb$age,
     nage = length(df.tmb$age),
     Fin = matrix(0, length(years), df.tmb$nseason),
+    Fsel = Fsel,
     propM = df.tmb$propM,
     propF = df.tmb$propF,
     M = M,

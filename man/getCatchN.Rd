@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getCatchN}
 \alias{getCatchN}
-\title{Get the number of catch individuals at age. Units are numbers.}
+\title{Get catch numbers}
 \usage{
 getCatchN(df.tmb, sas)
 }
@@ -13,11 +13,12 @@ getCatchN(df.tmb, sas)
 }
 \value{
 data frame containing the numbers of individuals by age in the catch each year.
-low and high are the 95\% confidence intervals.
-SE is standard error of log N
 }
 \description{
-Get the number of catch individuals at age. Units are numbers.
+Get the numbers at age in the catch per season and year. Units are numbers.
+
+low and high are the 95\% confidence intervals.
+SE is standard error of log N
 }
 \examples{
 CatchN <- getCatchN(df.tmb, sas)

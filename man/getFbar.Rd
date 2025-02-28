@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getFbar}
 \alias{getFbar}
-\title{Get Fbar from a fitted smsR model}
+\title{Estimated Fbar}
 \usage{
 getFbar(df.tmb, sas)
 }
@@ -13,11 +13,14 @@ getFbar(df.tmb, sas)
 }
 \value{
 data frame containing the average fishing mortality each year.
-low and high are the 95\% confidence intervals.
-SE is standard error of log Fbar
 }
 \description{
-Get Fbar from a fitted smsR model
+Get the estimated `Fbar` (age averaged fishing mortality) from an fitted `smsR` model.
+}
+\details{
+low and high are the 95\% confidence intervals.
+SE is standard error of log Fbar
+Fbar depends on the age ranged specified in the  \code{\link{get_TMB_parameters}} call for `df.tmb`
 }
 \examples{
 

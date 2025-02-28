@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getTSB}
 \alias{getTSB}
-\title{Get the total stock biomass}
+\title{Total stock biomass}
 \usage{
 getTSB(df.tmb, sas)
 }
@@ -17,7 +17,7 @@ low and high are the 95\% confidence intervals.
 SE is standard error of log TSB
 }
 \description{
-Get the total stock biomass
+Export the total stock biomass summed over ages in the first season from a fitted `smsR` stock assessment
 }
 \examples{
 
@@ -25,6 +25,8 @@ dat <- getTSB(df.tmb, sas)
 
 }
 \seealso{
-[getR()],[getSSB()],[getYield()],[getF()],[getCatch()], [getBiomass()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],
-[getSurvey()]
+\code{\link{getR}}, \code{\link{getSSB}}, \code{\link{getYield}},
+  \code{\link{getF}}, \code{\link{getCatch}}, \code{\link{getBiomass}},
+  \code{\link{getN}}, \code{\link{getFbar}}, \code{\link{getCatchN}},
+  \code{\link{getCatchCV}}, \code{\link{getSurvey}}
 }

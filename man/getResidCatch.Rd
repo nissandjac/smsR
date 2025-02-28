@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getResidCatch}
 \alias{getResidCatch}
-\title{Get the catch residuals}
+\title{Catch residuals}
 \usage{
 getResidCatch(df.tmb, sas)
 }
@@ -15,11 +15,17 @@ getResidCatch(df.tmb, sas)
 Returns a data frame of catch residuals
 }
 \description{
-Get the catch residuals
+Get the absolute catch residuals for a fitted `smsR` model.
+}
+\details{
+To plot the CV scaled catch residuals see \code{\link{plotDiagnostics}}
 }
 \examples{
 
 getResidCatch(df.tmb, sas)
 print(getResidCatch)
 
+}
+\seealso{
+\code{\link{getResidSurvey}},\code{\link{plotDiagnostics}}
 }

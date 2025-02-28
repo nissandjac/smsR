@@ -3,7 +3,7 @@
 \name{AIC.sms}
 \alias{AIC.sms}
 \alias{AIC}
-\title{Calculate AIC from smsR stock assessment object}
+\title{AIC}
 \usage{
 \method{AIC}{sms}(object, p = 2, n = Inf, ...)
 }

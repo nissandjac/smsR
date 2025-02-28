@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getCatchability}
 \alias{getCatchability}
-\title{Get the survey catchability}
+\title{Survey catchability}
 \usage{
 getCatchability(df.tmb, sas)
 }
@@ -12,10 +12,15 @@ getCatchability(df.tmb, sas)
 \item{sas}{fitted model object}
 }
 \value{
-returns a table of survey catchability
+returns a data frame of survey catchability
 }
 \description{
-Get the survey catchability
+Survey catchability
+}
+\details{
+Exports a data frame of catchabilities from all the surveys in a fitted `smsR` model.
+
+Note that the scale of the catchability can vary based on input data.
 }
 \examples{
 

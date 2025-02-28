@@ -15,7 +15,7 @@ stocks) and sprat in the North Sea.
 You can install the development version of smsR as
 
 ``` r
-remotes::install_github("https://github.com/nissandjac/smsR", dependencies = TRUE)
+# Anonymized for review 
 ```
 
 ## Using the model
@@ -45,13 +45,13 @@ df.tmb <- get_TMB_parameters(
   Fbarage = c(1, 2), # Age use to calculate Fbar
   effort = sandeel_1r$effort, # Effort input
   blocks = c(1983, 1999), # Blocks with unique selectivity
-  nocatch = sandeel_1r$nocatch, # Seasons where F is calculated (1) or not (0)
+  nocatch = sandeel_1r$nocatch, # Seasons where F is not calculated
   surveyStart = c(0.75, 0), #
   surveyEnd = c(1, 0), #
   surveySeason = c(2, 1), #
-  surveyCV = list(c(0, 1), c(1, 2)),
-  catchCV = list(c(1, 3), c(1, 3)), # Catch CV groupings
-  estCV = c(0, 2, 0), # Estimate CVs for 1) survey, 2) catch, 3) Stock recruitment relationship
+  surveySD = list(c(0, 1), c(1, 2)),
+  catchSD = list(c(1, 3), c(1, 3)), # Catch CV groupings
+  estSD = c(0, 2, 0), # Estimate CVs for 1) survey, 2) catch, 3) Stock recruitment relationship
   beta = 105809, # Hockey stick break point
   nllfactor = c(1, 1, 0.05) # Factor for relative strength of log-likelihood
 )

@@ -23,5 +23,5 @@ SSB <- getSSB(df.tmb, sas)
 print(SSB)
 }
 \seealso{
-[getR()] why are the brackets here
+\code{\link{getR()}}
 }

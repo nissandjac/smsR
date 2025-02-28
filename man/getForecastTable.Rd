@@ -7,13 +7,13 @@
 getForecastTable(
   df.tmb,
   sas,
-  TACold,
+  TACold = NULL,
   HCR = "Bescape",
   avg_R = NULL,
   recruitment = "mean",
   Btarget = NULL,
   TACtarget = NULL,
-  Fcap = 2
+  Flimit = NULL
 )
 }
 \arguments{
@@ -31,7 +31,7 @@ getForecastTable(
 
 \item{Btarget}{SSB at Btarget}
 
-\item{Fcap}{Maximum possible F value}
+\item{Flimit}{Maximum possible F value (HCR = 'Bescape') or Fmsy (HCR = 'Fmsy')}
 }
 \value{
 Returns a table with different catch options

@@ -2,7 +2,8 @@
 % Please edit documentation in R/utils-output.R
 \name{getSurveyCV}
 \alias{getSurveyCV}
-\title{Retrieve estimated parameters}
+\title{Survey CV
+Retrieve estimated survey CV from a fitted `smsR` model.}
 \usage{
 getSurveyCV(df.tmb, sas)
 }
@@ -13,5 +14,6 @@ getSurveyCV(df.tmb, sas)
 data frame of estimated parameters and their SE
 }
 \description{
-Retrieve estimated parameters
+Survey CV
+Retrieve estimated survey CV from a fitted `smsR` model.
 }

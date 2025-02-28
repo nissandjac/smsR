@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getSR}
 \alias{getSR}
-\title{Get the stock recruitment relationship}
+\title{Stock recruitment}
 \usage{
 getSR(df.tmb, sas)
 }
@@ -15,7 +15,7 @@ getSR(df.tmb, sas)
 returns a data frame with a stock recruitment relationship
 }
 \description{
-Get the stock recruitment relationship
+Get the estimated stock recruitment relationship from a fitted `smsR` model
 }
 \examples{
 

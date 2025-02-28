@@ -1,64 +1,80 @@
-#' Prepare data input for an smsR model
+#' Prepare Input Data for an smsR Model
+#' @description
+#'  This function prepares the necessary input data for an `smsR` model.
+#'  Required input are `mtrx`, `Surveyobs`,`Catchobs`, and `year`.
+#'  Note that the dimensions of the input data needs to be consistent with year, season and ages.
 #'
-#' @param mtrx matrix containing weca, west, mat, and M
-#' @param Surveyobs Survey observations
-#' @param Catchobs Catch observations
-#' @param propM proportion M before spawning
-#' @param propF proportion F before spawning
-#' @param years years with available data
-#' @param startYear start year of assessment (optional)
-#' @param endYear end year of assessment (optional)
-#' @param nseason number of seasons
-#' @param nsurvey number of surveys
-#' @param ages age span
-#' @param Fbarage Ages to average F to Fbar
-#' @param recseason recruitment season
-#' @param Fminage minimum age to calculate F
-#' @param Fmaxage Maximum age to calculate F
-#' @param Qminage Minimum age included in survey
-#' @param Qmaxage Max age included in survey
-#' @param Qlastage Last age with unique survey selectivity
-#' @param isFseason seasons to calculate F
-#' @param CminageSeason minimum age to use catchdata
-#' @param CmaxageSeason Maximum age to use catchdata
-#' @param endFseason Last season with fishing
-#' @param nocatch input matrix of 1 or 0 defining if F should be calculated
-#' @param useEffort Use nominal effort to calculate F
-#' @param estimateCreep Estimate technological creep as a parameter. Needs useEffort = 1
-#' @param effort matrix of nominal effort per season
-#' @param blocks unique selectivity blocks
-#' @param surveyStart fraction into the season where the survey starts
-#' @param surveyEnd fraction into the season where the survey ends
-#' @param surveySeason season where survey occurs
-#' @param leavesurveyout vector of 1 and 0 to exclude surveys
-#' @param minSDsurvey minimum CV of survey
-#' @param minSDcatch minimum CV of catch
-#' @param maxSDcatch Maximum CV of catch
-#' @param peneps parameter for regulating minimum CV for survey
-#' @param penepsC parameter for regulating minimum CV of catch
-#' @param penepsCmax parameter for regulating maximum CV of catch
-#' @param powers apply powerlaw for density dependent survey observations
-#' @param scv add time varying survey CV (input matrix)
-#' @param surveyCV survey cv grouping
-#' @param catchCV catch cv grouping
-#' @param recmodel recruitment model
-#' @param estCV which CVs to estimate as parameters
-#' @param CVmin minimum CVs
-#' @param betaSR hockey stick break point
-#' @param nllfactor negative log likelihood weighting
-#' @param randomF try random effect fishing mortality
-#' @param randomM Random effect estimating time varying M
-#' @param randomR Estimate R deviations as a random efffect
-#' @param nenv Number of environemntal covariates on  R
-#' @param Mprior Prior SD on M deviations from the first year of the time series
-#' @param M_min minimum age for time varying M
-#' @param M_max maximum age for time varying M
-#' @param MCV Age distribution of time varying M CV
-#' @param SDMprior prior on M CV
-#' @param Pred_in Matrix of input predators for MICE
+#' @param mtrx Matrix containing life history parameters: `weca`, `west`, `mat`, and `M`.
+#' @param Surveyobs Matrix of survey observations (numbers at age).
+#' @param Catchobs Matrix of catch observations (numbers at age).
+#' @param propM Proportion of natural mortality (`M`) occurring before spawning.
+#' @param propF Proportion of fishing mortality (`F`) occurring before spawning.
+#' @param years Vector of years with available data.
+#' @param startYear Optional. Start year of the assessment.
+#' @param endYear Optional. End year of the assessment.
+#' @param nseason Number of seasons in the model.
+#' @param nsurvey Number of surveys included in the model.
+#' @param ages Vector specifying the age span of the data.
+#' @param Fbarage Vector of ages used to calculate the mean fishing mortality (`Fbar`).
+#' @param recseason Season in which recruitment occurs.
+#' @param Fminage Minimum age used to calculate fishing mortality (`F`).
+#' @param Fmaxage Maximum age used to calculate fishing mortality (`F`).
+#' @param Qminage Minimum age included in the survey data.
+#' @param Qmaxage Maximum age included in the survey data.
+#' @param Qlastage Last age with unique survey selectivity.
+#' @param isFseason Vector specifying seasons in which fishing mortality (`F`) is calculated.
+#' @param CminageSeason Minimum age for using catch data.
+#' @param CmaxageSeason Maximum age for using catch data.
+#' @param endFseason Last season in which fishing occurs.
+#' @param nocatch Matrix (1/0) defining whether fishing mortality (`F`) should be calculated.
+#' @param useEffort Logical. If `TRUE`, nominal effort is used to calculate `F`.
+#' @param estimateCreep Logical. If `TRUE`, estimates technological creep as a parameter (requires `useEffort = TRUE`).
+#' @param effort Matrix of nominal fishing effort per season.
+#' @param blocks Vector of unique selectivity blocks.
+#' @param surveyStart Fraction into the season when the survey starts.
+#' @param surveyEnd Fraction into the season when the survey ends.
+#' @param surveySeason Season in which the survey occurs.
+#' @param leavesurveyout Vector (1/0) indicating which surveys to exclude.
+#' @param minSDsurvey Minimum coefficient of variation (CV) for survey data.
+#' @param minSDcatch Minimum CV for catch data.
+#' @param maxSDcatch Maximum CV for catch data.
+#' @param peneps Parameter regulating the minimum CV for surveys.
+#' @param penepsC Parameter regulating the minimum CV for catch data.
+#' @param penepsCmax Parameter regulating the maximum CV for catch data.
+#' @param powers Logical. If `TRUE`, applies a power-law function for density-dependent survey observations.
+#' @param scv Matrix specifying time-varying survey CV.
+#' @param surveySD Grouping variable for survey SD.
+#' @param catchSD Grouping variable for catch SD.
+#' @param recmodel Recruitment model specification. Options:
+#'   - `1`: Hockey-stick model with input breakpoint (`betaSR`).
+#'   - `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
+#'   - `3`: Beverton-Holt model.
+#' @param estSD Vector indicating which deviation parameters to estimate.
+#' @param CVmin Minimum CV values for estimation.
+#' @param betaSR Hockey-stick model breakpoint parameter.
+#' @param nllfactor Weighting factor for the negative log-likelihood.
+#' @param randomF Logical. If `TRUE`, fishing mortality (`F`) is treated as a random effect.
+#' @param randomM Logical. If `TRUE`, natural mortality (`M`) is estimated as a time-varying random effect.
+#' @param randomR Logical. If `TRUE`, recruitment deviations are estimated as a random effect.
+#' @param nenv Number of environmental covariates affecting recruitment.
+#' @param Mprior Prior standard deviation (SD) for `M` deviations from the first year of the time series.
+#' @param M_min Minimum age included in the time-varying `M` estimation.
+#' @param M_max Maximum age included in the time-varying `M` estimation.
+#' @param MCV Age distribution of the CV for time-varying `M`.
+#' @param SDMprior Prior SD for `M` CV estimation.
+#' @param Pred_in Matrix of predator inputs for MICE modeling.
 #'
-#' @return
-#' returns a
+#' @details
+#'  The required inputs include:
+#'   - `mtrx`: A matrix containing life history parameters (i.e,, `weca`, `west`, `mat`, `M`).
+#'   - `Catchobs`: A matrix of observed catch numbers at age.
+#'   - `Surveyobs`: A matrix of observed survey numbers at age.
+#'
+#' Additionally, the user must specify the `years` corresponding to the input data.
+
+#'
+#'
+#' @return A list containing all required input data for the smsR model.
 #' @export
 #'
 #' @examples
@@ -68,7 +84,7 @@
 #'   Catchobs = sandeel_1r$Catch,
 #'   years = 1983:2022
 #' ) # Not run
-#'
+
 get_TMB_parameters <- function(
     mtrx = NULL,
     Surveyobs = NULL,
@@ -114,10 +130,10 @@ get_TMB_parameters <- function(
     M_min = 0,
     M_max = max(ages),
     scv = array(0, dim = c(length(ages), length(years), nsurvey)),
-    surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
-    catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
+    surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
+    catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
     MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
-    estCV = c(0, 0, 0),
+    estSD = c(0, 0, 0),
     CVmin = c(0.2, 0.2, 0.2),
     betaSR = 0,
     nllfactor = rep(1, 3),
@@ -135,7 +151,7 @@ get_TMB_parameters <- function(
     Qmaxage <- Qmaxage[leavesurveyout == 1]
   #  Qlastage <- Qlastage[leavesurveyout == 1]
     powers <- powers[leavesurveyout == 1]
-    surveyCV <- surveyCV[leavesurveyout == 1]
+    surveySD <- surveySD[leavesurveyout == 1]
     nsurvey <- sum(leavesurveyout)
     surveySeason <- surveySeason[leavesurveyout == 1]
   }
@@ -186,7 +202,7 @@ get_TMB_parameters <- function(
   maxage <- max(ages)
 
   for (k in 1:nsurvey) {
-    tmpCV <- surveyCV[[k]] + 1 # Go from age to index
+    tmpCV <- surveySD[[k]] + 1 # Go from age to index
     vec <- rep(0, nage)
 
     if (length(tmpCV) == 1) {
@@ -344,27 +360,27 @@ get_TMB_parameters <- function(
   }
 
 
-  # if(length(catchCV) > 1){
+  # if(length(catchSD) > 1){
   for (i in 1:nseason) {
-    if (min(catchCV[[i]]) != 0) {
-      catchCV[[i]] <- c(0, catchCV[[i]])
+    if (min(catchSD[[i]]) != 0) {
+      catchSD[[i]] <- c(0, catchSD[[i]])
     }
 
 
     if (i == 1) {
-      #        if(min(catchCV[[i]])>0){
-      no <- 1:length(catchCV[[i]])
+      #        if(min(catchSD[[i]])>0){
+      no <- 1:length(catchSD[[i]])
       # }else{
-      # no <- 0:(length(catchCV[[i]])-1)
+      # no <- 0:(length(catchSD[[i]])-1)
       # }
     } else {
-      no <- (max(no) + 1):(max(no) + length(catchCV[[i]]))
+      no <- (max(no) + 1):(max(no) + length(catchSD[[i]]))
 
       no <- no - CminageSeason[i]
     }
-    Cidx.CV[ages %in% catchCV[[i]], i] <- no
-    Cidx.CV[ages > max(catchCV[[i]]), i] <- max(no)
-    Cidx.CV[ages < min(catchCV[[i]]), i] <- min(no)
+    Cidx.CV[ages %in% catchSD[[i]], i] <- no
+    Cidx.CV[ages > max(catchSD[[i]]), i] <- max(no)
+    Cidx.CV[ages < min(catchSD[[i]]), i] <- min(no)
 
 
     # Do a loop for NA check
@@ -388,11 +404,11 @@ get_TMB_parameters <- function(
   #     for(i in 1:nseason){
   #
   #
-  #       no <- 1:length(catchCV[[i]])
+  #       no <- 1:length(catchSD[[i]])
   #
-  #       Cidx.CV[ages %in% catchCV[[i]],i] <- no
-  #       Cidx.CV[ages > max(catchCV[[i]]),i] <- max(no)
-  #       Cidx.CV[ages < min(catchCV[[i]]),i] <- min(no)
+  #       Cidx.CV[ages %in% catchSD[[i]],i] <- no
+  #       Cidx.CV[ages > max(catchSD[[i]]),i] <- max(no)
+  #       Cidx.CV[ages < min(catchSD[[i]]),i] <- min(no)
   #
   #       for(a in 2:nage){
   #         if(is.na(Cidx.CV[a, i])){
@@ -418,36 +434,36 @@ get_TMB_parameters <- function(
 
   CVgroups <- NA
 
-  for (i in 1:length(catchCV)) {
-    CVgroups[i] <- length(catchCV[[i]])
+  for (i in 1:length(catchSD)) {
+    CVgroups[i] <- length(catchSD[[i]])
   }
 
 
   # Do Catch CV for internal CV calcs
-  # CCV.out <- array(unlist(catchCV), dim = c())
+  # CCV.out <- array(unlist(catchSD), dim = c())
 
-  if (length(unique(CVgroups)) > 1 & estCV[2] == 2) {
+  if (length(unique(CVgroups)) > 1 & estSD[2] == 2) {
     stop("sms currently doesnt support multiple catch CVs between seasons with internally calculated SD")
   }
 
-  catchCVout <- matrix(rep(catchCV[[1]], nseason), ncol = nseason)
+  catchSDout <- matrix(rep(catchSD[[1]], nseason), ncol = nseason)
   #
-  #   if(estCV[2] == 2){
-  #   catchCVout <- catchCV
+  #   if(estSD[2] == 2){
+  #   catchSDout <- catchSD
   #
   #   }
 
   # Calc the number of catch observations
 
-  no <- matrix(0, nrow = nrow(catchCVout), ncol = nseason)
+  no <- matrix(0, nrow = nrow(catchSDout), ncol = nseason)
 
-  for (i in 1:nrow(catchCVout)) {
+  for (i in 1:nrow(catchSDout)) {
     for (qrts in 1:nseason) {
       if ((i - 1) >= CminageSeason[qrts]) {
-        if (i < nrow(catchCVout)) {
-          idx <- catchCVout[i]:(catchCVout[i + 1] - 1) + 1
+        if (i < nrow(catchSDout)) {
+          idx <- catchSDout[i]:(catchSDout[i + 1] - 1) + 1
         } else {
-          idx <- (catchCVout[i] + 1):nage
+          idx <- (catchSDout[i] + 1):nage
         }
 
         Out <- Catchobs[idx, , qrts]
@@ -457,7 +473,7 @@ get_TMB_parameters <- function(
     }
   }
 
-  if (nrow(catchCVout) == 1 & nseason == 1) {
+  if (nrow(catchSDout) == 1 & nseason == 1) {
     no[i, qrts] <- length(Catchobs[Catchobs > 0])
   }
 
@@ -663,7 +679,7 @@ get_TMB_parameters <- function(
     Qidx = Qidx,
     Qidx_CV = Qidx.CV,
     Cidx_CV = Cidx.CV,
-    catchCV = catchCVout,
+    catchSD = catchSDout,
     Midx_CV = Midx.CV,
     isFseason = isFseason, # Fishing mortality in how many quarterS? ,
     endFseason = endFseason,
@@ -679,8 +695,8 @@ get_TMB_parameters <- function(
     minSDsurvey = minSDsurvey,
     minSDcatch = minSDcatch,
     maxSDcatch = maxSDcatch,
-    catchCVin = catchCV,
-    surveyCV = surveyCV,
+    catchSDin = catchSD,
+    surveySD = surveySD,
     peneps = peneps,
     penepsC = penepsC,
     penepsCmax = penepsCmax,
@@ -690,7 +706,7 @@ get_TMB_parameters <- function(
     M_nparms = M_nparms,
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
-    estCV = estCV,
+    estSD = estSD,
     CVmin = CVmin,
     betaSR = betaSR,
     nllfactor = nllfactor,

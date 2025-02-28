@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getBiomass}
 \alias{getBiomass}
-\title{Get a data frame of the biomass of each age group}
+\title{Biomass at age}
 \usage{
 getBiomass(df.tmb, sas)
 }
@@ -13,11 +13,11 @@ getBiomass(df.tmb, sas)
 }
 \value{
 data frame containing the biomass of each age group.
-low and high are the 95\% confidence intervals.
+low and high are in the 95\% confidence region.
 SE is standard error of log Biomass
 }
 \description{
-Get a data frame of the biomass of each age group
+Retrieves a data frame containing the biomass per age from an `smsR` stock assessment
 }
 \seealso{
 [getR()],[getYield()],[getF()],[getCatch()], [getSSB()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],

@@ -2,7 +2,7 @@
 % Please edit documentation in R/getParms.R
 \name{getParms}
 \alias{getParms}
-\title{Title}
+\title{get smsR parameters}
 \usage{
 getParms(df.tmb, parms.true = NULL)
 }
@@ -15,10 +15,13 @@ getParms(df.tmb, parms.true = NULL)
 returns a set of parameters to estimate for an smsR model
 }
 \description{
-Title
+A function that lists the parameters to estimate in smsR by using an input value from \link{get_TMB_parameters}
 }
 \examples{
 
 parms <- getParms(df.tmb)
 
+}
+\seealso{
+\code{\link{getParms}}
 }

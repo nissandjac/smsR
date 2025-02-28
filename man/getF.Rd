@@ -2,23 +2,25 @@
 % Please edit documentation in R/utils-output.R
 \name{getF}
 \alias{getF}
-\title{Get fishing mortality at age from fitted model}
+\title{Get fishing mortality}
 \usage{
 getF(df.tmb, sas)
 }
 \arguments{
 \item{df.tmb}{list of input parameters}
 
-\item{sas}{fitted smsR model}
+\item{sas}{fitted `smsR` model}
 }
 \value{
 data frame of fishing mortality at age.
+}
+\description{
+Retrieve the fishing mortality at age per season and year from fitted `smsR` model
+}
+\details{
 Last year is based on the expected survival from terminal year.
 low and high are the 95\% confidence intervals.
 SE is standard error of log F0
-}
-\description{
-Get fishing mortality at age from fitted model
 }
 \examples{
 

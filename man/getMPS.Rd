@@ -2,7 +2,7 @@
 % Please edit documentation in R/getParms.R
 \name{getMPS}
 \alias{getMPS}
-\title{Get a list of mapped parameters (not estimated)}
+\title{Map smsR parameters}
 \usage{
 getMPS(df.tmb, parms, mapExtra = NA)
 }
@@ -17,11 +17,14 @@ getMPS(df.tmb, parms, mapExtra = NA)
 returns a list of parameters to be mapped for smsR
 }
 \description{
-Get a list of mapped parameters (not estimated)
+Retrieve a list of mapped parameters (not estimated) from an `smsR` dataset
 }
 \examples{
 
 # Map the  CV of surveys to the parms value
 MPS <- getMPS(df.tmb, parms, mapExtra = "SDsurvey")
 
+}
+\seealso{
+\code{\link{getParms}}
 }

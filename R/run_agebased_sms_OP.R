@@ -305,7 +305,7 @@ run.agebased.sms.op <- function(df, simulate = FALSE) {
 
             if (SSB[yr, space] >= df$betaSR) {
               R <- log(df$R0)
-              print(R)
+            #  print(R)
             }
 
             R <- exp(R)

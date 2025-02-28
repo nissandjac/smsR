@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getSummary}
 \alias{getSummary}
-\title{Get summary of derived variables from fitted smsR object}
+\title{smsR summary data}
 \usage{
 getSummary(df.tmb, sas)
 }
@@ -15,7 +15,7 @@ getSummary(df.tmb, sas)
 returns a table of SSB, R, Yield and Fbar with uncertainty
 }
 \description{
-Get summary of derived variables from fitted smsR object
+Get summary of derived variables from fitted smsR object including SSB, R, Yield, and Fbar, as well as their 95th confidence intervals.
 }
 \examples{
 

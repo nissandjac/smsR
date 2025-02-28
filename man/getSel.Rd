@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getSel}
 \alias{getSel}
-\title{Retrieve the fishing selectivity}
+\title{Fishing selectivity}
 \usage{
 getSel(df.tmb, sas)
 }
@@ -15,7 +15,7 @@ getSel(df.tmb, sas)
 returns a table of estimated fisheries selectivity
 }
 \description{
-Retrieve the fishing selectivity
+Retrieve the fishing selectivity from a fitted `smsR` object. The output from this function is scaled to the maximum selectivity per selectivity block.
 }
 \examples{
 ## ' Not Run

@@ -2,7 +2,7 @@
 % Please edit documentation in R/runAssessment.R
 \name{runAssessment}
 \alias{runAssessment}
-\title{run the assessment with the data and the estimated parameters}
+\title{Fit an smsR model}
 \usage{
 runAssessment(
   df.tmb,
@@ -32,8 +32,6 @@ model-specific parameters necessary for calculations.}
 \item{debug}{Use debugger to report output from initial parameters}
 
 \item{dll}{Optional. A string specifying the dynamic linked library (DLL) file to use for custom model configurations. Useful for specialized cases.}
-
-\item{save_all}{save all output or keep just SSB, R, Catch, and biomass}
 }
 \value{
 An smsR object containing:
@@ -41,14 +39,15 @@ An smsR object containing:
   \item{\code{opt}}{A list of estimated parameters from \link{nlminb} function.}
   \item{\code{reps}}{Output from the \link{sdreport} TMB function that contains standard deviations and hessian of model fit}
   \item{\code{obj}}{TMB object from \link{MakeADFun}. Contains the output using the initial parameter set}
-  \item{\code{dat}}{Input data file \link{df.tmb}for export}
+  \item{\code{dat}}{Input data file \link{df.tmb} for export}
 }
 }
 \description{
-run the assessment with the data and the estimated parameters
+run an smsR stock assessment with the data and the estimated parameters generated from \link{get_TMB_parameters} and \link{getParms} respectively.
 }
 \details{
 This function is a flexible interface for fitting stock assessment models using Template Model Builder (TMB). Users can customize parameter bounds, map specific parameters, and specify custom DLL files for advanced configurations. Diagnostics help ensure that the model converged properly and provide insights into the quality of the fit.
+The output from \link{runAssessment} can be used to retrieve estimated parameters and derived variables using other `smsR` functions.
 }
 \examples{
 \dontrun{
@@ -60,4 +59,7 @@ plot(results)
 
 }
 
+}
+\seealso{
+\code{\link{getSSB}}, \code{\link{getR}}, \code{\link{getCatch}}, \code{\link{getF}}
 }

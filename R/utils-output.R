@@ -11,7 +11,7 @@
 #' @return
 #' data frame of spawning stock biomass and 95\% confidence intervals.
 #' SE is standard error of log SSB
-#' @seealso [getR()] why are the brackets here
+#' @seealso \code{\link{getR()}}
 #' @examples
 #' SSB <- getSSB(df.tmb, sas)
 #' print(SSB)
@@ -37,7 +37,9 @@ getSSB <- function(df.tmb, sas) {
   return(SSB)
 }
 
-#' Get a data frame of the biomass of each age group
+#' Biomass at age
+#' @description
+#' Retrieves a data frame containing the biomass per age from an `smsR` stock assessment
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
@@ -46,7 +48,7 @@ getSSB <- function(df.tmb, sas) {
 #' [getSurvey()]
 #' @return
 #' data frame containing the biomass of each age group.
-#' low and high are the 95\% confidence intervals.
+#' low and high are in the 95\% confidence region.
 #' SE is standard error of log Biomass
 #' @export
 #'
@@ -86,7 +88,10 @@ getBiomass <- function(df.tmb, sas) {
   return(Biomass.df)
 }
 
-#' Get the total stock biomass
+#' Total stock biomass
+#' @description
+#' Export the total stock biomass summed over ages in the first season from a fitted `smsR` stock assessment
+#'
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
@@ -95,8 +100,10 @@ getBiomass <- function(df.tmb, sas) {
 #' data frame containing the biomass of each age group.
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log TSB
-#' @seealso [getR()],[getSSB()],[getYield()],[getF()],[getCatch()], [getBiomass()], [getN()], [getFbar()], [getCatchN()], [getCatchCV()],
-#' [getSurvey()]
+#' @seealso \code{\link{getR}}, \code{\link{getSSB}}, \code{\link{getYield}},
+#'   \code{\link{getF}}, \code{\link{getCatch}}, \code{\link{getBiomass}},
+#'   \code{\link{getN}}, \code{\link{getFbar}}, \code{\link{getCatchN}},
+#'   \code{\link{getCatchCV}}, \code{\link{getSurvey}}
 #' @export
 #'
 #' @examples
@@ -124,15 +131,20 @@ getTSB <- function(df.tmb, sas) {
 }
 
 
-#' Retrieve the total catch weight from a fitted smsR object. Standard unit is kg.
+#' Estimated catch
+#' @description
+#' Retrieve the total estimated catch weight from a fitted `smsR` object. Standard unit is kg.
 #'
 #' @param df.tmb input parameters from \code{\link{get_TMB_parameters}}
 #' @param sas fitted smsR object from \code{\link{runAssessment}}
 #'
 #' @return
 #' data frame containing the biomass of catch each year.
+#' @details
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log Catch
+#'
+#' @seealso  \code{\link{getYield}}, \code{\link{getCatchN}}
 #' @export
 #'
 #' @examples
@@ -162,13 +174,18 @@ getCatch <- function(df.tmb, sas) {
 }
 
 
-#' Get the survey catchability
+#' Survey catchability
+#' @details
+#' Exports a data frame of catchabilities from all the surveys in a fitted `smsR` model.
 #'
 #' @param df.tmb sms input parameters
 #' @param sas fitted model object
 #'
+#' @details
+#' Note that the scale of the catchability can vary based on input data.
+#'
 #' @return
-#' returns a table of survey catchability
+#' returns a data frame of survey catchability
 #' @export
 #'
 #' @examples
@@ -191,7 +208,9 @@ getCatchability <- function(df.tmb, sas) {
   return(tmp)
 }
 
-#' Retrieve the fishing selectivity
+#' Fishing selectivity
+#' @description
+#' Retrieve the fishing selectivity from a fitted `smsR` object. The output from this function is scaled to the maximum selectivity per selectivity block.
 #'
 #' @param df.tmb sms input parameters
 #' @param sas fitted sms model
@@ -231,14 +250,17 @@ getSel <- function(df.tmb, sas) {
 }
 
 
-#' Get a data frame of recruitment from a fitted model
+#' Estimated recruitment
+#' @description
+#' Get a data frame of estimated recruitment from a fitted `smsR` model.
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of recruitment.
-#' Last year is based on the Stock recruitment relationship.
+#' data frame of estimated recruitment.
+#' @details
+#' Last year is based on the Stock recruitment relationship chosen for the model fit. The estimated recruitment depends on the choice of recruitment season.
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log R
 
@@ -272,12 +294,16 @@ getR <- function(df.tmb, sas) {
 
 
 #' Get numbers at age from a fitted model
+#' @description
+#' Function to export the numbers (N) at age and season from a fitted `smsR` model
+#'
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
 #' @return
 #' data frame of Numbers at age.
+#' @details
 #' Last year is based on the expected survival from terminal year.
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log N
@@ -316,13 +342,16 @@ getN <- function(df.tmb, sas) {
 
 
 
-#' Get the number of catch individuals at age. Units are numbers.
+#' Get catch numbers
+#' @description
+#' Get the numbers at age in the catch per season and year. Units are numbers.
 #'
 #' @param df.tmb input parameters from \code{\link{get_TMB_parameters}}
 #' @param sas fitted smsR object from \code{\link{runAssessment}}
 #'
 #' @return
 #' data frame containing the numbers of individuals by age in the catch each year.
+#' @description
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log N
 #' @export
@@ -354,12 +383,14 @@ getCatchN <- function(df.tmb, sas) {
   return(tmp)
 }
 
-#' Get the observed yield from the fishery
+#' Fisheries yield
+#' @description
+#' Get the observed yield from the fishery. Calculated by multiplying the observed catch at age with the weight at age in the catch.
 #'
-#' @param df.tmb a list of parameters for smsR model
+#' @param df.tmb a list of parameters for smsR model from \link{get_TMB_parameters()}
 #'
 #' @return
-#' returns the observed catch at age
+#' returns the observed catches in kg
 #' @export
 #'
 #' @examples
@@ -375,14 +406,16 @@ getYield <- function(df.tmb) {
 }
 
 
-
-#' Get fishing mortality at age from fitted model
+#' Get fishing mortality
+#' @description
+#' Retrieve the fishing mortality at age per season and year from fitted `smsR` model
 #'
 #' @param df.tmb list of input parameters
-#' @param sas fitted smsR model
+#' @param sas fitted `smsR` model
 #'
 #' @return
 #' data frame of fishing mortality at age.
+#' @details
 #' Last year is based on the expected survival from terminal year.
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log F0
@@ -420,15 +453,19 @@ getF <- function(df.tmb, sas) {
   return(F0)
 }
 
-#' Get Fbar from a fitted smsR model
+#' Estimated Fbar
+#' @description
+#' Get the estimated `Fbar` (age averaged fishing mortality) from an fitted `smsR` model.
 #'
 #' @param df.tmb list of input parameters
 #' @param sas smsR fitted model
 #'
 #' @return
 #' data frame containing the average fishing mortality each year.
+#' @details
 #' low and high are the 95\% confidence intervals.
 #' SE is standard error of log Fbar
+#' Fbar depends on the age ranged specified in the  \code{\link{get_TMB_parameters}} call for `df.tmb`
 #' @export
 #'
 #' @examples
@@ -457,8 +494,9 @@ getFbar <- function(df.tmb, sas) {
   return(tmp)
 }
 
-#' Get the catch residuals
-#'
+#' Catch residuals
+#' @description
+#' Get the absolute catch residuals for a fitted `smsR` model.
 #' @param df.tmb list of input data for smsR object
 #' @param sas fitted stock assessment model for smsR
 #'
@@ -466,6 +504,10 @@ getFbar <- function(df.tmb, sas) {
 #'
 #' @return
 #' Returns a data frame of catch residuals
+#' @details
+#' To plot the CV scaled catch residuals see \code{\link{plotDiagnostics}}
+#'
+#' @seealso \code{\link{getResidSurvey}},\code{\link{plotDiagnostics}}
 #' @examples
 #'
 #' getResidCatch(df.tmb, sas)
@@ -497,13 +539,17 @@ getResidCatch <- function(df.tmb, sas) {
 }
 
 
-#' Get survey residuals from fitted model
+#' Survey residuals
+#' @description
+#' Get survey residuals from a fitted `smsR` model
 #'
 #' @param df.tmb list of input parameters
 #' @param sas fitted smsR model
 #'
 #' @return
-#' data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high are the 95\% confidence intervals
+#' data frame of absolute survey residuals
+#' @seealso \code{\link{getResidCatch}},\code{\link{plotDiagnostics}}
+
 #' @export
 #'
 #' @examples
@@ -535,7 +581,9 @@ getResidSurvey <- function(df.tmb, sas) {
 }
 
 
-#' Retrieve estimated parameters
+#' Estimated parameters
+#' @description
+#' Retrieve estimated parameters from a fitted `smsR` model with their associated uncertainty.
 #'
 #' @param sas stock assessment output from smsR
 #'
@@ -560,7 +608,8 @@ getEstimatedParms <- function(sas) {
 
 
 
-#' Retrieve estimated catch CV
+#' Catch CV
+#' Retrieve estimated catch CV from a fitted `smsR` model.
 #' @param df.tmb Input list for smsR data
 #' @param sas stock assessment output from smsR
 #'
@@ -574,7 +623,8 @@ getCatchCV <- function(df.tmb, sas) {
   sdrep <- summary(reps)
   rep.values <- rownames(sdrep)
 
-  tmp <- data.frame(catchCV = sdrep[rep.values == "SD_catch2", 1])
+  #tmp <- data.frame(catchCV = sdrep[rep.values == "SD_catch2", 1])
+  tmp <- data.frame(catchCV = sqrt(exp(sdrep[rep.values == "SD_catch2", 1]^2)-1))
   tmp$catchCV <- tmp$catchCV
   tmp$SE <- sdrep[rep.values == "SD_catch2", 2]
   tmp$low <- tmp$catchCV - 2 * tmp$SE
@@ -592,8 +642,8 @@ getCatchCV <- function(df.tmb, sas) {
 }
 
 
-#' Retrieve estimated parameters
-#'
+#' Survey CV
+#' Retrieve estimated survey CV from a fitted `smsR` model.
 #' @param sas stock assessment output from smsR
 #'
 #' @return
@@ -607,7 +657,7 @@ getSurveyCV <- function(df.tmb, sas) {
   rep.values <- rownames(sdrep)
   years <- df.tmb$years
 
-  tmp <- data.frame(surveyCV = sdrep[rep.values == "SDS", 1])
+  tmp <- data.frame(surveyCV = sqrt(exp(sdrep[rep.values == "SDS", 1]^2)-1))
 
   tmp$SE <- sdrep[rep.values == "SDS", 2]
   tmp$low <- tmp$surveyCV - 2 * tmp$SE
@@ -623,6 +673,8 @@ getSurveyCV <- function(df.tmb, sas) {
   return(surveyCV)
 }
 
+#' AIC
+#' @description
 #' Calculate AIC from smsR stock assessment object
 #'
 #' @param object Stock assesment object from smsR
@@ -648,12 +700,14 @@ AIC.sms <- function(object, p = 2, n = Inf, ...) {
   return(aic.sms)
 }
 
-# Extract the log likelihood of a sms model
-#
-# @return object of class \code{logLik} with attributes
-# \item{val}{log likelihood}
-# \item{nobs,nall}{number of non NA observations initially supplied to TMB}
-# \item{df}{number of parameters}
+#' Extract the log likelihood of a sms model
+#' @description
+#' Gets the log likelihood of a fitted `smsR` model
+#'
+#' @return object of class \code{logLik} with attributes
+#' \item{val}{log likelihood}
+#' \item{nobs,nall}{number of non NA observations initially supplied to TMB}
+#' \item{df}{number of parameters}
 #' @importFrom stats logLik
 #' @export
 logLik.sms <- function(object, ...) {
@@ -678,7 +732,9 @@ nobs.sms <- function(object, ...) {
 }
 
 
-#' Get summary of derived variables from fitted smsR object
+#' smsR summary data
+#' @description
+#' Get summary of derived variables from fitted smsR object including SSB, R, Yield, and Fbar, as well as their 95th confidence intervals.
 #'
 #' @param df.tmb list of input parameters for smsR object
 #' @param sas fitted smsR model
@@ -717,7 +773,10 @@ getSummary <- function(df.tmb, sas) {
   return(df.out)
 }
 
-#' Get the stock recruitment relationship
+#' Stock recruitment
+#' @description
+#'
+#' Get the estimated stock recruitment relationship from a fitted `smsR` model
 #'
 #' @param df.tmb data frame with input data
 #' @param sas fitted smsR model
@@ -866,9 +925,9 @@ getSelectivity <- function(df.tmb, sas) {
 #' cvs <- getSummaryCVs(df.tmb, sas, verbose = TRUE) # Don't print it
 #'
 getSummaryCVs <- function(df.tmb, sas, verbose = TRUE) {
-  ssb <- sas$reps$sd[names(sas$reps$value) == "logSSB"][1:df.tmb$nyears]
-  Fbar <- sas$reps$sd[names(sas$reps$value) == "logFavg"][1:df.tmb$nyears]
-  Rec <- sas$reps$sd[names(sas$reps$value) == "logRec"][1:df.tmb$nyears]
+  ssb <- sqrt(exp(sas$reps$sd[names(sas$reps$value) == "logSSB"][1:df.tmb$nyears]^2)-1)
+  Fbar <- sqrt(exp(sas$reps$sd[names(sas$reps$value) == "logFavg"][1:df.tmb$nyears]^2)-1)
+  Rec <- sqrt(exp(sas$reps$sd[names(sas$reps$value) == "logRec"][1:df.tmb$nyears]^2)-1)
 
 
 

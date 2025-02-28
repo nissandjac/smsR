@@ -35,7 +35,7 @@ getTAC <- function(df.tmb,
 
   N_temp <- as.numeric(sdrep[rep.values == 'term_logN_next',1])
 
-  #Rold <- getR(df.tmb, sas)[-df.tmb$nyears+1,]
+  Rold <- getR(df.tmb, sas)#[-df.tmb$nyears+1,]
 
   if(is.null(avg_R)){
     R.index <- df.tmb$years

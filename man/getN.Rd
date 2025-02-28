@@ -13,12 +13,14 @@ getN(df.tmb, sas)
 }
 \value{
 data frame of Numbers at age.
+}
+\description{
+Function to export the numbers (N) at age and season from a fitted `smsR` model
+}
+\details{
 Last year is based on the expected survival from terminal year.
 low and high are the 95\% confidence intervals.
 SE is standard error of log N
-}
-\description{
-Get numbers at age from a fitted model
 }
 \examples{
 N <- getN(df.tmb, sas)

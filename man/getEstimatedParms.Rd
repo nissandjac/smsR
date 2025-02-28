@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getEstimatedParms}
 \alias{getEstimatedParms}
-\title{Retrieve estimated parameters}
+\title{Estimated parameters}
 \usage{
 getEstimatedParms(sas)
 }
@@ -13,7 +13,7 @@ getEstimatedParms(sas)
 data frame of estimated parameters and their SE
 }
 \description{
-Retrieve estimated parameters
+Retrieve estimated parameters from a fitted `smsR` model with their associated uncertainty.
 }
 \examples{
 

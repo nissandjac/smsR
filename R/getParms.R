@@ -1,10 +1,15 @@
-#' Title
+#' get smsR parameters
+#' @description
+#' A function that lists the parameters to estimate in smsR by using an input value from \link{get_TMB_parameters}
+#'
 #'
 #' @param df.tmb input values for TMB file
 #' @param parms.true data frame of true parameters
 #'
 #' @return
 #' returns a set of parameters to estimate for an smsR model
+#'
+#' @seealso \code{\link{getParms}}
 #'
 #' @export
 #'
@@ -128,8 +133,9 @@ getParms <- function(df.tmb, parms.true = NULL) {
 
 
 
-#' Get a list of mapped parameters (not estimated)
-#'
+#' Map smsR parameters
+#' @description
+#' Retrieve a list of mapped parameters (not estimated) from an `smsR` dataset
 #' @param df.tmb list of tmb input data
 #' @param parms list of estimated parameters
 #' @param mapExtra vector of parameters to map
@@ -137,6 +143,8 @@ getParms <- function(df.tmb, parms.true = NULL) {
 #' @return
 #' returns a list of parameters to be mapped for smsR
 #' @export
+#'
+#' @seealso \code{\link{getParms}}
 #'
 #' @examples
 #'
@@ -152,11 +160,11 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
   }
 
 
-  if (df.tmb$estCV[2] == 2) {
+  if (df.tmb$estSD[2] == 2) {
     mps$SDcatch <- factor(parms$SDcatch * NA)
   }
 
-  if (df.tmb$estCV[3] == 2) {
+  if (df.tmb$estSD[3] == 2) {
     mps$logSDrec <- factor(parms$logSDrec * NA)
   }
 

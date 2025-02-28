@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_tmb_parameters.R
 \name{get_TMB_parameters}
 \alias{get_TMB_parameters}
-\title{Prepare data input for an smsR model}
+\title{Prepare Input Data for an smsR Model}
 \usage{
 get_TMB_parameters(
   mtrx = NULL,
@@ -49,10 +49,10 @@ get_TMB_parameters(
   M_min = 0,
   M_max = max(ages),
   scv = array(0, dim = c(length(ages), length(years), nsurvey)),
-  surveyCV = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
-  catchCV = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
+  surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
+  catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
   MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
-  estCV = c(0, 0, 0),
+  estSD = c(0, 0, 0),
   CVmin = c(0.2, 0.2, 0.2),
   betaSR = 0,
   nllfactor = rep(1, 3),
@@ -65,123 +65,136 @@ get_TMB_parameters(
 )
 }
 \arguments{
-\item{mtrx}{matrix containing weca, west, mat, and M}
+\item{mtrx}{Matrix containing life history parameters: `weca`, `west`, `mat`, and `M`.}
 
-\item{Surveyobs}{Survey observations}
+\item{Surveyobs}{Matrix of survey observations (numbers at age).}
 
-\item{Catchobs}{Catch observations}
+\item{Catchobs}{Matrix of catch observations (numbers at age).}
 
-\item{propM}{proportion M before spawning}
+\item{propM}{Proportion of natural mortality (`M`) occurring before spawning.}
 
-\item{propF}{proportion F before spawning}
+\item{propF}{Proportion of fishing mortality (`F`) occurring before spawning.}
 
-\item{years}{years with available data}
+\item{years}{Vector of years with available data.}
 
-\item{startYear}{start year of assessment (optional)}
+\item{startYear}{Optional. Start year of the assessment.}
 
-\item{endYear}{end year of assessment (optional)}
+\item{endYear}{Optional. End year of the assessment.}
 
-\item{nseason}{number of seasons}
+\item{nseason}{Number of seasons in the model.}
 
-\item{nsurvey}{number of surveys}
+\item{nsurvey}{Number of surveys included in the model.}
 
-\item{ages}{age span}
+\item{ages}{Vector specifying the age span of the data.}
 
-\item{Fbarage}{Ages to average F to Fbar}
+\item{Fbarage}{Vector of ages used to calculate the mean fishing mortality (`Fbar`).}
 
-\item{recseason}{recruitment season}
+\item{recseason}{Season in which recruitment occurs.}
 
-\item{Fminage}{minimum age to calculate F}
+\item{Fminage}{Minimum age used to calculate fishing mortality (`F`).}
 
-\item{Fmaxage}{Maximum age to calculate F}
+\item{Fmaxage}{Maximum age used to calculate fishing mortality (`F`).}
 
-\item{Qminage}{Minimum age included in survey}
+\item{Qminage}{Minimum age included in the survey data.}
 
-\item{Qmaxage}{Max age included in survey}
+\item{Qmaxage}{Maximum age included in the survey data.}
 
-\item{Qlastage}{Last age with unique survey selectivity}
+\item{Qlastage}{Last age with unique survey selectivity.}
 
-\item{isFseason}{seasons to calculate F}
+\item{isFseason}{Vector specifying seasons in which fishing mortality (`F`) is calculated.}
 
-\item{CminageSeason}{minimum age to use catchdata}
+\item{CminageSeason}{Minimum age for using catch data.}
 
-\item{CmaxageSeason}{Maximum age to use catchdata}
+\item{CmaxageSeason}{Maximum age for using catch data.}
 
-\item{endFseason}{Last season with fishing}
+\item{endFseason}{Last season in which fishing occurs.}
 
-\item{nocatch}{input matrix of 1 or 0 defining if F should be calculated}
+\item{nocatch}{Matrix (1/0) defining whether fishing mortality (`F`) should be calculated.}
 
-\item{useEffort}{Use nominal effort to calculate F}
+\item{useEffort}{Logical. If `TRUE`, nominal effort is used to calculate `F`.}
 
-\item{estimateCreep}{Estimate technological creep as a parameter. Needs useEffort = 1}
+\item{estimateCreep}{Logical. If `TRUE`, estimates technological creep as a parameter (requires `useEffort = TRUE`).}
 
-\item{effort}{matrix of nominal effort per season}
+\item{effort}{Matrix of nominal fishing effort per season.}
 
-\item{blocks}{unique selectivity blocks}
+\item{blocks}{Vector of unique selectivity blocks.}
 
-\item{surveyStart}{fraction into the season where the survey starts}
+\item{surveyStart}{Fraction into the season when the survey starts.}
 
-\item{surveyEnd}{fraction into the season where the survey ends}
+\item{surveyEnd}{Fraction into the season when the survey ends.}
 
-\item{surveySeason}{season where survey occurs}
+\item{surveySeason}{Season in which the survey occurs.}
 
-\item{leavesurveyout}{vector of 1 and 0 to exclude surveys}
+\item{leavesurveyout}{Vector (1/0) indicating which surveys to exclude.}
 
-\item{minSDsurvey}{minimum CV of survey}
+\item{minSDsurvey}{Minimum coefficient of variation (CV) for survey data.}
 
-\item{minSDcatch}{minimum CV of catch}
+\item{minSDcatch}{Minimum CV for catch data.}
 
-\item{maxSDcatch}{Maximum CV of catch}
+\item{maxSDcatch}{Maximum CV for catch data.}
 
-\item{peneps}{parameter for regulating minimum CV for survey}
+\item{peneps}{Parameter regulating the minimum CV for surveys.}
 
-\item{penepsC}{parameter for regulating minimum CV of catch}
+\item{penepsC}{Parameter regulating the minimum CV for catch data.}
 
-\item{penepsCmax}{parameter for regulating maximum CV of catch}
+\item{penepsCmax}{Parameter regulating the maximum CV for catch data.}
 
-\item{Mprior}{Prior SD on M deviations from the first year of the time series}
+\item{Mprior}{Prior standard deviation (SD) for `M` deviations from the first year of the time series.}
 
-\item{SDMprior}{prior on M CV}
+\item{SDMprior}{Prior SD for `M` CV estimation.}
 
-\item{powers}{apply powerlaw for density dependent survey observations}
+\item{powers}{Logical. If `TRUE`, applies a power-law function for density-dependent survey observations.}
 
-\item{Pred_in}{Matrix of input predators for MICE}
+\item{Pred_in}{Matrix of predator inputs for MICE modeling.}
 
-\item{M_min}{minimum age for time varying M}
+\item{M_min}{Minimum age included in the time-varying `M` estimation.}
 
-\item{M_max}{maximum age for time varying M}
+\item{M_max}{Maximum age included in the time-varying `M` estimation.}
 
-\item{scv}{add time varying survey CV (input matrix)}
+\item{scv}{Matrix specifying time-varying survey CV.}
 
-\item{surveyCV}{survey cv grouping}
+\item{surveySD}{Grouping variable for survey SD.}
 
-\item{catchCV}{catch cv grouping}
+\item{catchSD}{Grouping variable for catch SD.}
 
-\item{MCV}{Age distribution of time varying M CV}
+\item{MCV}{Age distribution of the CV for time-varying `M`.}
 
-\item{estCV}{which CVs to estimate as parameters}
+\item{estSD}{Vector indicating which deviation parameters to estimate.}
 
-\item{CVmin}{minimum CVs}
+\item{CVmin}{Minimum CV values for estimation.}
 
-\item{betaSR}{hockey stick break point}
+\item{betaSR}{Hockey-stick model breakpoint parameter.}
 
-\item{nllfactor}{negative log likelihood weighting}
+\item{nllfactor}{Weighting factor for the negative log-likelihood.}
 
-\item{randomF}{try random effect fishing mortality}
+\item{randomF}{Logical. If `TRUE`, fishing mortality (`F`) is treated as a random effect.}
 
-\item{randomM}{Random effect estimating time varying M}
+\item{randomM}{Logical. If `TRUE`, natural mortality (`M`) is estimated as a time-varying random effect.}
 
-\item{randomR}{Estimate R deviations as a random efffect}
+\item{randomR}{Logical. If `TRUE`, recruitment deviations are estimated as a random effect.}
 
-\item{recmodel}{recruitment model}
+\item{recmodel}{Recruitment model specification. Options:
+- `1`: Hockey-stick model with input breakpoint (`betaSR`).
+- `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
+- `3`: Beverton-Holt model.}
 
-\item{nenv}{Number of environemntal covariates on  R}
+\item{nenv}{Number of environmental covariates affecting recruitment.}
 }
 \value{
-returns a
+A list containing all required input data for the smsR model.
 }
 \description{
-Prepare data input for an smsR model
+This function prepares the necessary input data for an `smsR` model.
+ Required input are `mtrx`, `Surveyobs`,`Catchobs`, and `year`.
+ Note that the dimensions of the input data needs to be consistent with year, season and ages.
+}
+\details{
+The required inputs include:
+  - `mtrx`: A matrix containing life history parameters (i.e,, `weca`, `west`, `mat`, `M`).
+  - `Catchobs`: A matrix of observed catch numbers at age.
+  - `Surveyobs`: A matrix of observed survey numbers at age.
+
+Additionally, the user must specify the `years` corresponding to the input data.
 }
 \examples{
 get_TMB_parameters(
@@ -190,5 +203,4 @@ get_TMB_parameters(
   Catchobs = sandeel_1r$Catch,
   years = 1983:2022
 ) # Not run
-
 }

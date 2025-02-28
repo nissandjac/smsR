@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getR}
 \alias{getR}
-\title{Get a data frame of recruitment from a fitted model}
+\title{Estimated recruitment}
 \usage{
 getR(df.tmb, sas)
 }
@@ -12,13 +12,15 @@ getR(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of recruitment.
-Last year is based on the Stock recruitment relationship.
-low and high are the 95\% confidence intervals.
-SE is standard error of log R
+data frame of estimated recruitment.
 }
 \description{
-Get a data frame of recruitment from a fitted model
+Get a data frame of estimated recruitment from a fitted `smsR` model.
+}
+\details{
+Last year is based on the Stock recruitment relationship chosen for the model fit. The estimated recruitment depends on the choice of recruitment season.
+low and high are the 95\% confidence intervals.
+SE is standard error of log R
 }
 \examples{
 R <- getR(df.tmb, sas)

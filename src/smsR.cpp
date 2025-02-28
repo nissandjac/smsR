@@ -91,7 +91,7 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(Mat); // Maturity
   DATA_ARRAY(effort); // Effort input
 // //
-  DATA_IARRAY(catchCV); // Ages included in catch variation
+  DATA_IARRAY(catchSD); // Ages included in catch variation
 //
 // // // Recruitment
   DATA_INTEGER(recmodel); // Which recruitment model?
@@ -99,7 +99,7 @@ Type objective_function<Type>::operator() ()
   //DATA_SCALAR(beta); // Beta parameter for recruitment
   //DATA_SCALAR(logSDrec); // Recruitment deviations
   DATA_VECTOR(nllfactor); // weight of likelihood functions
-  DATA_IVECTOR(estCV); // Determine which SDs are calculated or estimated
+  DATA_IVECTOR(estSD); // Determine which SDs are calculated or estimated
    // Parameters
   PARAMETER_VECTOR(logRin); // Recruitment
   PARAMETER_VECTOR(logNinit); // Initial distribution
@@ -778,7 +778,7 @@ for(int time=0;time<(nyears);time++){ // No catches in last year
 }
 //
 // // Calculate catch CV internally
-int ncatch = catchCV.rows();
+int ncatch = catchSD.rows();
 int astart = 0;
 int aend = 1;
 // // //
@@ -789,16 +789,16 @@ array<Type> sumx2(ncatch,nseason);
 
 REPORT(ncatch)
 
-if(estCV(1) == 2){
+if(estSD(1) == 2){
   for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
   //
      for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
 
-      astart = catchCV(k,qrts);
+      astart = catchSD(k,qrts);
       if(k == (ncatch-1)){
         aend = nage;
       }else{
-        aend = catchCV(k+1, qrts);
+        aend = catchSD(k+1, qrts);
       }
 
        for(int time=0;time<(nyears);time++){ // No catches in last year
@@ -824,15 +824,15 @@ array<Type>SD_catch2(nage, nseason);
 
 SD_catch2.setZero();
 
-if(estCV(1) == 2){ // Calculate the catch CV
+if(estSD(1) == 2){ // Calculate the catch CV
   for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
     for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
-      astart = catchCV(k,qrts);
+      astart = catchSD(k,qrts);
 
       if(k == (ncatch-1)){
         aend = nage;
       }else{
-        aend = catchCV(k+1, qrts);
+        aend = catchSD(k+1, qrts);
       }
 
       for(int i=astart;i<aend;i++){
@@ -856,7 +856,7 @@ Type penSDcatchmax;
 penSDcatchmax = 0;
 
 
-if(estCV(1) == 0){ // Estimate
+if(estSD(1) == 0){ // Estimate
   // Fix CV of catches
    Type tmpdiffC; //temporarily store SDsurvey-minSDsurvey
   Type tmpdiffCmax; //temporarily store SDsurvey-minSDsurvey
@@ -915,26 +915,26 @@ if(estCV(1) == 0){ // Estimate
   // for(int k=0;k<(ncatch);k++){ // Loop over number of catch CVs
   //   for(int qrts=0;qrts<(nseason);qrts++){
   //
-  //     astart = catchCV(k,qrts);
+  //     astart = catchSD(k,qrts);
   //
   //     if(k == (ncatch-1)){
   //       aend = nage;
   //     }else{
-  //       aend = catchCV(k+1, qrts);
+  //       aend = catchSD(k+1, qrts);
   //     }
   //
   //     for(int i=astart;i<aend;i++){
   //         SDR_catch2(i,qrts) = SDcatch(k);
   //         }
 
-      // if(i < catchCV(0,qrts)){
+      // if(i < catchSD(0,qrts)){
       // SDR_catch2(i,qrts) = Type(0.0);
       // }
-      // if( (i >= catchCV(0,qrts)) && (i < catchCV(1,qrts)) ){
+      // if( (i >= catchSD(0,qrts)) && (i < catchSD(1,qrts)) ){
       //  SDR_catch2(i,qrts) = SDcatch(i,qrts);
       // }
-      // if(i >= (catchCV(1,qrts))){
-      // SDR_catch2(i,qrts) = SDcatch(catchCV(1,qrts),qrts);
+      // if(i >= (catchSD(1,qrts))){
+      // SDR_catch2(i,qrts) = SDcatch(catchSD(1,qrts),qrts);
       // }
   //   }
   // }
@@ -1032,7 +1032,7 @@ for(int i=0;i<nyears;i++){ // Loop over years
 // //
 Type SDrec2;
 
-if(estCV(2) == 2){// Calculate the standard deviation of recruitment
+if(estSD(2) == 2){// Calculate the standard deviation of recruitment
   SDrec2 = (((nyears*resid_x2)-pow(resid_x,2))/pow(nyears,2))*SDrec;
   // =(no*sumx2-square(sumx))/square(no);
 

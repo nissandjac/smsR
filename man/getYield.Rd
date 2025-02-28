@@ -2,18 +2,18 @@
 % Please edit documentation in R/utils-output.R
 \name{getYield}
 \alias{getYield}
-\title{Get the observed yield from the fishery}
+\title{Fisheries yield}
 \usage{
 getYield(df.tmb)
 }
 \arguments{
-\item{df.tmb}{a list of parameters for smsR model}
+\item{df.tmb}{a list of parameters for smsR model from \link{get_TMB_parameters()}}
 }
 \value{
-returns the observed catch at age
+returns the observed catches in kg
 }
 \description{
-Get the observed yield from the fishery
+Get the observed yield from the fishery. Calculated by multiplying the observed catch at age with the weight at age in the catch.
 }
 \examples{
 

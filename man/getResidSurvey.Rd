@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getResidSurvey}
 \alias{getResidSurvey}
-\title{Get survey residuals from fitted model}
+\title{Survey residuals}
 \usage{
 getResidSurvey(df.tmb, sas)
 }
@@ -12,13 +12,16 @@ getResidSurvey(df.tmb, sas)
 \item{sas}{fitted smsR model}
 }
 \value{
-data frame of fishing mortality at age. Last year is based on the expected survival from terminal year. low and high are the 95\% confidence intervals
+data frame of absolute survey residuals
 }
 \description{
-Get survey residuals from fitted model
+Get survey residuals from a fitted `smsR` model
 }
 \examples{
 res <- getResidSurvey(df.tmb, sas)
 print(res)
 
+}
+\seealso{
+\code{\link{getResidCatch}},\code{\link{plotDiagnostics}}
 }
