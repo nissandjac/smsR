@@ -21,9 +21,9 @@ df.tmb <- get_TMB_parameters(
   surveyStart = c(0.75,0), # Portion of season elapsed at start of survey
   surveyEnd =  c(1,0), # Portion of season elapsed at end of survey
   surveySeason = c(2,1), # Season in which each survey occurs
-  surveyCV =  list(c(0,1),c(1,2)), # Survey age groupings for CV estimates
-  catchCV = list(c(1,3), c(1,3)), # Catch age groupings for CV estimates
-  estCV = c(0,2,0), # Flags for how to handle CVs for 1) survey, 2) catch, 3) Stock recruitment relationship
+  surveySD =  list(c(0,1),c(1,2)), # Survey age groupings for CV estimates
+  catchSD = list(c(1,3), c(1,3)), # Catch age groupings for CV estimates
+  estSD = c(0,2,0), # Flags for how to handle CVs for 1) survey, 2) catch, 3) Stock recruitment relationship
   beta = 105809, # Assumed hockey stick break point (SSB)
   nllfactor = c(1,1,0.05) # Weights of 3 log-likelihood components
 
@@ -32,7 +32,7 @@ df.tmb <- get_TMB_parameters(
 parms <- getParms(df.tmb)
 sas <- runAssessment(df.tmb, parms)
 
-tmp <- getForecastTable(df.tmb, sas, TACold = 120428, Btarget = 140824, Fcap = 0.36, TACtarget = 5000,
+tmp <- getForecastTable(df.tmb, sas, TACold = 120428, Btarget = 140824, Flimit = 0.36, TACtarget = 5000,
                  avg_R = df.tmb$years[1:(df.tmb$nyears-1)])
 
 

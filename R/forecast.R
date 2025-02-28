@@ -505,7 +505,7 @@ getForecastTable <- function(df.tmb,
 
 
   if(is.null(TACtarget) != 1){
-    F_tac <- calcFTAC(TACtarget, df.tmb, N_current,Fsel, Fcap)
+    F_tac <- calcFTAC(TACtarget, df.tmb, N_current,Fsel, Flimit)
     F_tac_f <- forecast.sms(df.tmb, N_current, F_tac*Fsel)
     F_tac_name <- 'Obs TAC'
   }else{

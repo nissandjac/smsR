@@ -50,7 +50,7 @@
 #'   - `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
 #'   - `3`: Beverton-Holt model.
 #' @param estSD Vector indicating which deviation parameters to estimate.
-#' @param CVmin Minimum CV values for estimation.
+#' @param SDmin Minimum CV values for estimation.
 #' @param betaSR Hockey-stick model breakpoint parameter.
 #' @param nllfactor Weighting factor for the negative log-likelihood.
 #' @param randomF Logical. If `TRUE`, fishing mortality (`F`) is treated as a random effect.
@@ -134,7 +134,7 @@ get_TMB_parameters <- function(
     catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
     MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
     estSD = c(0, 0, 0),
-    CVmin = c(0.2, 0.2, 0.2),
+    SDmin = c(0.2, 0.2, 0.2),
     betaSR = 0,
     nllfactor = rep(1, 3),
     randomF = 0,
@@ -707,7 +707,7 @@ get_TMB_parameters <- function(
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estSD = estSD,
-    CVmin = CVmin,
+    SDmin = SDmin,
     betaSR = betaSR,
     nllfactor = nllfactor,
     randomF = randomF,

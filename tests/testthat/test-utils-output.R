@@ -21,16 +21,16 @@ df.tmb <- get_TMB_parameters(
   surveyStart = c(0.75,0), # Portion of season elapsed at start of survey
   surveyEnd =  c(1,0), # Portion of season elapsed at end of survey
   surveySeason = c(2,1), # Season in which each survey occurs
-  surveyCV =  list(c(0,1),c(1,2)), # Survey age groupings for CV estimates
-  catchCV = list(c(1,3), c(1,3)), # Catch age groupings for CV estimates
-  estCV = c(0,2,0), # Flags for how to handle CVs for 1) survey, 2) catch, 3) Stock recruitment relationship
+  surveySD =  list(c(0,1),c(1,2)), # Survey age groupings for CV estimates
+  catchSD = list(c(1,3), c(1,3)), # Catch age groupings for CV estimates
+  estSD = c(0,2,0), # Flags for how to handle CVs for 1) survey, 2) catch, 3) Stock recruitment relationship
   beta = 105809, # Assumed hockey stick break point (SSB)
   nllfactor = c(1,1,0.05) # Weights of 3 log-likelihood components
 
 )
 
 parms <- getParms(df.tmb)
-sas <- runAssessment(df.tmb, parms, save_all = TRUE, debug = TRUE)
+sas <- runAssessment(df.tmb, parms, debug =TRUE)
 
 
 test_that('getSSB works', {
@@ -125,13 +125,13 @@ test_that('getEstimatedparms works', { # Check to see if parameter estimation ch
 
 test_that('getCatchCV works', { # Check to see if parameter estimation changes
   ccv <- getCatchCV(df.tmb,sas)
-  expect_equal(sum(ccv$catchCV),6.200394, tolerance = .001)
+  expect_equal(sum(ccv$catchCV),8.122033, tolerance = .001)
 
 })
 
 test_that('getsurveyCV works', { # Check to see if parameter estimation changes
   scv <- getSurveyCV(df.tmb,sas)
-  expect_equal(sum(scv$surveyCV),2.66516, tolerance = .001)
+  expect_equal(sum(scv$surveyCV),2.900315, tolerance = .001)
 
 })
 
@@ -182,7 +182,7 @@ test_that('getSelectivity works', { # Check to see if parameter estimation chang
 
 test_that('getSummaryCVs works', { # Check to see if parameter estimation changes
   sel <- getSummaryCVs(df.tmb,sas)
-  expect_equal(as.numeric(colMeans(sel[,2:4])),c(0.17900121, 0.08852804, 0.23261650) , tolerance = .001)
+  expect_equal(as.numeric(colMeans(sel[,2:4])),c(0.18051279, 0.08870318, 0.23611421) , tolerance = .001)
 
 })
 

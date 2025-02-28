@@ -1,7 +1,7 @@
 #' Prepare parameters for an operating model using a fitted sms model
 #' @param df.tmb list of smsR input data
 #' @param sas fitted smsR stock assessment
-#' @param surveySD CV on survey
+#' @param surveySD SD on survey
 #' @param recruitment Type of recruitment function shape
 #' @param nspace number of spatial cells
 #' @param moveinit Initial distribution in spatial cells (must add to 1)
