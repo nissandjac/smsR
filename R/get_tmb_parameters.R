@@ -146,10 +146,11 @@ get_TMB_parameters <- function(
   # Remove surveys for sensitivity analysis
 
    if (sum(leavesurveyout) != nsurvey) {
+
     Surveyobs <- Surveyobs[, , leavesurveyout == 1, drop = FALSE]
     Qminage <- Qminage[leavesurveyout == 1]
     Qmaxage <- Qmaxage[leavesurveyout == 1]
-  #  Qlastage <- Qlastage[leavesurveyout == 1]
+    Qlastage <- Qlastage[leavesurveyout == 1]
     powers <- powers[leavesurveyout == 1]
     surveySD <- surveySD[leavesurveyout == 1]
     nsurvey <- sum(leavesurveyout)

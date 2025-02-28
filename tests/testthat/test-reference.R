@@ -42,3 +42,7 @@ test_that('getForecastTable works', {
   expect_equal(tmp$Forecast$`Total Catch (2022)`[1], 16816.01) # Throw an error if NA
 
 })
+
+
+
+
