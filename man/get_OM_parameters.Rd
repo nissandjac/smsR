@@ -22,7 +22,7 @@ get_OM_parameters(
 
 \item{sas}{fitted smsR stock assessment}
 
-\item{surveySD}{CV on survey}
+\item{surveySD}{SD on survey}
 
 \item{recruitment}{Type of recruitment function shape}
 

@@ -53,7 +53,7 @@ get_TMB_parameters(
   catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
   MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
   estSD = c(0, 0, 0),
-  CVmin = c(0.2, 0.2, 0.2),
+  SDmin = c(0.2, 0.2, 0.2),
   betaSR = 0,
   nllfactor = rep(1, 3),
   randomF = 0,
@@ -161,7 +161,7 @@ get_TMB_parameters(
 
 \item{estSD}{Vector indicating which deviation parameters to estimate.}
 
-\item{CVmin}{Minimum CV values for estimation.}
+\item{SDmin}{Minimum CV values for estimation.}
 
 \item{betaSR}{Hockey-stick model breakpoint parameter.}
 

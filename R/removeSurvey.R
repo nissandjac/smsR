@@ -1,9 +1,11 @@
-#' Plot a comparison of stock assessments when removing surveys
+#' Remove survey
+#' @description
+#' Remove a survey from a fitted `smsR` model, and rerun the assessment. This function will output a figure that compares the SSB with all surveys enabled, and removing them one by one.
+#'
 #'
 #' @param sas fitted smsR model
-#' @param parms optional parameters
 #'
-#' @return returns a figure
+#' @return returns a figure of fitted SSB with and without the added surveys
 #' @export
 #'
 #' @examples
@@ -14,7 +16,7 @@
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #' @importFrom patchwork plot_layout
 #'
-removeSurvey <- function(sas, parms = NULL){
+removeSurvey <- function(sas){
 
   df.new <- sas$dat
   dat.sum <- getSummary(sas$dat, sas) %>% dplyr::mutate(surveys = 'all')

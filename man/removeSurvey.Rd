@@ -2,20 +2,18 @@
 % Please edit documentation in R/removeSurvey.R
 \name{removeSurvey}
 \alias{removeSurvey}
-\title{Plot a comparison of stock assessments when removing surveys}
+\title{Remove survey}
 \usage{
-removeSurvey(sas, parms = NULL)
+removeSurvey(sas)
 }
 \arguments{
 \item{sas}{fitted smsR model}
-
-\item{parms}{optional parameters}
 }
 \value{
-returns a figure
+returns a figure of fitted SSB with and without the added surveys
 }
 \description{
-Plot a comparison of stock assessments when removing surveys
+Remove a survey from a fitted `smsR` model, and rerun the assessment. This function will output a figure that compares the SSB with all surveys enabled, and removing them one by one.
 }
 \examples{
 p1 <-  removeSurvey(sas) #
