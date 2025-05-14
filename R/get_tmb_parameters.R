@@ -157,19 +157,6 @@ get_TMB_parameters <- function(
     surveySeason <- surveySeason[leavesurveyout == 1]
   }
 
-
-  if(length(Pred_in) == 1){
-    nalphaM <- length(MCV[[1]])
-  }else{
-    nalphaM <- nrow(Pred_in)
-  }
-
-  if(randomM == 1 & all(is.na(Pred_in))){
-    nalphaM_CV <- 1
-  }else{
-    nalphaM_CV <- nrow(Pred_in)
-  }
-
   nsurvey <- dim(Surveyobs)[3]
   if (nsurvey == 0) {
     warning("probably doesnt work without survey")
@@ -235,31 +222,34 @@ get_TMB_parameters <- function(
   Qidx.CV <- Qidx.CV - 1 # Scale to c++ indexing
 
 
-  # Fix the survey CV groups
+  # Fix the M2 groups
+
 
   if(randomM == 1){
 
-    Midx.CV <- matrix(0, nage, nalphaM_CV)
-    no <- 1
+    if(M_max < max(MCV)){
+      warning('discepancy between max M and M groups')
+    }
+
+    Midx.CV <- matrix(0, nage, 1)
+    mobs <- 1
     maxage <- max(ages)
 
-
-    for (k in 1:nalphaM_CV) {
-    tmpCV <- MCV[[k]] + 1 # Go from age to index
+    tmpCV <- MCV + 1 # Go from age to index
     vec <- rep(0, nage)
 
     if (length(tmpCV) == 1) {
-      vec[tmpCV:(maxage + 1)] <- no
-      no <- no + 1
+      vec[tmpCV:(maxage + 1)] <- mobs
+      mobs <- mobs + 1
     } else {
       for (i in 1:(length(tmpCV))) {
         if (i < length(tmpCV)) {
           tmp.idx <- tmpCV[i]:(tmpCV[i + 1] - 1)
-          vec[tmp.idx] <- no
-          no <- no + 1
+          vec[tmp.idx] <- mobs
+          mobs <- mobs + 1
         } else {
-          vec[tmpCV[length(tmpCV)]:(tmpCV[i] + 1)] <- no
-          no <- no + 1
+          vec[tmpCV[length(tmpCV)]:(tmpCV[i] + 1)] <- mobs
+          mobs <- mobs + 1
         }
       }
 
@@ -268,20 +258,16 @@ get_TMB_parameters <- function(
 
     # Expand the tmp CV into a nage length  vector
 
-    rm.idx <- which(0:maxage < M_min[k] | 0:maxage > M_max[k])
+    rm.idx <- which(0:maxage < MCV[1] | 0:maxage > M_max)
     vec[rm.idx] <- -98
-    Midx.CV[, k] <- vec
-  }
+    Midx.CV <- vec
 
 
-  Midx.CV <- Midx.CV - 1 # Scale to c++ indexing
-
-  M_nparms <- length(unique(Midx.CV[Midx.CV > -1]))
-
+    Midx.CV <- as.matrix(Midx.CV) - 1 # Scale to c++ indexing
   }else{
-    Midx.CV <- matrix(1, 1)
-    M_nparms <- 1
+    Midx.CV <- matrix(1, 1) # Just so the model runs. Fix with nicer code later
   }
+
 
   nyear <- length(years)
   # Turn the block into an index
@@ -588,7 +574,7 @@ get_TMB_parameters <- function(
   dimnames(Catchobs) <- dnames
 
   if(is.null(dimnames(Surveyobs))){
-  dnames <- list(ages = ages, years = c(years), seasons = 1:nsurvey)
+  dnames <- list(ages = ages, year = c(years), survey = 1:nsurvey)
   dimnames(Surveyobs) <- dnames
   }
   # Some other things
@@ -646,7 +632,7 @@ get_TMB_parameters <- function(
 
  # Fill environmental matrix with 0's if its not there
   env_matrix <- matrix(0,  nenv,length(years))
-  M_matrix <- matrix(0, nalphaM, length(years))
+  M_matrix <- matrix(0, 1, length(years))
 
 
 
@@ -703,8 +689,7 @@ get_TMB_parameters <- function(
     penepsCmax = penepsCmax,
     Mprior = Mprior,
     SDMprior = SDMprior,
-    nalphaM = nalphaM,
-    M_nparms = M_nparms,
+   # nalphaM = nalphaM,
     powers = powersexp,
     recmodel = recmodel, # 1 is hockey stick
     estSD = estSD,
@@ -714,6 +699,7 @@ get_TMB_parameters <- function(
     randomF = randomF,
     randomR = randomR,
     randomM = randomM,
+    nrandM =  length(unique(Midx.CV[Midx.CV > -1])),
     nenv = nenv,
     env_matrix = env_matrix,# Number of environmental parameters,
     M_matrix = M_matrix

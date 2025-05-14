@@ -144,7 +144,7 @@ read.sam.data <- function(wd){
   M2.age <- scan(file.path(wd,'nm.dat'), skip = 3, nlines=1, quiet = TRUE)
   M2.age <- M2.age[1]:M2.age[2]
 
-  M2 <- read.table(file.path(wd, 'nm.dat'), skip = 5)
+  M2 <- as.matrix(read.table(file.path(wd, 'nm.dat'), skip = 5))
   colnames(M2) <- M2.age
 
   if(M2.age[1] >0){
@@ -206,9 +206,9 @@ read.sam.data <- function(wd){
 
   for(i in 1:nsurvey){
     s.ages <- slist[[i]]$age
-    s.years <- slist[[i]]$yr
+    s.year <- slist[[i]]$yr
     for(k in 1:length(s.ages)){
-    surv.out[ages == s.ages[k], years %in% s.years, i] <- as.numeric(slist[[i]]$surv[,k])
+    surv.out[ages == s.ages[k], years %in% s.year, i] <- as.numeric(slist[[i]]$surv[,k])
     }
   }
 

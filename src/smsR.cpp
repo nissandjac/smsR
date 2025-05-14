@@ -40,7 +40,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(nyears); // Number of years
   DATA_INTEGER(nsurvey); // Number of surveys
   DATA_INTEGER(nenv); // number of environemtnal covariates
-  DATA_INTEGER(nalphaM); // Number of external predators
+  DATA_INTEGER(nrandM); // Number of external predators
   //DATA_INTEGER(nMext); // Number of unique age groupings for external predator s
   DATA_INTEGER(recseason); // Season where recruitment occurs
   DATA_INTEGER(Fminage);
@@ -51,7 +51,6 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(randomF); // Random walk on F
   DATA_INTEGER(randomR); // Random walk on R
   DATA_INTEGER(randomM); // Random walk on M
-  DATA_INTEGER(M_nparms); // Number of M variances and estimates
   DATA_INTEGER(debug); // Flag for saving REPORT output
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
@@ -119,7 +118,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(logSDM); // M time varying
   PARAMETER_VECTOR(env);
   PARAMETER_ARRAY(ext_M); // External natural mortality
-  PARAMETER_VECTOR(alphaM); // MICE input of external predators or other mortality inducing things
+  //PARAMETER_VECTOR(alphaM); // MICE input of external predators or other mortality inducing things
   PARAMETER(logR0);
   PARAMETER(logh);
 
@@ -142,7 +141,7 @@ array<Type>p(nage,nsurvey);
 array<Type>Fagein(nage, nyears);
 //array<Type>SDR_catch(nage, nyears);
 array<Type>env_in(nenv,nyears);
-array<Type>M_in(nalphaM, nyears);
+array<Type>M_in(nrandM, nyears);
 array<Type>M_new(nage, nyears,nseason);
 
 vector<Type>SSB(nyears+1);
@@ -227,36 +226,55 @@ for(int time=0;time<nyears;time++){
 
 if(randomM == 1){
 
-  if(nalphaM >0){
-  // Retransform and set up for model
-  for(int k=0;k<nalphaM;k++){
-    for(int time=0;time<nyears;time++){
-      for(int i=0;i<(nage);i++){ //
-        M_in(k,time) = alphaM(k)*M_matrix(k,time);
-      }
-    }
-  }
-}
-
-  for(int time=0;time<nyears;time++){
-    for(int k=0;k<nalphaM;k++){
-      M_tot(time) += M_in(k,time);
-    }
-  }
+//   if(nalphaM >0){
+//   // Retransform and set up for model
+//   for(int k=0;k<nalphaM;k++){
+//     for(int time=0;time<nyears;time++){
+//       for(int i=0;i<(nage);i++){ //
+//         M_in(k,time) = alphaM(k)*M_matrix(k,time);
+//       }
+//     }
+//   }
+// }
+//
+//   for(int time=0;time<nyears;time++){
+//     for(int k=0;k<nalphaM;k++){
+//       M_tot(time) += M_in(k,time);
+//     }
+//   }
+//
+//   for(int time=0;time<nyears;time++){
+//     for(int i=0;i<(nage);i++){ //
+//       if(Midx_CV(i) > -1){
+//         if(time == 0){
+//           M_new(i,time,0) = M(i,time,0)*exp(ext_M(time,Midx_CV(i))+M_tot(time));
+//         }else{
+//           M_new(i,time,0) = M_new(i, time-1,0)*exp(ext_M(time,Midx_CV(i))+M_tot(time));
+//         }
+//       }else{
+//         M_new(i,time,0) = M(i,time,0);
+//       }
+//     }
+//   }
 
   for(int time=0;time<nyears;time++){
     for(int i=0;i<(nage);i++){ //
       if(Midx_CV(i) > -1){
         if(time == 0){
-          M_new(i,time,0) = M(i,time,0)*exp(ext_M(time,Midx_CV(i))+M_tot(time));
+          M_new(i,time,0) = M(i,time,0)*exp(ext_M(time,Midx_CV(i)));
         }else{
-          M_new(i,time,0) = M_new(i, time-1,0)*exp(ext_M(time,Midx_CV(i))+M_tot(time));
+          M_new(i,time,0) = M_new(i, time-1,0)*exp(ext_M(time,Midx_CV(i)));
         }
       }else{
         M_new(i,time,0) = M(i,time,0);
       }
     }
   }
+
+
+
+
+
 }else{
   for(int time=0;time<nyears;time++){
     for(int i=0;i<(nage);i++){ //
@@ -1160,20 +1178,19 @@ Type ansM = 0.0;
 if(randomM == 1){
 
   for(int time=0;time<(nyears);time++){ // Loop over years
-    for(int i=0;i<M_nparms;i++){ // Loop over ages
+    for(int i=0;i<nrandM;i++){ // Loop over ages
   //  ansM += -dnorm(M_new(0,time,0), M_new(0,time-1,0), SDM, true);
     ansM += -dnorm(ext_M(time, i), Type(0.0), SDM(i), true);
   }
 }
 
-for(int i=0;i<M_nparms;i++){ // Loop over ages
+for(int i=0;i<nrandM;i++){ // Loop over ages
   ansM += -dnorm(SDM(i), Type(0.4), Type(SDMprior), true); // Penalty for deviations from initial year
 }
 
   for(int time=0;time<(nyears);time++){ // Loop over years
     ansM += -dnorm(M_new(Midx_CV(0),time,0), M(Midx_CV(0),time,0), Type(Mprior), true); // Penalty for deviations from initial year
       }
-
 
 //  ansM += dnorm(SDM, Type(0.2), Type(0.01), true);
 }

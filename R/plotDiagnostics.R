@@ -135,6 +135,11 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
 
     s.tmp <- survey %>% dplyr::filter(survey == snames[i])
 
+
+    if(names(s.tmp)[1] == 'ages'){
+      names(s.tmp)[1] = 'age'
+      }
+
     ages <- unique(s.tmp$age)
 
     for (j in 1:(length(ages) - 1)) {
@@ -400,7 +405,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
 
   # stock recrurtment
 
-
+  if(df.tmb$recmodel == 1){
   SR_pred <- getSR(df.tmb, sas)
   R <- getR(df.tmb, sas)
   SSB <- getSSB(df.tmb, sas)
@@ -418,7 +423,9 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
     scale_y_continuous("Recruitment (1e8)") +
     coord_cartesian(ylim = lims / 1e8)
 
-
+  }else{
+    p10 <- NULL
+  }
   # Retro fits
 
 

@@ -50,11 +50,6 @@ getParms <- function(df.tmb, parms.true = NULL) {
     nenv = df.tmb$nenv
   }
 
-  if(df.tmb$nalphaM == 0){
-    nalphaM <- 1
-  }else{
-    nalphaM <- df.tmb$nalphaM
-  }
 
 
   parms <- list(
@@ -72,10 +67,9 @@ getParms <- function(df.tmb, parms.true = NULL) {
     logbeta = log(betaSR),
     logSDrec = log(1),
     logSDF = log(0.2),
-    logSDM = log(rep(0.2, nalphaM)),
+    logSDM = log(rep(0.2, df.tmb$nrandM)),
     env = rep(0, nenv),
-    ext_M = matrix(0, ncol = nalphaM, nrow = df.tmb$nyears),
-    alphaM = rep(0, nalphaM),
+    ext_M = matrix(0, ncol = df.tmb$nrandM, nrow = df.tmb$nyears),
     logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
     logh = log(0.5)
   )
@@ -204,14 +198,11 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
   if(df.tmb$randomM == 0){
     mps$ext_M <- factor(parms$ext_M * NA)
     mps$logSDM <- factor(NA)
-    mps$alphaM <- factor(NA * parms$alphaM)
+   # mps$alphaM <- factor(NA * parms$alphaM)
 
   }
 
 
-  if(all(is.na(df.tmb$Pred_in))){
-    mps$alphaM <- factor(NA * parms$alphaM)
-  }
 
 
   mps$logh <- factor(parms$logh * NA)
@@ -222,10 +213,6 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
 
   }
 
-
-  if(df.tmb$nalphaM == 0){
-    mps$alphaM <- factor(rep(factor(NA),1))
-  }
 
 
 

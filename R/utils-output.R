@@ -819,8 +819,8 @@ getSR <- function(df.tmb, sas) {
 
     SRstock <- sdrep[rep.values == "logalpha", 1]
     SE <- (sdrep[rep.values == "logalpha", 2])
-    low <- SRstock - 2 * SE
-    high <- SRstock + 2 * SE
+    mins <- SRstock - 2 * SE
+    maxs <- SRstock + 2 * SE
 
 
   }
