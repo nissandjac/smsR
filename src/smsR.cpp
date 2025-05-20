@@ -260,24 +260,19 @@ if(randomM == 1){
 if(isPredator > 0){
       for(int time=0;time<nyears;time++){
         for(int i=0;i<(nage);i++){ //
-          if(Midx_CV(i) > -1){
             for(int pred =0;pred<isPredator;pred++){
-
-            if(pred == 0){
-            M_new(i,time,0) = M(i,time,0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
-          }else{
-            M_new(i,time,0) += M_new(i, time, 0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
+              if(Midx_CV(i,pred) > -1){
+                if(pred == 0){
+                  M_new(i,time,0) = M(i,time,0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
+                }else{
+                  M_new(i,time,0) += M_new(i, time, 0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
+                }
+            }else{
+                M_new(i,time,0) = M(i,time,0);
+            }
           }
-        // }else{
-        //   M_new(i,time,0) = M_new(i, time-1,0)*exp(Pred_in(time) * gam_M(Midx_CV(i)));
-        // }
-        }
-      }else{
-          M_new(i,time,0) = M(i,time,0);
-        }
         }
       }
-
 }
 
   //   if(nalphaM >0){
@@ -1223,6 +1218,15 @@ for(int time=0;time<(nyears);time++){ // Loop over years
 
 //  ansM += dnorm(SDM, Type(0.2), Type(0.01), true);
 }
+
+if(isPredator > 0){
+  for(int time=0;time<(nyears);time++){ // Loop over years
+    for(int i=0;i<(nage);i++){ // Loop over years
+      ansM += -dnorm(M_new(i,time,0), M(i,time,0), Type(Mprior), true); // Penalty for deviations from initial year
+      }
+    }
+}
+
 
 // Do a penalty for too low ansM
 
