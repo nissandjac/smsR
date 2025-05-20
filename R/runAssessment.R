@@ -121,6 +121,7 @@ runAssessment <- function(df.tmb,
   lower[names(lower) == 'logSDM'] <- log(0.01)
   lower[names(lower) == 'ext_M'] <- -.5
   lower[names(lower) == 'alphaM'] <- 0.00001
+  #lower[names(lower) == 'gam_M'] <- 0
   #lower[names(lower) == 'logalpha'] <- log(max(df.tmb$Catchobs))
 
 

@@ -126,7 +126,7 @@ get_TMB_parameters <- function(
     Mprior = 0.5,
     SDMprior = 0.2,
     powers = list(NA),
-    Pred_in = NA,
+    Pred_in = matrix(0),
     M_min = 0,
     M_max = max(ages),
     scv = array(0, dim = c(length(ages), length(years), nsurvey)),
@@ -267,6 +267,73 @@ get_TMB_parameters <- function(
   }else{
     Midx.CV <- matrix(1, 1) # Just so the model runs. Fix with nicer code later
   }
+
+  if(randomM == 1 & length(Pred_in) > 1){stop('Random walk M and MICE does not work currently')}
+
+
+  if(length(MCV) > 1){
+
+    if(length(M_max) == 1){
+      M_max <- rep(M_max, length(MCV))
+    }
+
+  }
+
+
+  if(length(MCV) > 1){
+
+    if(length(M_min) != length(MCV)){
+      for(j in 1:length(MCV)){
+      M_min[j] <- MCV[[j]][1]
+      }
+    }
+  }
+
+
+
+
+  if(length(Pred_in) > 1){
+
+    Midx.CV <- matrix(0, nage, length(MCV))
+    mobs <- 1
+    maxage <- max(ages)
+
+    for (k in 1:length(MCV)) {
+      tmpCV <- MCV[[k]] + 1 # Go from age to index
+      vec <- rep(0, nage)
+
+      if (length(tmpCV) == 1) {
+        vec[tmpCV:(maxage + 1)] <- mobs
+        mobs <- mobs + 1
+      } else {
+        for (i in 1:(length(tmpCV))) {
+          if (i < length(tmpCV)) {
+            tmp.idx <- tmpCV[i]:(tmpCV[i + 1] - 1)
+            vec[tmp.idx] <- mobs
+            mobs <- mobs + 1
+          } else {
+            vec[tmpCV[length(tmpCV)]:(tmpCV[i] + 1)] <- mobs
+            mobs <- mobs + 1
+          }
+        }
+
+        vec[max(tmpCV):nage] <- vec[max(tmpCV)]
+      }
+
+      # Expand the tmp CV into a nage length  vector
+
+      rm.idx <- which(0:maxage < M_min[k] | 0:maxage > M_max[k])
+      vec[rm.idx] <- -98
+      Midx.CV[, k] <- vec
+    }
+
+
+    Midx.CV <- as.matrix(Midx.CV) - 1 # Scale to c++ indexing
+
+
+
+  }
+
 
 
   nyear <- length(years)
@@ -635,6 +702,14 @@ get_TMB_parameters <- function(
   M_matrix <- matrix(0, 1, length(years))
 
 
+  # Predator flag
+  if(length(Pred_in) >  1){
+    isPredator <- ncol(Pred_in)
+  }else{
+    isPredator <- 0
+  }
+
+
 
   df.tmb <- list(
     weca = weca,
@@ -688,6 +763,7 @@ get_TMB_parameters <- function(
     penepsC = penepsC,
     penepsCmax = penepsCmax,
     Mprior = Mprior,
+    isPredator = isPredator,
     SDMprior = SDMprior,
    # nalphaM = nalphaM,
     powers = powersexp,
