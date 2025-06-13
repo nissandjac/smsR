@@ -17,7 +17,7 @@ getFmsy <- function(sas,
                     stochastic = FALSE) {
   #  Number
   df.tmb <- sas$dat
-  years <- 1:sas$dat$nyears
+  years <- 1:nyears
   nyears <- length(years)
 
 
@@ -25,6 +25,8 @@ getFmsy <- function(sas,
   mat <- array(df.tmb$Mat[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   weca <- array(df.tmb$weca[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   west <- array(df.tmb$west[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
+  propM <- array(df.tmb$propM[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
+  propF <- array(df.tmb$propF[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
 
   Fselin <- getSelectivity(df.tmb, sas)
   #Fselin <- Fselin[Fselin$block == max(Fselin$block),]
@@ -60,25 +62,37 @@ getFmsy <- function(sas,
   } else {
     alphaSR <- NA
     betaSR <- NA
-    R0 <- exp(parms.est$value[parms.est$parameter == "logalpha"])
+    R0 <- exp(parms.est$value[parms.est$parameter == "logR0"])
   }
 
+  if(sas$dat$nenv >0){
 
+    beta_env <- sas$reps$par.fixed[names(sas$reps$par.fixed) == 'env']
+
+    # For environmental input, repeat the last year
+    env <- matrix(df.tmb$env_matrix[df.tmb$nyears], ncol = df.tmb$nenv, nrow = nyears)
+
+  }else{
+    env <- NULL
+    beta_env <- NULL
+  }
 
   # Survey catchability
   Q <- getCatchability(df.tmb, sas)
   Q <- array(Q$Q, dim = c(df.tmb$nage, df.tmb$nsurvey), )
   Q[is.na(Q)] <- 0
 
+
+
   df.fmsy <- list(
     years = years,
     nseason = df.tmb$nseason,
     age = df.tmb$age,
     nage = length(df.tmb$age),
-    Fin = matrix(0, length(years), df.tmb$nseason),
+    F0 = matrix(0, length(years), df.tmb$nseason),
     Fsel = Fsel,
-    propM = df.tmb$propM,
-    propF = df.tmb$propF,
+    propM = propM,
+    propF = propF,
     M = M,
     mat = mat,
     weca = weca,
@@ -99,7 +113,10 @@ getFmsy <- function(sas,
     Rin = NA,
     move = FALSE,
     R0 = R0,
-    SDR = 0,
+    h = exp(-0.6931472), # Fix this later. need to find it in 'sas'
+    logSDR = log(0),
+    beta_env = beta_env,
+    env = env,
     alpha = alphaSR,
     b = rep(0, length(years))
   )
@@ -107,10 +124,10 @@ getFmsy <- function(sas,
 
   tmp0 <- run.agebased.sms.op(df.fmsy)
 
-  Fmsyin <- seq(0.01 / max(Fselin$Fsel), 2 / max(Fselin$Fsel), length.out = 50) # scale to selectivity
+  Fmsyin <- seq(0.01 / max(Fselin$selec), 2 / max(Fselin$selec), length.out = 50) # scale to selectivity
 
   for (i in 1:length(Fmsyin)) {
-    df.fmsy$Fin <- matrix(Fmsyin[i], length(years), df.tmb$nseason)
+    df.fmsy$F0 <- matrix(Fmsyin[i], length(years), df.tmb$nseason)
 
     tmp <- run.agebased.sms.op(df.fmsy)
 

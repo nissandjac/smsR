@@ -265,7 +265,7 @@ if(isPredator > 0){
                 if(pred == 0){
                   M_new(i,time,0) = M(i,time,0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
                 }else{
-                  M_new(i,time,0) += M_new(i, time, 0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
+                  M_new(i,time,0) = M_new(i, time, 0)*exp(Pred_in(time,pred) * gam_M(Midx_CV(i,pred)));
                 }
             }else{
                 M_new(i,time,0) = M(i,time,0);

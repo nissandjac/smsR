@@ -16,7 +16,7 @@
 #' @examples
 #'getTAC(df.tmb, sas, HCR = 'Bescape')
 #'
-getTAC <- function(df.tmb,
+getTAC <- function(df.tmb = NULL,
                      sas,
                      recruitment = 'mean',
                      HCR = 'Bescape',
@@ -27,7 +27,9 @@ getTAC <- function(df.tmb,
                      ){
 
   # Extract N in the beginning of the coming year
-
+  if(is.null(df.tmb)){
+   df.tmb <- sas$dat
+  }
   # Get the estimated survey
   reps <- sas$reps
   sdrep <- summary(reps)
@@ -54,8 +56,8 @@ getTAC <- function(df.tmb,
     SSB0 <- sas$reps$value[names(sas$reps$value) == 'SSB0']
     # assumme steepness is mapped for now
     h <- exp(sas$obj$env$parList()$logh)
-    env <- sas$reps$par.fixed[names(sas$reps$par.fixed) == 'env']
-    env_tot <- sum(df.tmb$env_new * env)
+    beta_env <- sas$reps$par.fixed[names(sas$reps$par.fixed) == 'env']
+    env_tot <- sum(df.tmb$env_new * beta_env)
     N_temp[1] <- log((4*h*R0*SSB/(as.numeric(SSB0)*(1-h)+ SSB*(5*h-1)))*exp(-0.5*SDR+env_tot))
   }
 
@@ -204,7 +206,7 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
           N_future[df.tmb$nage] <- N_future[df.tmb$nage]+N_current[i,qrts]*exp(-Z[i,qrts])
         }
       }
-        if(mat[1,1]>0){
+        if(i == 0 & mat[1,1]>0){
           warning('new recruits not included in SSB for forecasted year')
         }
          SSB_next <- sum(N_future*weca[,1]*mat[,1])

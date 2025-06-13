@@ -1,17 +1,24 @@
-#' Run a full age based model as operating model for SMS
+#' Forecast the operating model with nyear amount of years. Useful for MSE applications
 #'
-#' @param df list of parameters and life history values
+#' @param df # List of historical OM parameters
+#' @param nyear  # Number of years to forecast
+#' @param Fnew # Fishing mortality to forecast
+#' @param env_new # Environmental input
+#' @param Ninit # Numbers at age from the last year in the historical OM
+#' @param stochastic # Should recruitment deviations be stochastic?
+#' @param seed # Option to set seed
 #'
 #' @return
-#' returns a list of derived and calculated values
 #' @export
 #'
 #' @examples
-#' run.agebased.true.catch(df) # runs the model
-#'
-run.agebased.sms.op <- function(df,
-                                seed = NULL,
-                                OM = NULL) {
+forecast_op <- function(df,
+                        Ninit,
+                        nyear = 1,
+                        Fnew = matrix(.2, nrow = df$nseason, ncol = nyear),
+                        env_new = NULL,
+                        stochastic = FALSE,
+                        seed = NULL){
 
   if(is.null(seed) == 1){
     set.seed(round(runif(1, min = 1, max = 1e6),digits = 0))
@@ -19,34 +26,32 @@ run.agebased.sms.op <- function(df,
     set.seed(seed)
   }
 
+  if(is.matrix(Fnew) == FALSE){
+    Fnew <- matrix(Fnew)
+  }
+
+  if(is.matrix(env_new) == FALSE){
+    env_new <- matrix(env_new)
+  }
+
+
   nseason <- df$nseason
-
-  df$tEnd <- length(df$years) * nseason
-  nyear <- df$tEnd / df$nseason #
-  year <- df$years
-  tEnd <- nyear * nseason
-
-  # Catchability
-
-  # Maturity
+  tEnd <- df$nseason * df$nyear
+  # Only 1
+  # Make all the matrices two dimensional to save space
   mat <- df$mat # Fecundity
-  mat[is.na(mat)] <- 0
-
-
+  if(is.null(dim(mat)) == FALSE){
+    mat <- mat[,tEnd]
+  }
   # Mortality
   M <- df$M
-  M[is.na(M)] <- 0 # Remove NA's
-
+  if(is.null(dim(M)) == FALSE){
+  M <- M[,tEnd]
+  }
   # Weight
-  weca <- df$weca
-  weca[is.na(weca)] <- 0
+  weca <- df$weca[,tEnd]
+  west <- df$west[,tEnd]
 
-  west <- df$west
-  west[is.na(west)] <- 0
-
-  # Fishing mortality
-  F0 <- df$F0
-  F0[is.na(F0)] <- 0
   # Age
   nage <- df$nage
   age <- df$age
@@ -66,25 +71,21 @@ run.agebased.sms.op <- function(df,
 
   #
   if (length(dim(M)) != 4) {
-    M <- array(M, dim = c(nage, nyear + 1, 1, nseason))
+    M <- array(M, dim = c(nage, nyear , 1, nseason))
   }
 
   if (length(dim(weca)) != 4) {
-    weca <- array(weca, dim = c(nage, nyear + 1, 1, nseason))
+    weca <- array(weca, dim = c(nage, nyear , 1, nseason))
   }
 
   if (length(dim(west)) != 4) {
-    west <- array(west, dim = c(nage, nyear + 1, 1, nseason))
+    west <- array(west, dim = c(nage, nyear , 1, nseason))
   }
 
   if (length(dim(mat)) != 4) {
-    mat <- array(mat, dim = c(nage, nyear + 1, 1, nseason))
+    mat <- array(mat, dim = c(nage, nyear , 1, nseason))
   }
 
-
-  if (length(dim(F0)) != 4) {
-    F0 <- array(F0, dim = c(nage, nyear, 1, nseason))
-  }
 
   selin <- df$Fsel
 
@@ -121,23 +122,24 @@ run.agebased.sms.op <- function(df,
   nspace <- df$nspace
 
   # Initialize for saving
+  year <- df$years[tEnd ]+ 1
   year_1 <- c(year, max(year) + 1)
 
   SSB <- matrix(NA, nyear, nspace,
-    dimnames = list(
-      year = df$years,
-      space = 1:nspace
-    )
+                dimnames = list(
+                  year = year,
+                  space = 1:nspace
+                )
   )
   SSB.all <- array(NA,
-    dim = c(nyear, nspace, nseason),
-    dimnames = list(year = year, space = 1:nspace, season = 1:nseason)
+                   dim = c(nyear, nspace, nseason),
+                   dimnames = list(year = year, space = 1:nspace, season = 1:nseason)
   )
   SSB.weight <- matrix(NA, nyear, nspace,
-    dimnames = list(year = year, space = 1:nspace)
+                       dimnames = list(year = year, space = 1:nspace)
   )
   Biomass.save <- matrix(NA, nyear, nspace,
-    dimnames = list(year = year, space = 1:nspace)
+                         dimnames = list(year = year, space = 1:nspace)
   )
   Catch <- matrix(NA, nyear, dimnames = list(year = year))
   Catch.age <- matrix(NA, nage, nyear, dimnames = list(age = age, year = year))
@@ -152,17 +154,17 @@ run.agebased.sms.op <- function(df,
     season = 1:nseason
   ))
   Fout.save <- array(NA,
-    dim = c(nyear, nseason, nspace),
-    dimnames = list(year = year, season = 1:nseason, space = 1:nspace)
+                     dim = c(nyear, nseason, nspace),
+                     dimnames = list(year = year, season = 1:nseason, space = 1:nspace)
   )
 
   N.save.age <- array(0,
-    dim = c(nage, nyear + 1, nspace, nseason),
-    dimnames = list(age = age, year = year_1, space = 1:nspace, season = 1:nseason)
+                      dim = c(nage, nyear + 1, nspace, nseason),
+                      dimnames = list(age = age, year = year_1, space = 1:nspace, season = 1:nseason)
   )
   N.save.age.mid <- array(NA,
-    dim = c(nage, nyear + 1, nspace, nseason),
-    dimnames = list(age = age, year = year_1, space = 1:nspace, season = 1:nseason)
+                          dim = c(nage, nyear + 1, nspace, nseason),
+                          dimnames = list(age = age, year = year_1, space = 1:nspace, season = 1:nseason)
   )
   R.save <- matrix(NA, nyear, nspace)
   V.save <- array(NA, dim = c(nyear, nspace, nseason), dimnames = list(
@@ -175,12 +177,12 @@ run.agebased.sms.op <- function(df,
 
 
   Catch.save.age <- array(0,
-    dim = c(nage, nyear, nspace, nseason),
-    dimnames = list(age = age, year = year, space = 1:nspace, season = 1:nseason)
+                          dim = c(nage, nyear, nspace, nseason),
+                          dimnames = list(age = age, year = year, space = 1:nspace, season = 1:nseason)
   )
   CatchN.save.age <- array(0,
-    dim = c(nage, nyear, nspace, nseason),
-    dimnames = list(age = age, year = year, space = 1:nspace, season = 1:nseason)
+                           dim = c(nage, nyear, nspace, nseason),
+                           dimnames = list(age = age, year = year, space = 1:nspace, season = 1:nseason)
   )
 
   survey <- array(NA, dim = c(nage, nyear, df$nsurvey)) # ,
@@ -211,8 +213,8 @@ run.agebased.sms.op <- function(df,
   ))
 
   age_comps_OM <- array(NA,
-    dim = c(nage, nyear, nspace, nseason),
-    dimnames = list(age = age, year = year, space = 1:nspace, season = 1:nseason)
+                        dim = c(nage, nyear, nspace, nseason),
+                        dimnames = list(age = age, year = year, space = 1:nspace, season = 1:nseason)
   )
 
   Z.save <- array(NA, dim = c(df$nage, nyear, nspace, nseason), dimnames = list(
@@ -220,32 +222,18 @@ run.agebased.sms.op <- function(df,
     season = 1:nseason
   ))
 
-  Z.save[, 1, 1, 1] <- M[, 1, 1, 1]
-  Catch.age[, 1] <- 0 # Assumed no fishing before data started
-  Catch[1] <- 0
-
-  CatchN[1] <- 0
-  CatchN.age[, 1] <- 0
-
-  survey[1] <- 1 # Surveys start later
 
   idx.save <- seq(1, tEnd, by = nseason)
 
   # Distribute over space
-  if (is.null(df$Ninit)) {
-    Ninit <- N0
-  } else {
-    Ninit <- df$Ninit
-  }
-  # p.save <-matrix(NA,tEnd)
 
   if(is.null(df$rec.space)){
-      df$rec.space <- rep(1/df$nspace, df$nspace)
+    df$rec.space <- rep(1/df$nspace, df$nspace)
   }
 
 
 
-
+# Fix later for spatial forecasts
   for (space in 1:nspace) {
     # if (season == 1){
     N.save.age[, 1, space, 1] <- Ninit / nspace # Just to initialize
@@ -268,7 +256,9 @@ run.agebased.sms.op <- function(df,
 
 
 
-  for (yr in 1:(nyear)) { # Loop over years add one year for initial distribution
+    for (yr in 1:(nyear)) { # Loop over years add one year for initial distribution
+
+
 
     w_catch <- weca[, yr, , , drop = FALSE]
     w_catch[is.na(w_catch)] <- 0
@@ -288,21 +278,16 @@ run.agebased.sms.op <- function(df,
     for (season in 1:nseason) {
       for (space in 1:nspace) {
 
-         if (df$Fmodel == "est") {
-          Fseason <- F0[, yr, space, season]
-        }
 
-        if (df$Fmodel == "sim") {
-          Fseason <- df$F0[yr, season] * sel[, 1, space, season]
-        }
+          Fseason <- Fnew[yr, season] * sel[, 1, space, season]
 
         if (season == 1) {
           SSB.weight[yr, space] <- sum(N.save.age[, yr, space, 1] * w_ssb[, , space, season] *
-            mat.year[, 1, space, season] * exp(-(Myear[, 1, space, season] * df$propM[, yr, season] + Fseason * df$propF[, yr, season])), na.rm = TRUE)
+                                         mat.year[, 1, space, season] * exp(-(Myear[, 1, space, season] * df$propM[, yr, season] + Fseason * df$propF[, yr, season])), na.rm = TRUE)
           SSB[yr, space] <- SSB.weight[yr, space] # sum(N.save.age[,yr,space,1]*Mat.sel, na.rm = TRUE)
 
           SSB.all[1, space, 1] <- sum(N.save.age[, 1, space, 1] * mat.year[, 1, space, season] *
-            exp(-(Myear[, 1, space, season] * df$propM[, yr, season] + Fseason * df$propF[, yr, season])), na.rm = TRUE)
+                                        exp(-(Myear[, 1, space, season] * df$propM[, yr, season] + Fseason * df$propF[, yr, season])), na.rm = TRUE)
         }
 
         if (season == df$rseason) { # Recruitment season
@@ -319,7 +304,7 @@ run.agebased.sms.op <- function(df,
 
             if (SSB[yr, space] >= df$betaSR) {
               R <- log(df$R0)
-            #  print(R)
+              #  print(R)
             }
 
             R <- exp(R)
@@ -375,9 +360,22 @@ run.agebased.sms.op <- function(df,
 
 
           if (df$recruitment == "BH_env") {
-            err <- rnorm(1, mean = 0, sd = exp(df$logSDR))
 
-            env_tot <- sum(df$beta_env*df$env[yr,])
+            if(stochastic == TRUE){
+            SDR <- exp(df$logSDR)
+            err <- rnorm(1, mean = 0, sd = SDR)
+            print(err)
+
+
+            }else{
+            SDR <- 0
+            err <- rnorm(1, mean = 0, sd = SDR)
+
+            }
+
+            #
+
+            env_tot <- sum(df$beta_env*env_new[yr,])
 
             R <- (4*df$h*R0*SSB[yr,space]/(SSB_0*(1-df$h)+ SSB[yr,space]*(5*df$h-1)))*
               exp(-0.5*exp(df$logSDR)+err+env_tot)
@@ -468,7 +466,7 @@ run.agebased.sms.op <- function(df,
             Nin.tmp <- N.save.age[1:(nage - 2), yr, spaceidx[k], season] * exp(-Z[1:(nage - 2)]) * (movemat[1:(nage - 2), yr, spaceidx[k], season]) * space_multiplier ## add the ones come to the surrounding areas
 
             Nin.plus.tmp <- (N.save.age[nage - 1, yr, spaceidx[k], nseason] * exp(-Z[nage - 1]) +
-              N.save.age[nage, yr, spaceidx[k], nseason] * exp(-Z[nage])) *
+                               N.save.age[nage, yr, spaceidx[k], nseason] * exp(-Z[nage])) *
               (movemat[nage, yr, spaceidx[k], season]) * space_multiplier # Incoming
 
 
@@ -488,7 +486,7 @@ run.agebased.sms.op <- function(df,
             Nin # add the ones come to the surrounding areas
           # Plus group
           Nsurvive.plus <- (N.save.age[nage - 1, yr, space, nseason] * exp(-Z[nage - 1]) +
-            N.save.age[nage, yr, space, nseason] * exp(-Z[nage]))
+                              N.save.age[nage, yr, space, nseason] * exp(-Z[nage]))
 
           Nout.plus <- Nsurvive.plus * (movemat[nage, yr, space, season]) # Leaving
 
@@ -567,20 +565,8 @@ run.agebased.sms.op <- function(df,
         }
       }
 
-
-
-      #
-      #     survey[,yr,surv] <- N.save.age[,yr,,df$surveySeason[surv]]*
-      #       exp(-.5*Z.save[,yr,space,df$surveySeason[surv]])*df$Q[,surv]*exp(rnorm(df$nage, mean =0, sd = 0.3)) # Change this
-
-
       survey[survey == 0] <- -1 # For TMB
     }
-
-
-
-    # Ntot.year <- Nsurv
-
 
 
     for (space in 1:nspace) {
@@ -617,16 +603,6 @@ run.agebased.sms.op <- function(df,
   }
 
 
-
-
-  # Add names to output
-  year_1 <- c(df$years, max(df$years + 1))
-
-  # Calulate Fbar
-
-
-  # Fbar <- colSums(apply(Fseason.save[2:3,,1,], MARGIN = 2, colMeans))
-
   Fbar <- rep(0, nyear)
 
   for (time in 1:nyear) {
@@ -634,11 +610,6 @@ run.agebased.sms.op <- function(df,
 
     Fbar[time] <- sum(Fseason.save[(df$Fbarage[1] + 1):(df$Fbarage[2] + 1), time, , ]) / (df$Fbarage[2] - df$Fbarage[1] + 1)
   }
-
-
-
-
-
 
   df.out <- list(
     N.save = Nsave,
