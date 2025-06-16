@@ -5,7 +5,7 @@
 \title{Forecast an sms model}
 \usage{
 getTAC(
-  df.tmb,
+  df.tmb = NULL,
   sas,
   recruitment = "mean",
   HCR = "Bescape",

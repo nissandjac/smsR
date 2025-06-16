@@ -45,7 +45,7 @@ get_TMB_parameters(
   Mprior = 0.5,
   SDMprior = 0.2,
   powers = list(NA),
-  Pred_in = NA,
+  Pred_in = matrix(0),
   M_min = 0,
   M_max = max(ages),
   scv = array(0, dim = c(length(ages), length(years), nsurvey)),

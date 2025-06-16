@@ -1,17 +1,30 @@
-#' Forecast the operating model with nyear amount of years. Useful for MSE applications
+#' Forecast an smsR Operating Model (OM)
 #'
-#' @param df # List of historical OM parameters
-#' @param nyear  # Number of years to forecast
-#' @param Fnew # Fishing mortality to forecast
-#' @param env_new # Environmental input
-#' @param Ninit # Numbers at age from the last year in the historical OM
-#' @param stochastic # Should recruitment deviations be stochastic?
-#' @param seed # Option to set seed
+#' Simulates future population dynamics using the operating model for a given number of years.
+#' Commonly used in Management Strategy Evaluation (MSE) frameworks.
 #'
-#' @return
+#' @param df List containing historical OM parameters (e.g., mortality, selectivity, maturity).
+#' @param nyear Integer. Number of years to forecast.
+#' @param Fnew Numeric or vector. Fishing mortality to apply in the forecast years.
+#' @param env_new Optional environmental input(s) used in forecasting (e.g., temperature, productivity).
+#' @param Ninit Numeric vector. Numbers-at-age in the last year of the historical OM (used to initialize forecast).
+#' @param stochastic Logical. Should recruitment deviations be stochastic? Defaults to \code{FALSE}.
+#' @param seed Optional integer. Random seed for reproducibility if \code{stochastic = TRUE}.
+#'
+#' @return A list containing forecasted operating model outputs, such as numbers-at-age, SSB, recruitment, and catch.
+#'
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' # Forecast 10 years with fixed F
+#' out <- forecast_om(df = om_data, nyear = 10, Fnew = 0.2, Ninit = N_last_year)
+#'
+#' # Forecast with stochastic recruitment and environmental input
+#' out <- forecast_om(df = om_data, nyear = 20, Fnew = rep(0.2, 20),
+#'                    env_new = env_proj, Ninit = N_last_year,
+#'                    stochastic = TRUE, seed = 123)
+#' }
 forecast_op <- function(df,
                         Ninit,
                         nyear = 1,
