@@ -377,7 +377,7 @@ forecast_op <- function(df,
             if(stochastic == TRUE){
             SDR <- exp(df$logSDR)
             err <- rnorm(1, mean = 0, sd = SDR)
-            print(err)
+            #print(err)
 
 
             }else{
