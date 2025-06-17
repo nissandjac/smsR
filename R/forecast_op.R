@@ -27,7 +27,7 @@
 #' }
 forecast_op <- function(df,
                         Ninit,
-                        nyear = 1,
+                        nyear = 2,
                         Fnew = matrix(.2, nrow = df$nseason, ncol = nyear),
                         env_new = NULL,
                         stochastic = FALSE,
@@ -43,9 +43,14 @@ forecast_op <- function(df,
     Fnew <- matrix(Fnew)
   }
 
+  # if(length(Fnew) < nyear){
+  #   Fnew matrix(rep(Fnew, nyear))
+  # }
+
   if(is.matrix(env_new) == FALSE){
     env_new <- matrix(env_new)
   }
+
 
 
   nseason <- df$nseason
@@ -84,19 +89,19 @@ forecast_op <- function(df,
 
   #
   if (length(dim(M)) != 4) {
-    M <- array(M, dim = c(nage, nyear , 1, nseason))
+    M <- array(M, dim = c(nage, nyear+1 , 1, nseason))
   }
 
   if (length(dim(weca)) != 4) {
-    weca <- array(weca, dim = c(nage, nyear , 1, nseason))
+    weca <- array(weca, dim = c(nage, nyear+1 , 1, nseason))
   }
 
   if (length(dim(west)) != 4) {
-    west <- array(west, dim = c(nage, nyear , 1, nseason))
+    west <- array(west, dim = c(nage, nyear +1, 1, nseason))
   }
 
   if (length(dim(mat)) != 4) {
-    mat <- array(mat, dim = c(nage, nyear , 1, nseason))
+    mat <- array(mat, dim = c(nage, nyear+1 , 1, nseason))
   }
 
 
@@ -135,7 +140,7 @@ forecast_op <- function(df,
   nspace <- df$nspace
 
   # Initialize for saving
-  year <- df$years[tEnd ]+ 1
+  year <- df$years[tEnd ]:(df$years[tEnd ]+nyear-1)
   year_1 <- c(year, max(year) + 1)
 
   SSB <- matrix(NA, nyear, nspace,
@@ -265,10 +270,6 @@ forecast_op <- function(df,
   }
 
 
-
-
-
-
     for (yr in 1:(nyear)) { # Loop over years add one year for initial distribution
 
 
@@ -292,7 +293,7 @@ forecast_op <- function(df,
       for (space in 1:nspace) {
 
 
-          Fseason <- Fnew[yr, season] * sel[, 1, space, season]
+          Fseason <- Fnew[1,season] * sel[, 1, space, season] # Fnew is always assumed the same in this forecast
 
         if (season == 1) {
           SSB.weight[yr, space] <- sum(N.save.age[, yr, space, 1] * w_ssb[, , space, season] *
@@ -302,104 +303,104 @@ forecast_op <- function(df,
           SSB.all[1, space, 1] <- sum(N.save.age[, 1, space, 1] * mat.year[, 1, space, season] *
                                         exp(-(Myear[, 1, space, season] * df$propM[, yr, season] + Fseason * df$propF[, yr, season])), na.rm = TRUE)
         }
-
-        if (season == df$rseason) { # Recruitment season
-
-
-          if (df$recruitment == "Ricker") {
-            R <- df$alpha * SSB[yr, ] * exp(-betaSR * SSB[yr, ])
-          }
+        if(yr > 1){
+          if (season == df$rseason) { # Recruitment season
 
 
-
-          if (df$recruitment == "hockey") {
-            R <- log(df$R0/df$betaSR) + log(SSB[yr, space])
-
-            if (SSB[yr, space] >= df$betaSR) {
-              R <- log(df$R0)
-              #  print(R)
+            if (df$recruitment == "Ricker") {
+              R <- df$alpha * SSB[yr, ] * exp(-betaSR * SSB[yr, ])
             }
 
-            R <- exp(R)
-
-            # add error
-            Ry <- rnorm(1, mean = 0, sd = exp(df$logSDR))
-            R.err <- exp(-0.5 * df$b[yr] * exp(df$logSDR)^2 + Ry)
-
-            N.save.age[1, yr, space, season] <- R * R.err
-            R.save[yr, space] <- R * R.err
-          }
-
-          if(df$recruitment == 'Rmean'){
 
 
-            R <- df$R0
+            if (df$recruitment == "hockey") {
+              R <- log(df$R0/df$betaSR) + log(SSB[yr, space])
 
-            # add error
-            Ry <- rnorm(1, mean = 0, sd = df$SDR)
-            R.err <- exp(-0.5 * df$b[yr] * SDR^2 + Ry)
+              if (SSB[yr, space] >= df$betaSR) {
+                R <- log(df$R0)
+                #  print(R)
+              }
 
-            N.save.age[1, yr, space, season] <- R * R.err
-            R.save[yr, space] <- R * R.err
+              R <- exp(R)
 
+              # add error
+              Ry <- rnorm(1, mean = 0, sd = exp(df$logSDR))
+              R.err <- exp(-0.5 * df$b[yr] * exp(df$logSDR)^2 + Ry)
 
-
-          }
-
-
-          if (df$recruitment == "estimated") {
-            R <- df$Rin[yr] * df$rec.space[space]
-
-            if (df$years[yr] > df$last_year) { # Change this to specific recruitment scenario
-              R <- exp(mean(log(df$Rin))) * exp(rnorm(1, mean = 0, sd = df$SDR) - df$SDR^2 * 0.5) * df$rec.space[space]
+              N.save.age[1, yr, space, season] <- R * R.err
+              R.save[yr, space] <- R * R.err
             }
 
-            N.save.age[1, yr, space, season] <- R
-            R.save[yr, space] <- R
-          }
+            if(df$recruitment == 'Rmean'){
 
 
+              R <- df$R0
 
-          if (df$recruitment == "BH_steep") {
-            err <- rnorm(1, mean = 0, sd = exp(df$logSDR))
+              # add error
+              Ry <- rnorm(1, mean = 0, sd = df$SDR)
+              R.err <- exp(-0.5 * df$b[yr] * SDR^2 + Ry)
 
-
-            R <- (4*df$h*R0*SSB[yr, space]/(SSB_0*(1-df$h)+ SSB[yr, space]*(5*df$h-1)))*
-              exp(-0.5*exp(df$logSDR)+err) # Should probably add recruitment bias correction
-
-            N.save.age[1, yr, space, season] <- R
-            R.save[yr, space] <- R
-          }
+              N.save.age[1, yr, space, season] <- R * R.err
+              R.save[yr, space] <- R * R.err
 
 
-          if (df$recruitment == "BH_env") {
-
-            if(stochastic == TRUE){
-            SDR <- exp(df$logSDR)
-            err <- rnorm(1, mean = 0, sd = SDR)
-            #print(err)
-
-
-            }else{
-            SDR <- 0
-            err <- rnorm(1, mean = 0, sd = SDR)
 
             }
 
-            #
 
-            env_tot <- sum(df$beta_env*env_new[yr,])
+            if (df$recruitment == "estimated") {
+              R <- df$Rin[yr] * df$rec.space[space]
 
-            R <- (4*df$h*R0*SSB[yr,space]/(SSB_0*(1-df$h)+ SSB[yr,space]*(5*df$h-1)))*
-              exp(-0.5*exp(df$logSDR)+err+env_tot)
+              if (df$years[yr] > df$last_year) { # Change this to specific recruitment scenario
+                R <- exp(mean(log(df$Rin))) * exp(rnorm(1, mean = 0, sd = df$SDR) - df$SDR^2 * 0.5) * df$rec.space[space]
+              }
+
+              N.save.age[1, yr, space, season] <- R
+              R.save[yr, space] <- R
+            }
 
 
-            N.save.age[1, yr, space, season] <- R
-            R.save[yr, space] <- R
 
+            if (df$recruitment == "BH_steep") {
+              err <- rnorm(1, mean = 0, sd = exp(df$logSDR))
+
+
+              R <- (4*df$h*R0*SSB[yr, space]/(SSB_0*(1-df$h)+ SSB[yr, space]*(5*df$h-1)))*
+                exp(-0.5*exp(df$logSDR)+err) # Should probably add recruitment bias correction
+
+              N.save.age[1, yr, space, season] <- R
+              R.save[yr, space] <- R
+            }
+
+
+            if (df$recruitment == "BH_env") {
+
+              if(stochastic == TRUE){
+                SDR <- exp(df$logSDR)
+                err <- rnorm(1, mean = 0, sd = SDR)
+                #print(err)
+
+
+              }else{
+                SDR <- 0
+                err <- rnorm(1, mean = 0, sd = SDR)
+
+              }
+
+              #
+
+              env_tot <- sum(df$beta_env*env_new[yr-1,])
+
+              R <- (4*df$h*R0*SSB[yr,space]/(SSB_0*(1-df$h)+ SSB[yr,space]*(5*df$h-1)))*
+                exp(-0.5*exp(df$logSDR)+err+env_tot)
+
+
+              N.save.age[1, yr, space, season] <- R
+              R.save[yr, space] <- R
+
+            }
           }
         }
-
         Mseason <- Myear[, 1, space, season]
 
 
@@ -623,6 +624,10 @@ forecast_op <- function(df,
 
     Fbar[time] <- sum(Fseason.save[(df$Fbarage[1] + 1):(df$Fbarage[2] + 1), time, , ]) / (df$Fbarage[2] - df$Fbarage[1] + 1)
   }
+
+  # Add the projected recruitment
+
+
 
   df.out <- list(
     N.save = Nsave,
