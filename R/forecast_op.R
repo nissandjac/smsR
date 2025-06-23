@@ -47,10 +47,11 @@ forecast_op <- function(df,
   #   Fnew matrix(rep(Fnew, nyear))
   # }
 
-  if(is.matrix(env_new) == FALSE){
+  if(is.null(env_new) == 0){
+    if(is.matrix(env_new) == FALSE){
     env_new <- matrix(env_new)
+    }
   }
-
 
 
   nseason <- df$nseason
