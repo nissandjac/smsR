@@ -52,6 +52,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(randomR); // Random walk on R
   DATA_INTEGER(randomM); // Random walk on M
   DATA_INTEGER(debug); // Flag for saving REPORT output
+  DATA_INTEGER(prior_SDM); // Prior on natural mortality standard deviation
   DATA_IVECTOR(CminageSeason); // Minimum age with fishing mortality per season
   DATA_IVECTOR(Qminage); // Minium ages in surveys
   DATA_IVECTOR(Qmaxage); // Maximum age in survey
@@ -224,7 +225,7 @@ for(int time=0;time<nyears;time++){
 
 
 
-if(randomM == 1){
+if(randomM > 0){
 
 
 
@@ -1195,26 +1196,42 @@ if(randomF == 1){
 // add random F possibility
 Type ansM = 0.0;
 
-if(randomM == 1){
+if(randomM > 0){
 
-  for(int time=0;time<(nyears);time++){ // Loop over years
-    for(int i=0;i<nrandM;i++){ // Loop over ages
-  //  ansM += -dnorm(M_new(0,time,0), M_new(0,time-1,0), SDM, true);
-    ansM += -dnorm(ext_M(time, i), Type(0.0), SDM(i), true);
+  if(randomM == 1){
+    for(int time=0;time<(nyears);time++){ // Loop over years
+      for(int i=0;i<nrandM;i++){ // Loop over ages
+        //  ansM += -dnorm(M_new(0,time,0), M_new(0,time-1,0), SDM, true);
+        ansM += -dnorm(ext_M(time, i), Type(0.0), SDM(i), true);
+      }
+
+    }
   }
 
-}
+  if(randomM == 2){
+    for(int time=1;time<(nyears);time++){ // Loop over years
+      for(int i=0;i<nrandM;i++){ // Loop over ages
+        //  ansM += -dnorm(M_new(0,time,0), M_new(0,time-1,0), SDM, true);
+        ansM += -dnorm(ext_M(time, i), ext_M(time-1,i), SDM(i), true);
+      }
+
+    }
+  }
+
+
 
 
   for(int i=0;i<nrandM;i++){ // Loop over ages
-    ansM += -dnorm(SDM(i), Type(0.4), Type(SDMprior), true); // Penalty for deviations from initial year
+    ansM += -dnorm(SDM(i), Type(prior_SDM), Type(SDMprior), true); // Penalty for deviations from initial year
   }
 
-for(int time=0;time<(nyears);time++){ // Loop over years
-  for(int i=0;i<(nage);i++){ // Loop over years
-    ansM += -dnorm(M_new(i,time,0), M(i,time,0), Type(Mprior), true); // Penalty for deviations from initial year
+if(Mprior > 0){
+  for(int time=0;time<(nyears);time++){ // Loop over years
+    for(int i=0;i<(nage);i++){ // Loop over years
+      ansM += -dnorm(M_new(i,time,0), M(i,time,0), Type(Mprior), true); // Penalty for deviations from initial year
+      }
     }
-  }
+}
 
 //  ansM += dnorm(SDM, Type(0.2), Type(0.01), true);
 }

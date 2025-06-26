@@ -89,7 +89,7 @@ runAssessment <- function(df.tmb,
     rlist <- c(rlist, 'logNinit')
   }
 
-  if(df.tmb$randomM == 1){
+  if(df.tmb$randomM > 0){
     rlist <- c(rlist,'ext_M')
   }
 
@@ -114,11 +114,11 @@ runAssessment <- function(df.tmb,
   lower[names(lower) == "logFyear"] <- log(0.001)
   lower[names(lower) == "Fseason"] <- 0.0001
   lower[names(lower) == "SDsurvey"] <- 0.0001
-  lower[names(lower) == "logSDrec"] <- log(0.1)
+  lower[names(lower) == "logSDrec"] <- log(0.01)
   lower[names(lower) == "SDcatch"] <- 0.01
   lower[names(lower) == "creep"] <- -0.1
   lower[names(lower) == 'logh'] <- log(0.21)
-  lower[names(lower) == 'logSDM'] <- log(0.01)
+  lower[names(lower) == 'logSDM'] <- log(0.001)
   lower[names(lower) == 'ext_M'] <- -.5
   lower[names(lower) == 'alphaM'] <- 0.00001
   #lower[names(lower) == 'gam_M'] <- 0

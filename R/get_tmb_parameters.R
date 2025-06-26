@@ -57,11 +57,12 @@
 #' @param randomM Logical. If `TRUE`, natural mortality (`M`) is estimated as a time-varying random effect.
 #' @param randomR Logical. If `TRUE`, recruitment deviations are estimated as a random effect.
 #' @param nenv Number of environmental covariates affecting recruitment.
-#' @param Mprior Prior standard deviation (SD) for `M` deviations from the first year of the time series.
+#' @param Mprior Prior standard deviation (SD) for `M` deviations from the first year of the time series. Negative value indicates this it is not used.
 #' @param M_min Minimum age included in the time-varying `M` estimation.
 #' @param M_max Maximum age included in the time-varying `M` estimation.
 #' @param MCV Age distribution of the CV for time-varying `M`.
 #' @param SDMprior Prior SD for `M` CV estimation.
+#' @param prior_SDM
 #' @param Pred_in Matrix of predator inputs for MICE modeling.
 #'
 #' @details
@@ -123,7 +124,7 @@ get_TMB_parameters <- function(
     peneps = 1e-3,
     penepsC = 1e-3,
     penepsCmax = 1e-3,
-    Mprior = 0.5,
+    Mprior = -1,
     SDMprior = 0.2,
     powers = list(NA),
     Pred_in = matrix(0),
@@ -133,6 +134,7 @@ get_TMB_parameters <- function(
     surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
     catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
     MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
+    prior_SDM = 0.4,
     estSD = c(0, 0, 0),
     SDmin = c(0.2, 0.2, 0.2),
     betaSR = 0,
@@ -763,6 +765,7 @@ get_TMB_parameters <- function(
     penepsC = penepsC,
     penepsCmax = penepsCmax,
     Mprior = Mprior,
+    prior_SDM = prior_SDM,
     isPredator = isPredator,
     SDMprior = SDMprior,
    # nalphaM = nalphaM,
