@@ -20,8 +20,16 @@ getFmsy <- function(sas,
   years <- 1:nyears
   nyears <- length(years)
 
+  if(sas$dat$randomM == 1){
 
+  M_estimated <- getM_var(sas$dat, sas) %>% filter(years %in% max(sas$dat$years))
+
+
+  M <-   array(M_estimated$M_var, dim = c(df.tmb$nage, nyears, df.tmb$nseason))
+  }else{
   M <- array(df.tmb$M[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
+  }
+
   mat <- array(df.tmb$Mat[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   weca <- array(df.tmb$weca[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   west <- array(df.tmb$west[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))

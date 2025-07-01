@@ -352,9 +352,9 @@ run.agebased.sms.op <- function(df,
           if (df$recruitment == "estimated") {
             R <- df$Rin[yr] * df$rec.space[space]
 
-            if (df$years[yr] > df$last_year) { # Change this to specific recruitment scenario
-              R <- exp(mean(log(df$Rin))) * exp(rnorm(1, mean = 0, sd = df$SDR) - df$SDR^2 * 0.5) * df$rec.space[space]
-            }
+            # if (df$years[yr] > df$last_year) { # Change this to specific recruitment scenario
+            #   R <- exp(mean(log(df$Rin))) * exp(rnorm(1, mean = 0, sd = df$SDR) - df$SDR^2 * 0.5) * df$rec.space[space]
+            # }
 
             N.save.age[1, yr, space, season] <- R
             R.save[yr, space] <- R
