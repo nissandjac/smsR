@@ -643,6 +643,7 @@ run.agebased.sms.op <- function(df,
   df.out <- list(
     N.save = Nsave,
     SSB = SSB,
+    SSB0 = SSB_0,
     N.save.age = N.save.age,
     R.save = R.save,
     V.save = V.save,
