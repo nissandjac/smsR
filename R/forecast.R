@@ -172,6 +172,8 @@ forecast.sms <- function(df.tmb , N_current, F0 ){
   N_future <- matrix(NA, df.tmb$nage) # For the following year SSB
   C_new <- matrix(0, df.tmb$nage, df.tmb$nseason)
 
+  F0 <- matrix(F0, df.tmb$nage, df.tmb$nseason)
+
   #
   M <- matrix(df.tmb$M[,df.tmb$nyears+1,], nrow = df.tmb$nage, ncol = df.tmb$nseason)
   weca <- matrix(df.tmb$weca[,df.tmb$nyears+1,], nrow = df.tmb$nage, ncol = df.tmb$nseason)
@@ -258,7 +260,7 @@ calcFTAC <- function(TAC ,
     Fcalc <- as.numeric(par[1])
     TAC <- data$TAC
 
-    F0 <- Fsel*Fcalc
+    F0 <- matrix(Fsel*Fcalc, df.tmb$nage, df.tmb$nseason)
     ls <- forecast.sms(df.tmb, N_current,F0)
 
     ans <- (log(TAC) - log(ls$Catch))^2
@@ -348,7 +350,7 @@ calcBescape <- function(Btarget ,
     Fcalc <- as.numeric(par[1])
     Btarget <- data$Btarget
 
-    F0 <- Fsel*Fcalc
+    F0 <-matrix(Fsel*Fcalc, df.tmb$nage, df.tmb$nseason)
     ls <- forecast.sms(df.tmb, N_current,F0)
 
     ans <- (log(Btarget) - log(ls$SSB))^2
