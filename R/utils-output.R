@@ -608,7 +608,6 @@ getEstimatedParms <- function(sas) {
 
 
 
-#' Catch CV
 #' Retrieve estimated catch CV from a fitted `smsR` model.
 #' @param df.tmb Input list for smsR data
 #' @param sas stock assessment output from smsR
@@ -642,7 +641,6 @@ getCatchCV <- function(df.tmb, sas) {
 }
 
 
-#' Survey CV
 #' Retrieve estimated survey CV from a fitted `smsR` model.
 #' @param sas stock assessment output from smsR
 #'

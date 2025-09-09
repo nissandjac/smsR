@@ -62,7 +62,7 @@
 #' @param M_max Maximum age included in the time-varying `M` estimation.
 #' @param MCV Age distribution of the CV for time-varying `M`.
 #' @param SDMprior Prior SD for `M` CV estimation.
-#' @param prior_SDM
+#' @param prior_SDM Prior for `M` estimation
 #' @param Pred_in Matrix of predator inputs for MICE modeling.
 #'
 #' @details
@@ -96,7 +96,7 @@ get_TMB_parameters <- function(
     startYear = min(years),
     endYear = max(years),
     nseason = 4,
-    nsurvey = 2,
+    nsurvey = dim(Surveyobs)[3],
     ages = 0:20,
     Fbarage = c(1, max(ages)),
     recseason = 1,
@@ -132,12 +132,12 @@ get_TMB_parameters <- function(
     M_max = max(ages),
     scv = array(0, dim = c(length(ages), length(years), nsurvey)),
     surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
-    catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
+    catchSD = replicate(nseason, c(0, max(ages)), simplify = FALSE),
     MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
     prior_SDM = 0.4,
     estSD = c(0, 0, 0),
     SDmin = c(0.2, 0.2, 0.2),
-    betaSR = 0,
+    betaSR = NULL,
     nllfactor = rep(1, 3),
     randomF = 0,
     randomM = 0,
@@ -162,6 +162,11 @@ get_TMB_parameters <- function(
   nsurvey <- dim(Surveyobs)[3]
   if (nsurvey == 0) {
     warning("probably doesnt work without survey")
+  }
+
+
+  if(is.null(betaSR)){
+    nllfactor[3] <- 0
   }
 
 

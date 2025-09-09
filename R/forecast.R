@@ -117,8 +117,12 @@ getTAC <- function(df.tmb = NULL,
     F0 <- calcBescape(Btarget, df.tmb, N_current, Fsel, Flimit)*Fsel
     # Do forecast
     fc <- forecast.sms(df.tmb , N_current , F0)
-    Fmsy <- mean(rowSums(F0)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])
 
+    if(df.tmb$nseason > 1){
+    Fmsy <- mean(rowSums(F0)[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])
+    }else{
+      Fmsy <- mean(F0[(df.tmb$Fbarage[1]:df.tmb$Fbarage[2])+1])
+    }
 
     Fmsy <- NA
 

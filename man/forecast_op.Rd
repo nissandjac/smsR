@@ -7,7 +7,7 @@
 forecast_op(
   df,
   Ninit,
-  nyear = 1,
+  nyear = 2,
   Fnew = matrix(0.2, nrow = df$nseason, ncol = nyear),
   env_new = NULL,
   stochastic = FALSE,

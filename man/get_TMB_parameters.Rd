@@ -42,7 +42,7 @@ get_TMB_parameters(
   peneps = 0.001,
   penepsC = 0.001,
   penepsCmax = 0.001,
-  Mprior = 0.5,
+  Mprior = -1,
   SDMprior = 0.2,
   powers = list(NA),
   Pred_in = matrix(0),
@@ -52,6 +52,7 @@ get_TMB_parameters(
   surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
   catchSD = matrix(c(0, max(ages)), nrow = 2, ncol = nseason),
   MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
+  prior_SDM = 0.4,
   estSD = c(0, 0, 0),
   SDmin = c(0.2, 0.2, 0.2),
   betaSR = 0,
@@ -139,7 +140,7 @@ get_TMB_parameters(
 
 \item{penepsCmax}{Parameter regulating the maximum CV for catch data.}
 
-\item{Mprior}{Prior standard deviation (SD) for `M` deviations from the first year of the time series.}
+\item{Mprior}{Prior standard deviation (SD) for `M` deviations from the first year of the time series. Negative value indicates this it is not used.}
 
 \item{SDMprior}{Prior SD for `M` CV estimation.}
 
@@ -158,6 +159,8 @@ get_TMB_parameters(
 \item{catchSD}{Grouping variable for catch SD.}
 
 \item{MCV}{Age distribution of the CV for time-varying `M`.}
+
+\item{prior_SDM}{Prior for `M` estimation}
 
 \item{estSD}{Vector indicating which deviation parameters to estimate.}
 

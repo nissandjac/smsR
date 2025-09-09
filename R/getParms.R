@@ -207,6 +207,9 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
 
   }
 
+  if(df.tmb$nllfactor[3] == 0){
+    mps$logSDrec <- factor(NA * parms$logSDrec)
+  }
 
 
 

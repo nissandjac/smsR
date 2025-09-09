@@ -26,6 +26,7 @@ getDataSMS <- function(wd,
                        seasons,
                        scv.tv = 0) {
   nyears <- length(years)
+  nseason <- length(seasons)
 
   canum <- read.table(file.path(wd, "canum.in"),
     comment.char = "#", skip = 0, header = FALSE

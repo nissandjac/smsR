@@ -2,8 +2,7 @@
 % Please edit documentation in R/utils-output.R
 \name{getCatchCV}
 \alias{getCatchCV}
-\title{Catch CV
-Retrieve estimated catch CV from a fitted `smsR` model.}
+\title{Retrieve estimated catch CV from a fitted `smsR` model.}
 \usage{
 getCatchCV(df.tmb, sas)
 }
@@ -16,6 +15,5 @@ getCatchCV(df.tmb, sas)
 data frame of estimated parameters and their SE
 }
 \description{
-Catch CV
 Retrieve estimated catch CV from a fitted `smsR` model.
 }

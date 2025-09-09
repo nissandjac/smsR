@@ -1,0 +1,204 @@
+---
+title: "Getting Started with smsR"
+author: "Nis Sand Jacobsen"
+date: "`r format(Sys.Date())`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Getting Started with smsR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Overview
+
+`smsR` is a **seasonal stock assessment model** built with **TMB**.  
+It is currently used for **North Sea sandeel** (*4 stocks*) and **sprat**.
+
+This vignette provides an **end-to-end example** using the included `sandeel_1r` dataset —  
+from **model setup** to **diagnostics** and **retrospectives**.
+
+### What you’ll learn
+
+- How to **install and load** `smsR`
+- How to **prepare TMB inputs**
+- How to **fit the assessment model**
+- How to **inspect key outputs** (SSB, Fbar, catches, recruitment)
+- How to **run a retrospective analysis** (Mohn’s rho)
+- How to perform **basic diagnostics** and ensure **reproducibility**
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi = 150,
+  fig.width = 7,
+  fig.height = 4.5,
+  message = FALSE,
+  warning = FALSE
+)
+set.seed(42)
+```
+
+## Installation
+
+You can install the **development version** of `smsR` from GitHub:
+
+```{r eval=FALSE}
+devtools::install_github('nissandjac/smsR')
+```
+
+Then load the package and supporting libraries:
+
+```{r}
+library(smsR)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+## Data: `sandeel_1r`
+
+The package includes a compact dataset for **Area 1r** containing:
+
+- `lhs` — M, maturity, weight-at-stock, weight-at-catch  
+- `survey` — survey observations  
+- `Catch` — catch observations  
+- `effort` — effort time series  
+- `nocatch` — seasons where F is not calculated
+
+```{r}
+# Peek at included example structure
+# str(sandeel_1r)
+```
+
+## Quick start: Fit the model
+
+We follow the same structure as in the package README:
+
+1. **Construct TMB inputs** with `get_TMB_parameters()`
+2. **Derive starting parameters** with `getParms()`
+3. **Run the assessment** with `runAssessment()`
+
+```{r}
+# 1) TMB input list
+df.tmb <- get_TMB_parameters(
+  mtrx         = sandeel_1r$lhs,
+  Surveyobs    = sandeel_1r$survey,
+  Catchobs     = sandeel_1r$Catch,
+  years        = 1983:2021,
+  nseason      = 2,
+  useEffort    = TRUE,
+  ages         = 0:4,
+  recseason    = 2,
+  CminageSeason= c(1, 1),
+  Fmaxage      = 3,
+  Qminage      = c(0, 1),
+  Qmaxage      = c(1, 3),
+  Fbarage      = c(1, 2),
+  effort       = sandeel_1r$effort,
+  blocks       = c(1983, 1999),
+  nocatch      = sandeel_1r$nocatch,
+  surveyStart  = c(0.75, 0),
+  surveyEnd    = c(1, 0),
+  surveySeason = c(2, 1),
+  surveySD     = list(c(0, 1), c(1, 2)),
+  catchSD      = list(c(1, 3), c(1, 3)),
+  estSD        = c(0, 2, 0),
+  beta         = 105809,
+  nllfactor    = c(1, 1, 0.05)
+)
+
+# 2) Initial parameter vector
+parms <- getParms(df.tmb)
+
+# 3) Fit the assessment
+fit <- runAssessment(df.tmb, parms)
+fit
+```
+
+If convergence succeeds, you will see a message similar to:
+
+> **Congrats, your model converged**
+
+## Core outputs
+
+`smsR` provides a `plot()` method that summarizes:
+
+- Spawning Stock Biomass (**SSB**)
+- **Catch**
+- **Recruitment**
+- Average fishing mortality (**Fbar**)
+
+```{r}
+p <- plot(fit, printFig = FALSE)
+# Example: view SSB plot
+# p$ssb
+```
+
+## Retrospective analysis (Mohn’s rho)
+
+You can perform a **5-year peel retrospective** and visualize the results:
+
+```{r}
+mr <- mohns_rho(df.tmb, peels = 5, parms = parms, plotfigure = FALSE)
+mr$p1()  # Key retrospective figure
+```
+
+## Basic diagnostics
+
+### Convergence & gradients
+
+```{r}
+# 0 means OK for many optimizers
+# fit$opt$convergence
+
+# Maximum absolute gradient value
+# max(abs(fit$gradient))
+```
+
+### Likelihood composition
+
+```{r}
+# fit$ll_components
+```
+
+### Time-series sanity checks
+
+```{r}
+# ts <- fit$ts
+# ggplot(ts, aes(year, SSB)) + geom_line()
+# ggplot(ts, aes(year, Fbar)) + geom_line()
+```
+
+### Residual diagnostics (surveys & catch)
+
+```{r}
+# ggplot(fit$residuals$survey, aes(year, resid)) +
+#   geom_hline(yintercept=0) + geom_point()
+
+# ggplot(fit$residuals$catch,  aes(year, resid)) +
+#   geom_hline(yintercept=0) + geom_point()
+```
+
+### Retrospective bias
+
+```{r}
+# mr$summary
+```
+
+## Reproducibility
+
+Always set a **random seed** before fitting models to make results reproducible:
+
+```{r}
+set.seed(42)
+```
+
+Record your **R session information**:
+
+```{r}
+sessionInfo()
+```
