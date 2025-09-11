@@ -25,7 +25,10 @@ smsR is a seasonal stock assessment model package using TMB to estimate paramete
 You can install the development version of smsR as
 
 ``` {r, eval= FALSE}
-# Anonymized for review 
+remotes::install_github("nissandjac/smsR",
+  ref = "main",            # Install main branch
+  dependencies = TRUE,     # Installs Imports/Suggests
+  upgrade = "never")       # don't upgrade already-installed deps
 ```
 
 ## Using the model
