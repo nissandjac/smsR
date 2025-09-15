@@ -85,7 +85,7 @@ runAssessment <- function(df.tmb,
   }
 
 
-  if(df.tmb$recmodel == 3){
+  if(df.tmb$recmodel == 3 & df.tmb$randomR == 1){
     rlist <- c(rlist, 'logNinit')
   }
 
@@ -103,63 +103,65 @@ runAssessment <- function(df.tmb,
   if(dim(df.tmb$Mat)[2] < df.tmb$nyears){stop('watch size of mat')}
   if(dim(df.tmb$M)[2] < df.tmb$nyears){stop('watch size of M')}
   if(dim(df.tmb$M_matrix)[2] < df.tmb$nyears){stop('Check size of M_matrix')}
+
+
+  # Check if a phase is required
+  if(is.na(df.tmb$betaSR) & df.tmb$recmodel == 1){
+
+    df.phase <- df.tmb
+   # df.phase$nllfactor[3] <- 0.01 # A low value
+
+    obj_phase <- TMB::MakeADFun(df.phase, parms, DLL = dll, map = mps, silent = silent, random = rlist)
+
+    bnds <- fix_boundaries(obj_phase, lwr, upr)
+
+    lower <- bnds[[2]]
+    upper <- bnds[[1]]
+
+
+    #message('No breakpoint given for hockey stick. Estimating in phases assuming a spasmodic stock')
+
+    opt_p1 <- stats::nlminb(obj_phase$par, obj_phase$fn, obj_phase$gr,
+                                     lower = lower, upper = upper,
+                                     control = list(
+                                       iter.max = 1e5,
+                                       eval.max = 1e5
+                                     )
+    ) #
+    reps_p1 <- TMB::sdreport(obj_phase)
+    # Get SSB and R
+    ssb <- exp(reps_p1$value[names(reps_p1$value) == 'logSSB'])
+    R <- exp(reps_p1$value[names(reps_p1$value) == 'logRec'])
+    # Find the minimum ssb that gives above median R
+    betaSR <- min(ssb[R > median(R)])
+
+    # Assign betaSR
+    message(paste('SSB breakpoint in hockey stick approximated = ', as.numeric(round(betaSR,0)) ))
+
+    df.tmb$betaSR <- as.numeric(betaSR)
+    mps$logbeta <- factor(parms$logbeta * NA)
+
+    #    print(mps)
+    # fold <- df.tmb$nllfactor[3]
+    #
+
+
+    #df.tmb$nllfactor[3] <- fold
+  }
+
+
   obj <- TMB::MakeADFun(df.tmb, parms, DLL = dll, map = mps, silent = silent, random = rlist)
   x <- obj$report()
 
-  # Set boundaries
-  lower <- obj$par - Inf
-  upper <- obj$par + Inf
-
-  # Permanent bounds for realism
-  lower[names(lower) == "logFyear"] <- log(0.001)
-  lower[names(lower) == "Fseason"] <- 0.0001
-  lower[names(lower) == "SDsurvey"] <- 0.0001
-  lower[names(lower) == "logSDrec"] <- log(0.01)
-  lower[names(lower) == "SDcatch"] <- 0.01
-  lower[names(lower) == "creep"] <- -0.1
-  lower[names(lower) == 'logh'] <- log(0.21)
-  lower[names(lower) == 'logSDM'] <- log(0.001)
-  lower[names(lower) == 'ext_M'] <- -.5
-  lower[names(lower) == 'alphaM'] <- 0.00001
-  #lower[names(lower) == 'gam_M'] <- 0
-  #lower[names(lower) == 'logalpha'] <- log(max(df.tmb$Catchobs))
-
-
-  upper[names(upper) == "SDsurvey"] <- 2
-  upper[names(upper) == "logSDrec"] <- log(4)
-  upper[names(upper) == "logFyear"] <- log(10)
-  upper[names(upper) == "SDcatch"] <- sqrt(2.5)
-  upper[names(upper) == "creep"] <- 0.2
-  upper[names(upper) == 'logh'] <- log(0.99)
-  upper[names(upper) == 'logSDM'] <- log(2)
-  upper[names(upper) == 'ext_M'] <- .5
-  # Add custom boundaries to parameters
-  for (i in 1:length(lwr)) {
-    if (is.na(lwr[[1]][1]) == 0) {
-      idx <- (names(lower) %in% names(lwr)[i])
-
-      if (sum(idx) != length(lwr[[i]])) {
-        if (length(lwr[[i]]) != 1) {
-          stop("Error in custom boundaries")
-        }
-      }
-
-      lower[idx] <- lwr[[i]]
-    }
-  }
+  # Redo boundaries
   #
-  for (i in 1:length(upr)) {
-    if (is.na(upr[[1]][1]) == 0) {
-      idx2 <- (names(upper) %in% names(upr)[i])
-      if (sum(idx2) != length(upr[[i]])) {
-        if (length(lwr[[i]]) != 1) {
-          stop("Error in custom boundaries")
-        }
-      }
+  bnds <- fix_boundaries(obj, lwr, upr)
 
-      upper[idx2] <- upr[[i]]
-    }
-  }
+  lower <- bnds[[2]]
+  upper <- bnds[[1]]
+
+
+
 
   system.time(opt <- stats::nlminb(obj$par, obj$fn, obj$gr,
                                    lower = lower, upper = upper,
@@ -209,3 +211,72 @@ runAssessment <- function(df.tmb,
     obj = obj, dat = df.tmb
   ), class = "sms"))
 }
+
+
+fix_boundaries <- function(obj, lwr, upr){
+  # Set boundaries
+  lower <- obj$par - Inf
+  upper <- obj$par + Inf
+
+  # Permanent bounds for realism
+  lower[names(lower) == "logFyear"] <- log(0.001)
+  lower[names(lower) == "Fseason"] <- 0.0001
+  lower[names(lower) == "SDsurvey"] <- 0.0001
+  lower[names(lower) == "logSDrec"] <- log(0.01)
+  lower[names(lower) == "SDcatch"] <- 0.01
+  lower[names(lower) == "creep"] <- -0.1
+  lower[names(lower) == 'logh'] <- log(0.21)
+  lower[names(lower) == 'logSDM'] <- log(0.001)
+  lower[names(lower) == 'ext_M'] <- -.5
+  lower[names(lower) == 'alphaM'] <- 0.00001
+  #lower[names(lower) == 'gam_M'] <- 0
+  #lower[names(lower) == 'logalpha'] <- log(max(df.tmb$Catchobs))
+
+
+  upper[names(upper) == "SDsurvey"] <- 2
+  upper[names(upper) == "logSDrec"] <- log(4)
+  upper[names(upper) == "logFyear"] <- log(10)
+  upper[names(upper) == "SDcatch"] <- sqrt(2.5)
+  upper[names(upper) == "creep"] <- 0.2
+  upper[names(upper) == 'logh'] <- log(0.99)
+  upper[names(upper) == 'logSDM'] <- log(2)
+  upper[names(upper) == 'ext_M'] <- .5
+  upper[names(upper) == 'logR0'] <- 25
+  # Add custom boundaries to parameters
+  for (i in 1:length(lwr)) {
+    if (is.na(lwr[[1]][1]) == 0) {
+      idx <- (names(lower) %in% names(lwr)[i])
+
+      if (sum(idx) != length(lwr[[i]])) {
+        if (length(lwr[[i]]) != 1) {
+          stop("Error in custom boundaries")
+        }
+      }
+
+      lower[idx] <- lwr[[i]]
+    }
+  }
+  #
+  for (i in 1:length(upr)) {
+    if (is.na(upr[[1]][1]) == 0) {
+      idx2 <- (names(upper) %in% names(upr)[i])
+      if (sum(idx2) != length(upr[[i]])) {
+        if (length(lwr[[i]]) != 1) {
+          stop("Error in custom boundaries")
+        }
+      }
+
+      upper[idx2] <- upr[[i]]
+    }
+  }
+
+
+
+return(list(upper, lower))
+}
+
+
+
+
+
+

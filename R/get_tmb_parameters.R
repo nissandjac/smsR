@@ -118,8 +118,8 @@ get_TMB_parameters <- function(
     surveyEnd = rep(1, nsurvey),
     surveySeason = rep(1, nsurvey),
     leavesurveyout = rep(1, nsurvey),
-    minSDsurvey = 0.3,
-    minSDcatch = 0.2,
+    minSDsurvey = 0.1,
+    minSDcatch = 0.1,
     maxSDcatch = sqrt(2),
     peneps = 1e-3,
     penepsC = 1e-3,
@@ -165,9 +165,9 @@ get_TMB_parameters <- function(
   }
 
 
-  if(is.null(betaSR)){
-    nllfactor[3] <- 0
-  }
+  # if(is.null(betaSR)){
+  #   nllfactor[3] <- 0
+  # }
 
 
   for(i in 1:nsurvey){

@@ -24,7 +24,8 @@ getParms <- function(df.tmb, parms.true = NULL) {
   logQ <- sum(df.tmb$Qlastage - df.tmb$Qminage) + length(df.tmb$Qidx)
 
   if (is.null(df.tmb$betaSR)) {
-    betaSR <- 50000
+    betaSR <- max(getYield(df.tmb)$Yield)
+
   } else {
     betaSR <- df.tmb$betaSR
   }

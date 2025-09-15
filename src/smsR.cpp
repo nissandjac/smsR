@@ -1113,14 +1113,26 @@ Type prec = 0.0;
     }
 
   }else{
+
+    if(recmodel == 1){
+
     prec = nyears*log(sqrt(SDrec2))+pXr*0.5/SDrec2;   // likelihood
-  }
+    }
+
 
   if(recmodel == 3){
     for(int i=0;i<(nage-1);i++){ // Loop over years
       prec+= -dnorm(logNinit(i), Type(0.0), SDrec2, true);
     }
+
+    for(int time=0;time<(nyears-1);time++){ // Loop over years
+    prec += -dnorm(logRin(time), Type(0.0) , SDrec2, true);
+    }
+
+
   }
+
+}
 
 // // // // // // //
 

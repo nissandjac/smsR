@@ -26,18 +26,20 @@ sim_OM_parameters(
   b = 1,
   R0 = 10000,
   theta = 2,
-  h = 0.8,
+  h = 0.5,
   SDcatch = 0.01,
   Fbarage = c(2, maxage - 3),
-  nsurvey = 2,
+  nsurvey = 1,
   q = rep(1, nsurvey),
+  surveySeason = rep(1, nsurvey),
   surveyStart = rep(0, nsurvey),
   surveyEnd = rep(0.99, nsurvey),
   surveySD = rep(0.3, nsurvey),
   SDR = 0.6,
   rhoR = 0.7,
   recruitment.type = "AR",
-  fishing.type = "constant",
+  rseason = 1,
+  fishing.type = "AR",
   SDF = 0.05,
   rho_F = 0.7,
   SDM = 0.1,
@@ -150,10 +152,10 @@ autocorrelation \code{rho_F} is applied on the log scale.}
 \item{rho}{Numeric in [-1, 1]. AR(1) coefficient for natural mortality when
 \code{mortality == "AR"}.}
 
-\item{propM}{Numeric scalar or array \code{[age \u00D7 year \u00D7 season]}.
+\item{propM}{Numeric scalar or array \code{[age, year  season]}.
 Fractional timing of natural mortality within the year/season (passed through).}
 
-\item{propF}{Numeric scalar or array \code{[age \u00D7 year \u00D7 season]}.
+\item{propF}{Numeric scalar or array \code{[age , year , season]}.
 Fractional timing of fishing mortality within the year/season (passed through).}
 
 \item{M_limit}{Numeric or \code{NA}. Upper (or lower for decreasing case) bound

@@ -60,9 +60,9 @@
 #'   (\code{mortality != "constant"}).
 #' @param rho Numeric in [-1, 1]. AR(1) coefficient for natural mortality when
 #'   \code{mortality == "AR"}.
-#' @param propM Numeric scalar or array \code{[age \u00D7 year \u00D7 season]}.
+#' @param propM Numeric scalar or array \code{[age, year  season]}.
 #'   Fractional timing of natural mortality within the year/season (passed through).
-#' @param propF Numeric scalar or array \code{[age \u00D7 year \u00D7 season]}.
+#' @param propF Numeric scalar or array \code{[age , year , season]}.
 #'   Fractional timing of fishing mortality within the year/season (passed through).
 #' @param M_limit Numeric or \code{NA}. Upper (or lower for decreasing case) bound
 #'   for time-varying M. Defaults to \code{2 * M} if \code{NA}.
@@ -156,7 +156,7 @@ sim_OM_parameters <- function(nseason = 1,
                               Fpast = 0,
                               t0 = -0.1,
                               gamma = 1.1,
-                              tau = 5,
+                              tau = 2,
                               gamma_sel = 1.1,
                               tau_sel = 1,
                               maxage = 10,
@@ -166,7 +166,7 @@ sim_OM_parameters <- function(nseason = 1,
                               b = 1,
                               R0 = 1e4,
                               theta = 2,
-                              h = 0.8,
+                              h = 0.5,
                               SDcatch = 0.01,
                               Fbarage = c(2, maxage-3),
                               nsurvey = 1,
@@ -180,7 +180,7 @@ sim_OM_parameters <- function(nseason = 1,
                               recruitment.type = 'AR',
                               rseason = 1,
                               fishing.type = 'AR',
-                              SDF = 0.05,
+                              SDF = 0.15,
                               rho_F = 0.7,
                               SDM = 0.1,
                               rho = 0.8,
@@ -249,9 +249,6 @@ sim_OM_parameters <- function(nseason = 1,
                    simplify = 'array'), c(1,3,2))
 
     }
-  }else{
-  wage_ssb <- weca
-  wage_catch <- west
   }
 
 
@@ -453,10 +450,20 @@ sim_OM_parameters <- function(nseason = 1,
 #   Custom initial distribution
   if(Fpast > 0){
 
-  Ninit <- matrix(0, nage)
+  age_vec <- 1:nage
+  # Calculate Ninit
+  Z <- M0[1] + Fpast * sel
+  cumZ <- c(0,cumsum(Z[1:(nage-1)]))
 
-  Ninit[1:(nage - 1)] <- R0 * exp(-(age[1:(nage - 1)] * M0[1]+sel[1:(nage - 1)] * age[1:(nage - 1)] * Fpast )) # Only valid for equal M2 per age
-  Ninit[nage] <- R0 * exp(-(M0[1] * age[nage]+sel[nage] * Fpast * age[nage])) / (1 - exp(-(M0[1]+Fpast*sel[nage])))
+
+  Ninit <- matrix(0, nage)
+  Ninit[1:(nage - 1)] <- R0 * exp(-cumZ[1:(nage-1)]) # Only valid for equal M2 per age
+  Ninit[nage] <- R0 * exp(-(cumZ[nage])) / (1 - exp(-(Z[nage])))
+
+
+
+
+
   }else{
     Ninit = NULL
   }
@@ -552,7 +559,6 @@ sim_OM_parameters <- function(nseason = 1,
                   Fmaxage = Fmaxage,
                   Qminage = Qminage,
                   Qmaxage = Qmaxage
-
 
 
                   # Parameters from the estimation model
