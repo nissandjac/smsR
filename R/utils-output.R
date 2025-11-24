@@ -373,8 +373,11 @@ getCatchN <- function(df.tmb, sas) {
   tmp$ages <- df.tmb$age
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
-  tmp <- tmp[-which(tmp$CatchN == 0), ]
 
+
+  if(any(is.na(tmp$CatchN))){
+  tmp <- tmp[-which(tmp$CatchN == 0), ]
+  }
 
   tmp$CatchN <- exp(tmp$CatchN)
   tmp$low <- exp(tmp$low)
@@ -531,7 +534,10 @@ getResidCatch <- function(df.tmb, sas) {
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
 
+
+  if(any(is.na(tmp$ResidCatch))){
   tmp <- tmp[-which(is.na(tmp$ResidCatch)), ]
+  }
 
   Resid_Catch <- tmp
 
@@ -573,7 +579,12 @@ getResidSurvey <- function(df.tmb, sas) {
   tmp$ages <- df.tmb$age
   tmp$years <- rep(years, each = df.tmb$nage)
   tmp$survey <- rep(dimnames(df.tmb$Surveyobs)$survey, each = df.tmb$nage * (df.tmb$nyears))
-  tmp <- tmp[-which(is.na(tmp$ResidSurvey)), ]
+
+
+  if(any(is.na(tmp$ResidSurvey))){
+    tmp <- tmp[-which(is.na(tmp$ResidSurvey)), ]
+
+  }
 
   Resid_Survey <- tmp
 
@@ -616,50 +627,50 @@ getEstimatedParms <- function(sas) {
 #' data frame of estimated parameters and their SE
 #' @export
 #'
-getCatchCV <- function(df.tmb, sas) {
+getCatchSD <- function(df.tmb, sas) {
   reps <- sas$reps
 
   sdrep <- summary(reps)
   rep.values <- rownames(sdrep)
 
-  #tmp <- data.frame(catchCV = sdrep[rep.values == "SD_catch2", 1])
-  tmp <- data.frame(catchCV = sqrt(exp(sdrep[rep.values == "SD_catch2", 1]^2)-1))
-  tmp$catchCV <- tmp$catchCV
+  #tmp <- data.frame(catchSD = sdrep[rep.values == "SD_catch2", 1])
+  tmp <- data.frame(catchSD = sdrep[rep.values == "SD_catch2",1])
+  tmp$catchSD <- sqrt(tmp$catchSD)
   tmp$SE <- sdrep[rep.values == "SD_catch2", 2]
-  tmp$low <- tmp$catchCV - 2 * tmp$SE
-  tmp$high <- tmp$catchCV + 2 * tmp$SE
+  tmp$low <- tmp$catchSD - 2 * tmp$SE
+  tmp$high <- tmp$catchSD + 2 * tmp$SE
 
   tmp$ages <- df.tmb$age
 
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
 
-  # tmp <- tmp[-which(tmp$catchCV == 0),] # Remove the ones that are not caught
+  # tmp <- tmp[-which(tmp$catchSD == 0),] # Remove the ones that are not caught
 
 
-  CatchCV <- tmp
-  return(CatchCV)
+  CatchSD <- tmp
+  return(CatchSD)
 }
 
 
-#' Retrieve estimated survey CV from a fitted `smsR` model.
+#' Retrieve estimated survey SD from a fitted `smsR` model.
 #' @param sas stock assessment output from smsR
 #'
 #' @return
 #' data frame of estimated parameters and their SE
 #' @export
 #'
-getSurveyCV <- function(df.tmb, sas) {
+getSurveySD <- function(df.tmb, sas) {
   reps <- sas$reps
 
   sdrep <- summary(reps)
   rep.values <- rownames(sdrep)
   years <- df.tmb$years
 
-  tmp <- data.frame(surveyCV = sqrt(exp(sdrep[rep.values == "SDS", 1]^2)-1))
+  tmp <- data.frame(surveyCV = sdrep[rep.values == "SDS", 1])
 
   tmp$SE <- sdrep[rep.values == "SDS", 2]
-  tmp$low <- tmp$surveyCV - 2 * tmp$SE
-  tmp$high <- tmp$surveyCV + 2 * tmp$SE
+  tmp$low <- tmp$surveySD - 2 * tmp$SE
+  tmp$high <- tmp$surveySD + 2 * tmp$SE
 
   tmp$ages <- df.tmb$age
 
@@ -668,7 +679,7 @@ getSurveyCV <- function(df.tmb, sas) {
   # tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
 
   surveyCV <- tmp
-  return(surveyCV)
+  return(surveySD)
 }
 
 #' AIC
@@ -778,6 +789,7 @@ getSummary <- function(df.tmb, sas) {
 #'
 #' @param df.tmb data frame with input data
 #' @param sas fitted smsR model
+#' @param method mean or median recruitment
 #'
 #' @return
 #' returns a data frame with a stock recruitment relationship
@@ -787,7 +799,7 @@ getSummary <- function(df.tmb, sas) {
 #'
 #' SR <- getSR(df.tmb, sas)
 #'
-getSR <- function(df.tmb, sas) {
+getSR <- function(df.tmb, sas, method = 'mean') {
   reps <- sas$reps
 
   sdrep <- summary(reps)
@@ -800,11 +812,15 @@ getSR <- function(df.tmb, sas) {
 
   SRstock <- sdrep[rep.values == "logalpha", 1]
   SE <- (sdrep[rep.values == "logalpha", 2])
+
+  SDrec2_hat <- sdrep[rep.values == "SDrec2", "Estimate"]  # adjust name if needed
+
+
   low <- SRstock - 2 * SE
   high <- SRstock + 2 * SE
 
   SSBrange <- seq(1, max(SSB$SSB), length.out = 100)
-  SR <- exp(SRstock + log(SSBrange))
+  SR <- exp(SRstock + log(SSBrange)+0.5 * SDrec2_hat)
   SR[SSBrange > df.tmb$betaSR] <- exp(SRstock + log(df.tmb$betaSR))
 
   mins <- exp(low + log(SSBrange))

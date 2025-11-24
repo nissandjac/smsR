@@ -4,12 +4,14 @@
 \alias{getSR}
 \title{Stock recruitment}
 \usage{
-getSR(df.tmb, sas)
+getSR(df.tmb, sas, method = "mean")
 }
 \arguments{
 \item{df.tmb}{data frame with input data}
 
 \item{sas}{fitted smsR model}
+
+\item{method}{mean or median recruitment}
 }
 \value{
 returns a data frame with a stock recruitment relationship

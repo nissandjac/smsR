@@ -65,21 +65,7 @@ run.agebased.sms.op <- function(df,
   nagetmp <- length(agetmp)
 
   #
-  if (length(dim(M)) != 4) {
-    M <- array(M, dim = c(nage, nyear + 1, 1, nseason))
-  }
 
-  if (length(dim(weca)) != 4) {
-    weca <- array(weca, dim = c(nage, nyear + 1, 1, nseason))
-  }
-
-  if (length(dim(west)) != 4) {
-    west <- array(west, dim = c(nage, nyear + 1, 1, nseason))
-  }
-
-  if (length(dim(mat)) != 4) {
-    mat <- array(mat, dim = c(nage, nyear + 1, 1, nseason))
-  }
 
 
   if (length(dim(F0)) != 4) {
@@ -102,12 +88,15 @@ run.agebased.sms.op <- function(df,
   M0[1:nage] <- M[, 1, 1, 1] * df$nseason
   M0[nage:length(M0)] <- M[nage, 1, 1, 1] * df$nseason
 
+
+
+  if(df$recruitment == 'BH_steep'){
   N0tmp <- rep(NA, nagetmp)
 
   N0tmp[1:(nagetmp - 1)] <- R0 * exp(-agetmp[1:(nagetmp - 1)] * M0[1:(nagetmp - 1)])
   N0tmp[nagetmp] <- R0 * exp(-M0[nagetmp] * agetmp[nagetmp]) / (1 - exp(-M0[nagetmp]))
 
-
+  }
 
   N0 <- matrix(NA, nage)
   N0[1:(nage - 1)] <- N0tmp[1:(nage - 1)]
@@ -146,6 +135,8 @@ run.agebased.sms.op <- function(df,
 
 
   R.save <- matrix(NA, nyear, nspace, dimnames = list(year = year, space = 1:nspace))
+  R.err.save <- matrix(NA, nyear, nspace, dimnames = list(year = year, space = 1:nspace))
+
   Fsel.save <- array(NA, dim = c(nage, nyear, nspace), dimnames = list(age = age, year = year, space = 1:nspace))
   Fseason.save <- array(NA, dim = c(nage, nyear, nspace, nseason), dimnames = list(
     age = age, year = year, space = 1:nspace,
@@ -330,6 +321,8 @@ run.agebased.sms.op <- function(df,
 
             N.save.age[1, yr, space, season] <- R * R.err
             R.save[yr, space] <- R * R.err
+            R.err.save[year,space] <- R.err
+
           }
 
           if(df$recruitment == 'Rmean'){
@@ -367,10 +360,13 @@ run.agebased.sms.op <- function(df,
 
 
             R <- (4*df$h*R0*SSB[yr, space]/(SSB_0*(1-df$h)+ SSB[yr, space]*(5*df$h-1)))*
-              exp(-0.5*exp(df$logSDR)+err) # Should probably add recruitment bias correction
+              exp(-0.5*exp(df$logSDR)^2+err) # Should probably add recruitment bias correction
 
             N.save.age[1, yr, space, season] <- R
             R.save[yr, space] <- R
+            R.err.save[yr,space] <- err
+            # print(R.err.save[year,space])
+
           }
 
 
@@ -380,7 +376,7 @@ run.agebased.sms.op <- function(df,
             env_tot <- sum(df$beta_env*df$env[yr,])
 
             R <- (4*df$h*R0*SSB[yr,space]/(SSB_0*(1-df$h)+ SSB[yr,space]*(5*df$h-1)))*
-              exp(-0.5*exp(df$logSDR)+err+env_tot)
+              exp(-0.5*exp(df$logSDR)^2+err+env_tot)
 
 
             N.save.age[1, yr, space, season] <- R
@@ -617,7 +613,20 @@ run.agebased.sms.op <- function(df,
   }
 
 
-
+  # Add error to the survey for the assessment model
+  # draw exactly the right number of errors for the [,,1] slice
+  eps <- rnorm(length(survey), mean = 0, sd = df$surveySD)
+  eps <- array(eps, dim = dim(survey))
+  # True survey
+  survey.true <- survey
+  #
+  survey <- survey * exp(eps - 0.5 * df$surveySD^2) #* 1e-3
+  survey[survey < 0] <- -1
+  # Add Error to catches
+  eps_c <- rnorm(Catch.save.age, mean = 0, sd = exp(df$logSDcatch))
+  eps_c <- array(eps_c, dim = dim(Catch.save.age))
+  Catchobs <- (CatchN.save.age* exp(eps_c - 0.5 * exp(df$logSDcatch)^2))
+  Catchobs <- apply(Catchobs,MARGIN = c(1,2,4), sum)
 
   # Add names to output
   year_1 <- c(df$years, max(df$years + 1))
@@ -646,16 +655,19 @@ run.agebased.sms.op <- function(df,
     SSB0 = SSB_0,
     N.save.age = N.save.age,
     R.save = R.save,
+    R.err.save = R.err.save,
     V.save = V.save,
     E.save = E.save,
     SSB.all = SSB.all,
     Catch.save.age = Catch.save.age,
     CatchN.save.age = CatchN.save.age,
+    Catchobs = Catchobs,
     Catch = Catch,
     Catch.age = Catch.age,
     survey = survey,
     survey.true = survey.true,
     Fbar = Fbar,
+    M = M,
     age_comps_OM = age_comps_OM,
     age_catch = age_comps_catch,
     Z = Z.save,

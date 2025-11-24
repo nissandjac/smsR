@@ -26,7 +26,7 @@ Operating-model/meta parameters required for shaping inputs; must include:
 \item{recmodel}{integer(1)
 Recruitment model code for **estimation** in smsR. Typical choices:
 - `0` = none/fixed,
-- `1` = Beverton–Holt,
+- `1` = Beverton-Holt,
 - `2` = Ricker.
 (Adjust if your package uses different codes.)}
 
@@ -80,5 +80,5 @@ str(out)
 }
 \seealso{
 \code{\link{smsR}} model estimation functions; recruitment helpers for
-Beverton–Holt/Ricker; data constructors for surveys and catches.
+Beverton-Holt/Ricker; data constructors for surveys and catches.
 }

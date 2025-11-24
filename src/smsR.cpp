@@ -1,6 +1,8 @@
 // Create a file to run the TMB version of sprat
 #include <TMB.hpp>
 #include <iostream>
+#include "SR_functions.hpp"
+
 
 template<class Type>
 Type posfun(Type x, Type eps, Type &pen) {
@@ -109,7 +111,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_ARRAY(Fseason);
   PARAMETER_ARRAY(logFage);
   PARAMETER_VECTOR(SDsurvey); // Survey variation
-  PARAMETER_VECTOR(SDcatch); // Catch SD's
+  PARAMETER_VECTOR(logSDcatch); // Catch SD's
   PARAMETER(creep); // Estimated technical creep
 // //
   PARAMETER_VECTOR(logQ);
@@ -123,8 +125,10 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(gam_M);
   PARAMETER_ARRAY(ext_M); // External natural mortality
   //PARAMETER_VECTOR(alphaM); // MICE input of external predators or other mortality inducing things
-  PARAMETER(logR0);
-  PARAMETER(logh);
+  PARAMETER(logR0); // Unfished recruitment 
+  PARAMETER(logh); // Steepness for recmodel = 3
+  PARAMETER(trans_rho);        // AR1 recruitment input 
+
 
 
 //
@@ -161,10 +165,14 @@ vector<Type>Catchtot(nyears);
 // vector<Type>powerin(nsurvey);
 vector<Type>Q(logQ.size());
 vector<Type>SDM(logSDM.size());
+vector<Type>SDcatch(logSDcatch.size());
+vector<Type> Rtilde(nyears);
+
 //REPORT(Ravg)
 Type alpha = exp(logalpha);
 Type beta = exp(logbeta);
-Type SDrec = exp(logSDrec);
+Type sigmaR = exp(logSDrec);
+Type sigmaR_2 = sigmaR * sigmaR;
 Type SDF = exp(logSDF);
 Type Rinit = exp(logR0);
 Type h = exp(logh);
@@ -172,6 +180,11 @@ Type h = exp(logh);
 for(int i=0;i<logSDM.size();i++){
   SDM(i) = exp(logSDM(i));
 }
+
+for(int i=0;i<logSDcatch.size();i++){
+  SDcatch(i) = exp(logSDcatch(i));
+}
+
 
 Catch.setZero();
 CatchN.setZero();
@@ -222,12 +235,7 @@ for(int time=0;time<nyears;time++){
   }
 }
 
-
-
-
 if(randomM > 0){
-
-
 
   for(int time=0;time<nyears;time++){
     for(int i=0;i<(nage);i++){ //
@@ -242,10 +250,6 @@ if(randomM > 0){
       }
     }
   }
-
-
-
-
 
 }else{
   for(int time=0;time<nyears;time++){
@@ -604,13 +608,17 @@ vector<Type> Nzero(nage); // Numbers with no fishing
 Type SSB0 = 0;
 
 if(recmodel == 3){
-Nzero(0) = Rinit*exp(-0.5*SDrec);
+Nzero(0) = Rinit;//*exp(-0.5*SDrec);
   for(int i=1;i<(nage-1);i++){
-    Nzero(i) = Rinit * exp(-(M_new(i,0,0)*i)-0.5*SDrec);
+    Nzero(i) = Nzero(i-1) * exp(-(M_new(i,0,0)));
     Nsave(i,0,0) = Nzero(i)*exp(logNinit(i-1));
   }
-  Nzero(nage-1) = (Rinit*exp(-(M_new(nage-2,0,0)*(nage-1))-0.5*SDrec))/(Type(1.0)-exp(-M_new(nage-1,0,0)));
-  Nsave(nage-1,0,0) = Nzero(nage-1)*exp(logNinit(nage-2));
+  
+  Type enter_plus = Nzero(nage-2) * exp( -M_new(nage-2,0,0) );
+  // Then divide by (1 - survival within plus group)
+  Type surv_plus  = exp( -M_new(nage-1,0,0) );
+  Nzero(nage-1)   = enter_plus / (Type(1.0) - surv_plus);
+  Nsave(nage-1,0,0) = Nzero(nage-1) * exp( logNinit(nage-2) );
 
   for(int i=0;i<nage;i++){ // Loop over ages
       SSB0 += Nzero(i)*west(i,0,0)*Mat(i,0,0)*exp(-(M_new(i,0,0)*propM(i,0,0)));
@@ -632,63 +640,62 @@ for(int time=0;time<(nyears);time++){ // Start time loop
       }
       if(qrts == (recseason-1)){ // Recruitment season
 
-         if(recmodel == 1){ // Different recruitment models
-             Rsave(time) = Rin(time);
-             Nsave(0,time,qrts) = Rsave(time);
-             logRec(time) = log(Rin(time));
-           }
-          if(recmodel == 2){
+         if(recmodel == 1){ // Hockey stick model
+             
+          vector<Type>theta(2);
+          theta(0) =  alpha;
+          theta(1) = beta;
+          
+          Rsave(time) = Rin(time); // Estimate R as a free parameter 
+          Nsave(0,time,qrts) = Rsave(time);
+          logRec(time) = log(Rin(time));
+          }
 
-           if(SSB(time) >= beta){
-             if(time >= (nyears-1)){
-              Rin(time)= alpha*exp(env_tot(time)-0.5*SDrec);
-            }else{
-              Rin(time)=alpha*exp(logRin(time)+env_tot(time)-0.5*SDrec);
-            }
+          if(recmodel == 2){ // Ricker model with deviations 
+          
+  
+
+          Rin(time) = exp(log(Rinit) + log(Rin(time)));
+          Rsave(time) = Rin(time);
+          Nsave(0,time,qrts) = Rsave(time);
+          logRec(time) = log(Rin(time));
+          }
+
+          if(recmodel == 3){ // Beverton Holt steepness formulation 
+          vector<Type>theta(3);
+          theta(0) =  Rinit;
+          theta(1) = h;
+          theta(2) =  SSB0; 
+          Rtilde(time) = SR_eval<Type>(recmodel, theta, SSB(time));
+          // if(time <= (nyears-1)){
+          Rin(time) = Rtilde(time)*exp(logRin(time)-0.5*sigmaR_2);
+          // }else{
+          //    Rin(time) = Rtilde(time)*exp(-0.5*sigmaR_2);
+          // }
+
+            Rsave(time) = Rin(time);
+            Nsave(0,time,qrts) = Rsave(time);
+            logRec(time) = log(Rin(time));
+          }
+
+          if(recmodel == 4){ // Beverton Holt with environmentally mediated recruitment 
+          vector<Type>theta(3);
+          theta(0) =  Rinit;
+          theta(1) = h;
+          theta(2) =  SSB0; 
+          Rtilde(time) = SR_eval<Type>(recmodel, theta, SSB(time));
+          if(time <= (nyears-1)){
+              Rin(time) = Rtilde(time)*exp(logRin(time)-0.5*sigmaR_2 + env_tot(time));
           }else{
-            if(time >= (nyears-1)){
-              Rin(time) = (alpha/beta)*SSB(time)*exp(env_tot(time)-0.5*SDrec);
-            }else{
-              Rin(time) = (alpha/beta)*SSB(time)*exp(logRin(time)+env_tot(time)-0.5*SDrec);
-            }
-          }
-            Rsave(time) = Rin(time);
-            Nsave(0,time,qrts) = Rsave(time);
-            logRec(time) = log(Rin(time));
-          }
-
-          if(recmodel == 3){
-            if(time >= (nyears-1)){
-              Rin(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*SDrec+env_tot(time));
-          }else{
-              Rin(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*SDrec+logRin(time)+env_tot(time));
-
+             Rin(time) = Rtilde(time)*exp(-0.5*sigmaR_2 + env_tot(time));
           }
 
             Rsave(time) = Rin(time);
             Nsave(0,time,qrts) = Rsave(time);
             logRec(time) = log(Rin(time));
           }
-
-          if(recmodel == 4){
-
-
-             if(time >= (nyears-1)){
-              Rin(time)= alpha*exp(env_tot(time)-0.5*SDrec);
-            }else{
-              Rin(time)=alpha*exp(logRin(time)+env_tot(time)-0.5*SDrec);
-            }
-
-            Rsave(time) = Rin(time);
-            Nsave(0,time,qrts) = Rsave(time);
-            logRec(time) = log(Rin(time));
           }
 
-
-
-
-
-       }
         if(qrts < (nseason-1)){
          for(int i=0;i<(nage);i++){ // Loop over other ages
          Nsave(i,time,qrts+1) = Nsave(i,time,qrts)*exp(-Zsave(i,time,qrts));
@@ -755,7 +762,6 @@ for(int i=0;i<nage;i++){ // Loop over other ages
 }
 // // // // //
 // // // // // Stock recruitment
-vector<Type> SRpred(nyears);
 vector<Type> xR(nyears);
 vector<Type> xR2(nyears);
 
@@ -771,25 +777,25 @@ for(int time=0;time<(nyears);time++){ // Loop over years
            xR(time) = log(Rsave(time))-(log(alpha)+log(SSB(time)));
            xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(SSB(time))),2);
            //SRpred(time) = exp(log(alpha)+log(SSB(time)));
-           SRpred(time) = exp(log(alpha) + log(SSB(time)));
+           Rtilde(time) = exp(log(alpha) + log(SSB(time)));
          }else{
            xR(time)  = log(Rsave(time))-(log(alpha)+log(beta));
            xR2(time) = pow(log(Rsave(time))-(log(alpha)+log(beta)),2);
-           SRpred(time) = exp(log(alpha) + log(beta));
+           Rtilde(time) = exp(log(alpha) + log(beta));
          }
         }
 
-        if(recmodel == 3){
-        SRpred(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*SDrec+env_tot(time));
-        }
+        // if(recmodel == 3){
+        // SRpred(time) = (4*h*Rinit*SSB(time)/(SSB0*(1-h)+ SSB(time)*(5*h-1)))*exp(-0.5*sigmaR_2+env_tot(time));
+        // }
 
-        if(recmodel == 2){
-          SRpred(time) = alpha;
-        }
+        // if(recmodel == 2){
+        //   SRpred(time) = alpha;
+        // }
 
-        if(recmodel == 4){
-          SRpred(time) = alpha;
-        }
+        // if(recmodel == 4){
+        //   SRpred(time) = alpha;
+        // }
 
   }
 
@@ -877,7 +883,7 @@ if(estSD(1) == 2){ // Calculate the catch CV
       for(int i=astart;i<aend;i++){
           if(no(k, qrts)>0){ // Only calculate if there are any observations
           //SD_catch2(i,qrts) = sqrt(sumx2(k,qrts)/no(k,qrts));
-          SD_catch2(i, qrts) = sqrt((no(k,qrts)*sumx2(k,qrts)-pow(sumx(k,qrts),2))/pow(no(k,qrts),2));
+          SD_catch2(i, qrts) = (no(k,qrts)*sumx2(k,qrts)-pow(sumx(k,qrts),2))/pow(no(k,qrts),2);
 
           if(no(k,qrts) == 1){
             SD_catch2(i, qrts) = 0.01; // This is causing an error for sprat
@@ -938,7 +944,7 @@ if(estSD(1) == 0){ // Estimate
     for(int qrts=0;qrts<(nseason);qrts++){ // Loop over surveys
       for(int i=0;i<nage;i++){ // Loop over other ages
           if(i >= CminageSeason(qrts)){
-            SD_catch2(i,qrts) = pow(SDcatch(Cidx_CV(i,qrts)),1);
+            SD_catch2(i,qrts) = pow(SDcatch(Cidx_CV(i,qrts)),2);
           }
         }
 
@@ -946,7 +952,7 @@ if(estSD(1) == 0){ // Estimate
   }else{
     for(int i=0;i<nage;i++){ // Loop over other ages
         if(i >= CminageSeason(0)){
-            SD_catch2(i,0) = pow(SDcatch(Cidx_CV(i,0)),1);
+            SD_catch2(i,0) = pow(SDcatch(Cidx_CV(i,0)),2);
           }
         }
       }
@@ -1014,7 +1020,7 @@ Type nllC = 0.0; // log likelihood for Catch
      for(int qrts=0;qrts<nseason;qrts++){ // Loop over seasons
        if(Catchobs(i,time,qrts)> 0 && CatchN(i, time, qrts) > 0){ // Log likelihood
 
-       nllC += -dnorm(log(CatchN(i, time, qrts)),log(Catchobs(i, time, qrts)), SD_catch2(i,qrts), true);
+       nllC += -dnorm(log(Catchobs(i, time, qrts)),log(CatchN(i, time, qrts)), sqrt(SD_catch2(i,qrts)), true);
        Catchtot(time) += Catch(i,time, qrts);
 
      }
@@ -1039,7 +1045,7 @@ for(int time=0;time<nyears;time++){ // Loop over other ages
         //SDSout(i,time,k) = sqrt(pow(SDS(i,k),2)+pow(scv(i,time,k),2));
 
         //nllsurv += -dnorm(pow(log(survey(i, time, qrts,k),1)),log(Surveyobs(i, time, qrts,k)), SDS(i,k), true);
-        nllsurv += -dnorm(Surveyout(i,time,k),log(Surveyobs(i, time,k)), SDS(i,k), true);
+        nllsurv += -dnorm(log(Surveyobs(i, time,k)),Surveyout(i,time,k), SDS(i,k), true);
 
         //nllsurv += -dnorm(log(survey(i, time,k)),log(Surveyobs(i, time,k)), SDS(i,k), true);
 
@@ -1062,9 +1068,9 @@ vector<Type> resid_x_export(nyears);
 // // Calculate SDrec
 //
 for(int i=0;i<nyears;i++){ // Loop over years
-  resid_x += log(Rsave(i))-log(SRpred(i));
-  resid_x2 += pow(log(Rsave(i))- log(SRpred(i)),2);
-  resid_x_export(i) = log(Rsave(i))-log(SRpred(i));
+  resid_x += log(Rsave(i))-log(Rtilde(i));
+  resid_x2 += pow(log(Rsave(i))- log(Rtilde(i)),2);
+  resid_x_export(i) = log(Rsave(i))-log(Rtilde(i));
 }
 //
 
@@ -1072,11 +1078,11 @@ for(int i=0;i<nyears;i++){ // Loop over years
 Type SDrec2;
 
 if(estSD(2) == 2){// Calculate the standard deviation of recruitment
-  SDrec2 = (((nyears*resid_x2)-pow(resid_x,2))/pow(nyears,2))*SDrec;
+  SDrec2 = (((nyears*resid_x2)-pow(resid_x,2))/pow(nyears,2));
   // =(no*sumx2-square(sumx))/square(no);
 
 }else{
-  SDrec2 = SDrec;
+  SDrec2 = sigmaR_2;
 }
 
 
@@ -1098,39 +1104,81 @@ for(int i=0;i<nyears;i++){ // Loop over years
 
 Type prec = 0.0;
 
-  if(randomR == 1){
 
-    if(recmodel > 1){
-    for(int time=0;time<(nyears-1);time++){ // Loop over years
-    prec += -dnorm(logRin(time), Type(0.0) , SDrec2, true);
+if (randomR == 1) {
+
+  // --- recmodel == 1: Random walk on logRin ---
+  if (recmodel == 1) {
+    // Optionally, you could add a weak prior on the first state if desired:
+    // prec += -dnorm(logRin(0), Type(0.0), Type(10.0), true);
+    for (int time = 1; time < nyears; ++time) {  // transitions: y|y-1 ~ N(prev, sigmaR)
+      prec += -dnorm(logRin(time), logRin(time - 1), sigmaR, true);
     }
+  }
+
+  // --- recmodel == 2: AR(1) on logRin (stationary) ---
+  if (recmodel == 2) {
+    // Map to (-1,1)
+    Type rho  = Type(2.0) / (Type(1.0) + exp(-trans_rho)) - Type(1.0);
+    // Stationary marginal SD of the AR(1) state
+    Type sigr = sigmaR / sqrt(Type(1.0) - rho * rho);
+
+    // Marginal for first state under stationarity
+    prec += -dnorm(logRin(0), Type(0.0), sigr, true);
+
+    // AR(1) transitions: u_t | u_{t-1} ~ N(rho*u_{t-1}, sigmaR)
+    for (int time = 1; time < nyears; ++time) {
+      prec += -dnorm(logRin(time), rho * logRin(time - 1), sigmaR, true);
+    }
+  }
+
+  // --- recmodel == 3: IID recruitment + priors on initial logN ---
+  if (recmodel == 3) {
+    // IID: logRin_t ~ N(0, sigmaR^2)  for all t = 0,...,nyears-1
+    for (int time = 0; time < (nyears); ++time) {
+      prec += -dnorm(logRin(time), Type(0.0), sigmaR, true);
     }
 
-      if(recmodel == 1){ // Assume random walk if randomR is one with recmodel 1
-        for(int time=1;time<(nyears);time++){ // Loop over years
-          prec += -dnorm(logRin(time), logRin(time-1) , SDrec2, true);
-        }
+    // Prior on initial age structure. If you have a separate SD, replace sigmaR with sigmaNinit.
+    for (int a = 0; a < (nage-1); ++a) {
+      prec += -dnorm(logNinit(a), Type(0.0), sigmaR, true);
     }
+  }
 
-  }else{
+}else{
 
     if(recmodel == 1){
 
     prec = nyears*log(sqrt(SDrec2))+pXr*0.5/SDrec2;   // likelihood
     }
 
+   if(recmodel == 2){
+     Type rho   = Type(2.0) / (Type(1.0) + exp(-trans_rho)) - Type(1.0); // (-1,1)
+     Type sigr  = sigmaR / sqrt(Type(1.0) - rho * rho);                     // stationary sd
 
-  if(recmodel == 3){
-    for(int i=0;i<(nage-1);i++){ // Loop over years
-      prec+= -dnorm(logNinit(i), Type(0.0), SDrec2, true);
+// Marginal for first state under stationarity: u0 ~ N(0, sigr^2)
+     prec += -dnorm(logRin(0), Type(0.0), sigr, true);
+
+// AR(1) transitions: u_y | u_{y-1} ~ N(rho*u_{y-1}, sigw^2)
+    for (int time = 1; time < nyears; time++) {
+      prec += -dnorm(logRin(time), rho * logRin(time-1), sigmaR, true);
     }
 
-    for(int time=0;time<(nyears-1);time++){ // Loop over years
-    prec += -dnorm(logRin(time), Type(0.0) , SDrec2, true);
     }
+
+    if(recmodel == 3){
+      for(int i=0;i<(nage-1);i++){ // Loop over years
+       prec+= -dnorm(logNinit(i), Type(0.0), sigmaR, true);
+      }
+
+     for(int time=0;time<(nyears);time++){ // Loop over years
+      prec += -dnorm(logRin(time), Type(0.0) , sigmaR, true);
+      }
 
 
   }
+
+
 
 }
 
@@ -1198,7 +1246,6 @@ for(int time=0;time<nyears;time++){ // Loop over years
 Type ansF = 0.0;
 
 if(randomF == 1){
-
   for(int time=1;time<nyears;time++){ // Loop over years
     ansF += -dnorm(Fyear(time), Fyear(time-1), SDF, true);
     //ansR += -dnorm(Fyear(time), Fyear(time-1), SDR, true);
@@ -1272,7 +1319,7 @@ ansvec(3) = ansM;
 
 if(debug == 1){
 REPORT(ansvec)
-REPORT(SRpred)
+REPORT(Rtilde)
 REPORT(xR2)
 REPORT(SSB)
 REPORT(F0)
@@ -1329,7 +1376,7 @@ ADREPORT(logTSB)
 ADREPORT(logCatchN)
 ADREPORT(logN)
 ADREPORT(ansvec)
-ADREPORT(SDrec)
+ADREPORT(sigmaR)
 ADREPORT(logCatchtot)
 ADREPORT(Fsel)
 ADREPORT(logQsurv)
@@ -1338,14 +1385,14 @@ ADREPORT(Surveyout)
 ADREPORT(SDS)
 ADREPORT(SDSout)
 ADREPORT(SD_catch2)
+//ADREPORT(logSDcatch)
 ADREPORT(resid_catch)
 ADREPORT(resid_survey)
 ADREPORT(xR)
 ADREPORT(effort_creep)
 ADREPORT(resid_x_export)
 ADREPORT(logbeta)
-ADREPORT(SDrec2)
-ADREPORT(SRpred)
+ADREPORT(Rtilde)
 ADREPORT(logFavg)
 ADREPORT(SSB0)
 ADREPORT(logM)

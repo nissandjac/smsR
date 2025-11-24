@@ -48,7 +48,7 @@
 #' @param recmodel Recruitment model specification. Options:
 #'   - `1`: Hockey-stick model with input breakpoint (`betaSR`).
 #'   - `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
-#'   - `3`: Beverton-Holt model.
+#'   - `3`: Beverton Holt model.
 #' @param estSD Vector indicating which deviation parameters to estimate.
 #' @param SDmin Minimum CV values for estimation.
 #' @param betaSR Hockey-stick model breakpoint parameter.
@@ -58,8 +58,8 @@
 #' @param randomR Logical. If `TRUE`, recruitment deviations are estimated as a random effect.
 #' @param nenv Number of environmental covariates affecting recruitment.
 #' @param Mprior Prior standard deviation (SD) for `M` deviations from the first year of the time series. Negative value indicates this it is not used.
-#' @param M_min Minimum age included in the time-varying `M` estimation.
-#' @param M_max Maximum age included in the time-varying `M` estimation.
+#' @param M_min Minimum age included in the time varying `M` estimation.
+#' @param M_max Maximum age included in the time varying `M` estimation.
 #' @param MCV Age distribution of the CV for time-varying `M`.
 #' @param SDMprior Prior SD for `M` CV estimation.
 #' @param prior_SDM Prior for `M` estimation
@@ -131,8 +131,8 @@ get_TMB_parameters <- function(
     M_min = 0,
     M_max = max(ages),
     scv = array(0, dim = c(length(ages), length(years), nsurvey)),
-    surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
-    catchSD = replicate(nseason, c(0, max(ages)), simplify = FALSE),
+    surveySD = replicate(nsurvey, 0, simplify = FALSE),
+    catchSD = replicate(nseason, 0, simplify = FALSE),
     MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
     prior_SDM = 0.4,
     estSD = c(0, 0, 0),
@@ -164,6 +164,95 @@ get_TMB_parameters <- function(
     warning("probably doesnt work without survey")
   }
 
+  if(length(years) == 1){
+    stop('Input years as a vector')
+  }
+
+  nage <- length(ages)
+  nyears <- length(years)
+
+  if(any(surveySeason > nseason)){
+    stop('List correct season for the survey')
+  }
+
+  # Do a sanity check of dimension sizes of input data
+
+
+
+  exp_dim <- c(nage, nyear + 1, nseason)
+
+  fix_dim <- function(arr, name, exp_dim, nage, nyear, nseason) {
+    d <- dim(arr)
+
+    # Already correct 3D
+    if (length(d) == 3 && all(d == exp_dim)) return(arr)
+
+    # Allow 4D with a singleton 3rd dim: c(nage, nyear+1, 1, nseason)
+    if (length(d) == 4 && d[3] == 1 &&
+        all(d[c(1, 2)] == exp_dim[1:2]) &&
+        d[4] == exp_dim[3]) {
+
+      # Drop only the 3rd (singleton) dim; result should be 3D
+      arr <- arr[,,1, , drop = TRUE]
+
+      if (length(dim(arr)) == 3 && all(dim(arr) == exp_dim)) return(arr)
+
+      stop(sprintf("After squeezing singleton, %s still mismatched (got %s, expected %s).",
+                   name, paste(dim(arr), collapse = "x"), paste(exp_dim, collapse = "x")))
+    }
+
+    stop(sprintf("Dimension mismatch of %s (got %s, expected %s).",
+                 name, paste(d, collapse = "x"), paste(exp_dim, collapse = "x")))
+  }
+
+  # Apply
+  if (all(dim(mtrx$weca) == c(nage, nyear, nseason))) {
+    # Compute mean of last 5 years (across year dimension = 2)
+    mean_last5 <- apply(mtrx$weca[, (nyear-4):nyear, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
+
+    # Add as new "year + 1" slice
+    mtrx$weca <- abind::abind(mtrx$weca, mean_last5, along = 2)
+  }
+
+  if (all(dim(mtrx$M) == c(nage, nyear, nseason))) {
+    # Compute mean of last 5 years (across year dimension = 2)
+    mean_last5 <- apply(mtrx$M[, (nyear-4):nyear, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
+
+    # Add as new "year + 1" slice
+    mtrx$M <- abind::abind(mtrx$M, mean_last5, along = 2)
+  }
+  if (all(dim(mtrx$west) == c(nage, nyear, nseason))) {
+    # Compute mean of last 5 years (across year dimension = 2)
+    mean_last5 <- apply(mtrx$west[, (nyear-4):nyear, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
+
+    # Add as new "year + 1" slice
+    mtrx$west <- abind::abind(mtrx$west, mean_last5, along = 2)
+  }
+  if (all(dim(mtrx$mat) == c(nage, nyear, nseason))) {
+    # Compute mean of last 5 years (across year dimension = 2)
+    mean_last5 <- apply(mtrx$mat[, (nyear-4):nyear, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
+
+    # Add as new "year + 1" slice
+    mtrx$mat <- abind::abind(mtrx$mat, mean_last5, along = 2)
+  }
+
+
+  mtrx$weca <- fix_dim(mtrx$weca, "weca", exp_dim, nage, nyear, nseason)
+  mtrx$west <- fix_dim(mtrx$west, "west", exp_dim, nage, nyear, nseason)
+  mtrx$M    <- fix_dim(mtrx$M,    "M",    exp_dim, nage, nyear, nseason)
+  mtrx$mat  <- fix_dim(mtrx$mat,  "maturity", exp_dim, nage, nyear, nseason)
+
+  # Now check survey
+  if (any(dim(Surveyobs) != c(nage, nyears,nsurvey))) stop("Dimension mismatch of Survey.")
+
+  # Now check Catches
+  # Add the extra dimension if nseason == 1
+  if(length(dim(Catchobs)) == 2){
+    Catchobs <- array(Catchobs, dim = c(nage, nyears, 1))
+  }
+
+
+  if (any(dim(Catchobs) != c(nage, nyears,nseason))) stop("Dimension mismatch of catches.")
 
   # if(is.null(betaSR)){
   #   nllfactor[3] <- 0
@@ -180,6 +269,25 @@ get_TMB_parameters <- function(
 
   Qidx <- rep(0, nsurvey)
 
+
+  if(length(Qminage)<nsurvey){
+    stop('Provide minimum age for all surveys (Qminage)')
+  }
+
+  if(length(Qlastage) < nsurvey){
+    stop('Provide maximum age for all surveys (Qlastage)')
+  }
+
+
+  for(k in 1:nsurvey){
+
+    if(min(surveySD[[k]]) > Qminage[k]){
+      surveySD[[k]] <- c(Qminage[k], surveySD[[k]])
+    }
+
+  }
+
+
   if (nsurvey > 1) {
     for (i in 2:nsurvey) {
       Qidx[i] <- length(ages[ages == Qminage[i - 1]]:ages[ages == Qlastage[i - 1]]) + Qidx[i - 1]
@@ -191,12 +299,12 @@ get_TMB_parameters <- function(
 
 
   # Fix the survey CV groups
-  nage <- length(ages)
   Qidx.CV <- matrix(0, nage, nsurvey)
   no <- 1
   maxage <- max(ages)
 
   for (k in 1:nsurvey) {
+    #surveySD[[k]][1] <- Qminage[k]
     tmpCV <- surveySD[[k]] + 1 # Go from age to index
     vec <- rep(0, nage)
 
@@ -210,7 +318,7 @@ get_TMB_parameters <- function(
           vec[tmp.idx] <- no
           no <- no + 1
         } else {
-          vec[tmpCV[length(tmpCV)]:(tmpCV[i] + 1)] <- no
+          vec[tmpCV[length(tmpCV)]:(tmpCV[i])] <- no # Test this with other models (tmpCV[i] + 1)
           no <- no + 1
         }
       }
@@ -343,7 +451,6 @@ get_TMB_parameters <- function(
 
 
 
-  nyear <- length(years)
   # Turn the block into an index
   effort.in <- matrix(0, nyear, nseason)
 

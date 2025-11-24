@@ -149,6 +149,48 @@ runAssessment <- function(df.tmb,
     #df.tmb$nllfactor[3] <- fold
   }
 
+  # if(recmodel ==3 & nseason > 1){
+  #
+  #   df.rphase <- df.tmb
+  #   # df.phase$nllfactor[3] <- 0.01 # A low value
+  #
+  #   obj_phase <- TMB::MakeADFun(df.phase, parms, DLL = dll, map = mps, silent = silent, random = rlist)
+  #
+  #   bnds <- fix_boundaries(obj_phase, lwr, upr)
+  #
+  #   lower <- bnds[[2]]
+  #   upper <- bnds[[1]]
+  #
+  #
+  #   #message('No breakpoint given for hockey stick. Estimating in phases assuming a spasmodic stock')
+  #
+  #   opt_p1 <- stats::nlminb(obj_phase$par, obj_phase$fn, obj_phase$gr,
+  #                           lower = lower, upper = upper,
+  #                           control = list(
+  #                             iter.max = 1e5,
+  #                             eval.max = 1e5
+  #                           )
+  #   ) #
+  #   reps_p1 <- TMB::sdreport(obj_phase)
+  #   # Get SSB and R
+  #   ssb <- exp(reps_p1$value[names(reps_p1$value) == 'logSSB'])
+  #   R <- exp(reps_p1$value[names(reps_p1$value) == 'logRec'])
+  #   # Find the minimum ssb that gives above median R
+  #   betaSR <- min(ssb[R > median(R)])
+  #
+  #   # Assign betaSR
+  #   message(paste('SSB breakpoint in hockey stick approximated = ', as.numeric(round(betaSR,0)) ))
+  #
+  #   df.tmb$betaSR <- as.numeric(betaSR)
+  #   mps$logbeta <- factor(parms$logbeta * NA)
+  #
+  #   #    print(mps)
+  #
+  #
+  #
+  # }
+
+
 
   obj <- TMB::MakeADFun(df.tmb, parms, DLL = dll, map = mps, silent = silent, random = rlist)
   x <- obj$report()
@@ -161,7 +203,7 @@ runAssessment <- function(df.tmb,
   upper <- bnds[[1]]
 
 
-
+  upper[names(upper) == 'logbeta'] <- 0.01
 
   system.time(opt <- stats::nlminb(obj$par, obj$fn, obj$gr,
                                    lower = lower, upper = upper,
@@ -223,7 +265,7 @@ fix_boundaries <- function(obj, lwr, upr){
   lower[names(lower) == "Fseason"] <- 0.0001
   lower[names(lower) == "SDsurvey"] <- 0.0001
   lower[names(lower) == "logSDrec"] <- log(0.01)
-  lower[names(lower) == "SDcatch"] <- 0.01
+  lower[names(lower) == "logSDcatch"] <- log(0.01)
   lower[names(lower) == "creep"] <- -0.1
   lower[names(lower) == 'logh'] <- log(0.21)
   lower[names(lower) == 'logSDM'] <- log(0.001)
@@ -236,7 +278,7 @@ fix_boundaries <- function(obj, lwr, upr){
   upper[names(upper) == "SDsurvey"] <- 2
   upper[names(upper) == "logSDrec"] <- log(4)
   upper[names(upper) == "logFyear"] <- log(10)
-  upper[names(upper) == "SDcatch"] <- sqrt(2.5)
+  upper[names(upper) == "logSDcatch"] <- log(sqrt(2))
   upper[names(upper) == "creep"] <- 0.2
   upper[names(upper) == 'logh'] <- log(0.99)
   upper[names(upper) == 'logSDM'] <- log(2)
@@ -274,9 +316,3 @@ fix_boundaries <- function(obj, lwr, upr){
 
 return(list(upper, lower))
 }
-
-
-
-
-
-

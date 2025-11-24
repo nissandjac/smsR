@@ -16,18 +16,18 @@ sim_OM_parameters(
   Fpast = 0,
   t0 = -0.1,
   gamma = 1.1,
-  tau = 5,
+  tau = 2,
   gamma_sel = 1.1,
   tau_sel = 1,
   maxage = 10,
   a = 0.01,
   b_size = 3,
-  M = 0.2,
+  M = 0.2/nseason,
   b = 1,
   R0 = 10000,
   theta = 2,
   h = 0.5,
-  SDcatch = 0.01,
+  SDcatch = 0.3,
   Fbarage = c(2, maxage - 3),
   nsurvey = 1,
   q = rep(1, nsurvey),
@@ -40,7 +40,8 @@ sim_OM_parameters(
   recruitment.type = "AR",
   rseason = 1,
   fishing.type = "AR",
-  SDF = 0.05,
+  SDF = 0.15,
+  Fseason = rep(1/nseason, nseason),
   rho_F = 0.7,
   SDM = 0.1,
   rho = 0.8,
@@ -95,9 +96,9 @@ to shape the initial numbers-at-age distribution (\code{Ninit}). Set 0 to skip.}
 
 \item{maxage}{Integer. Maximum modeled age (age classes are \code{0:maxage}).}
 
-\item{a}{Numeric. Length–weight coefficient (when generating weights from VBGF).}
+\item{a}{Numeric. Length weight coefficient when generating weights from VBGF.}
 
-\item{b_size}{Numeric. Length–weight exponent (when generating weights).}
+\item{b_size}{Numeric. Length weight exponent (when generating weights).}
 
 \item{M}{Numeric. Baseline natural mortality used as the starting level or
 constant value depending on \code{mortality}.}
@@ -109,7 +110,7 @@ scaling used by the simulator (passed through as \code{b} in the OM list).}
 
 \item{theta}{Numeric. Observation-model parameter (passed through).}
 
-\item{h}{Numeric. Beverton–Holt steepness; required when
+\item{h}{Numeric. Beverton Holt steepness; required when
 \code{recruitment \%in\% c("BH_steep","BH_env")}.}
 
 \item{SDcatch}{Numeric (sd on log scale). Catch observation error (\code{logSDcatch}).}
@@ -122,10 +123,10 @@ mean F (e.g., \code{c(2, maxage - 3)}).}
 \item{q}{Numeric length \code{nsurvey}. Survey catchability scalars.}
 
 \item{surveyStart}{Numeric length \code{nsurvey}. Start of survey in seasonal
-time within a year (0–1).}
+time within a year (01).}
 
 \item{surveyEnd}{Numeric length \code{nsurvey}. End of survey in seasonal
-time within a year (0–1).}
+time within a year (01).}
 
 \item{surveySD}{Numeric length \code{nsurvey}. Observation sd on survey index
 (log scale).}
@@ -166,8 +167,8 @@ for time-varying M. Defaults to \code{2 * M} if \code{NA}.}
 \code{"increase"} (linear +\code{SDM} per year up to \code{M_limit}), or
 \code{"decrease"} (linear -\code{SDM} per year down to \code{M_limit}, floored at 0).}
 
-\item{recruitment}{Character. Stock–recruit relationship: \code{"BH_steep"}
-(Beverton–Holt with steepness), \code{"BH_env"} (BH with environmental effect
+\item{recruitment}{Character. Stockrecruit relationship: \code{"BH_steep"}
+(BevertonHolt with steepness), \code{"BH_env"} (BH with environmental effect
 \code{beta_env} and \code{env}), or other options the simulator accepts;
 value is passed through to the OM list.}
 

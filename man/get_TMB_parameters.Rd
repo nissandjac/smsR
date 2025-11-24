@@ -49,8 +49,8 @@ get_TMB_parameters(
   M_min = 0,
   M_max = max(ages),
   scv = array(0, dim = c(length(ages), length(years), nsurvey)),
-  surveySD = matrix(c(0, max(ages)), nrow = 2, ncol = nsurvey),
-  catchSD = replicate(nseason, c(0, max(ages)), simplify = FALSE),
+  surveySD = replicate(nsurvey, 0, simplify = FALSE),
+  catchSD = replicate(nseason, 0, simplify = FALSE),
   MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
   prior_SDM = 0.4,
   estSD = c(0, 0, 0),
@@ -148,9 +148,9 @@ get_TMB_parameters(
 
 \item{Pred_in}{Matrix of predator inputs for MICE modeling.}
 
-\item{M_min}{Minimum age included in the time-varying `M` estimation.}
+\item{M_min}{Minimum age included in the time varying `M` estimation.}
 
-\item{M_max}{Maximum age included in the time-varying `M` estimation.}
+\item{M_max}{Maximum age included in the time varying `M` estimation.}
 
 \item{scv}{Matrix specifying time-varying survey CV.}
 
@@ -179,7 +179,7 @@ get_TMB_parameters(
 \item{recmodel}{Recruitment model specification. Options:
 - `1`: Hockey-stick model with input breakpoint (`betaSR`).
 - `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
-- `3`: Beverton-Holt model.}
+- `3`: Beverton Holt model.}
 
 \item{nenv}{Number of environmental covariates affecting recruitment.}
 }

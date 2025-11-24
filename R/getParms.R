@@ -19,7 +19,7 @@
 #'
 getParms <- function(df.tmb, parms.true = NULL) {
   # Try initial parameters in weird spots
-  SDCatch <- rep(.6, max(df.tmb$Cidx_CV) + 1)
+  logSDCatch <- log(rep(.6, max(df.tmb$Cidx_CV) + 1))
   SDsurvey <- rep(.1, length(unique(df.tmb$Qidx_CV[df.tmb$Qidx_CV > -1])))
   logQ <- sum(df.tmb$Qlastage - df.tmb$Qminage) + length(df.tmb$Qidx)
 
@@ -64,7 +64,7 @@ getParms <- function(df.tmb, parms.true = NULL) {
     Fseason = Fseason,
     logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
     SDsurvey = SDsurvey,
-    SDcatch = as.matrix(SDCatch),
+    logSDcatch = as.matrix(logSDCatch),
     creep = 0,
     logQ = rep(log(1), logQ), # length(df.tmb$surveyCV)
     pin = 1,
@@ -77,7 +77,8 @@ getParms <- function(df.tmb, parms.true = NULL) {
     ext_M = matrix(0, ncol = ngam, nrow = df.tmb$nyears),
     gam_M = log(rep(0.01, ngam)),
     logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
-    logh = log(0.5)
+    logh = log(0.5),
+    trans_rho = 0
   )
 
   if (df.tmb$nseason == 1) {
@@ -88,15 +89,22 @@ getParms <- function(df.tmb, parms.true = NULL) {
   if(df.tmb$recmodel == 3){
 
     parms$logRin <- 0 * parms$logRin # R is estimates as deviates from the mean
-    parms$logRin <- parms$logRin[1:(df.tmb$nyears-1)] # R is estimates as deviates from the mean
+  #  parms$logRin <- parms$logRin[1:(df.tmb$nyears-1)] # R is estimates as deviates from the mean
     parms$logNinit <- 0 * parms$logNinit
 
   }
 
   if(df.tmb$recmodel == 2){
 
+    # parms$logRin <- 0 * parms$logRin # R is estimates as deviates from the mean
+    # parms$logRin <- parms$logRin[1:(df.tmb$nyears-1)] # R is estimates as deviates from the mean
+    # # Estimate initial parameters for Ricker SR
+    # parms$logalpha <- log(1)
+    # parms$logbeta <- log(0.001)
     parms$logRin <- 0 * parms$logRin # R is estimates as deviates from the mean
-    parms$logRin <- parms$logRin[1:(df.tmb$nyears-1)] # R is estimates as deviates from the mean
+
+
+
 
   }
 
@@ -161,7 +169,7 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
 
 
   if (df.tmb$estSD[2] == 2) {
-    mps$SDcatch <- factor(parms$SDcatch * NA)
+    mps$logSDcatch <- factor(parms$logSDcatch * NA)
   }
 
   if (df.tmb$estSD[3] == 2) {
@@ -195,11 +203,16 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
     mps$logbeta <- factor(parms$logalpha * NA)
   }
 
-  if(df.tmb$recmodel != 3){
+  if(!df.tmb$recmodel %in% c(2,3)){
     mps$logR0 <- factor(NA)
   }
 
-
+  if(df.tmb$recmodel != 2){
+    mps$trans_rho <- factor(NA)
+  }else{
+    mps$logalpha <- factor(parms$logalpha * NA)
+    mps$logbeta <- factor(parms$logalpha * NA)
+    }
 
   if(df.tmb$randomM == 0){
     mps$ext_M <- factor(parms$ext_M * NA)

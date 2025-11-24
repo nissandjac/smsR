@@ -23,13 +23,13 @@ plotBubbles <- function(sas, CVscale = TRUE) {
 
 
   # Scale CR with cv
-  catchCV <- getCatchCV(df.tmb, sas)
-  CR$CV <- NA
+  catchSD <- getCatchSD(df.tmb, sas)
+  CR$SD <- NA
   for (i in 1:df.tmb$nseason) {
-    cvtmp <- catchCV[catchCV$season == i, ]
+    cvtmp <- catchCV[catchSD$season == i, ]
     yr.tmp <- unique(CR$years[CR$season == i])
     for (j in 1:length(yr.tmp)) {
-      CR$CV[CR$season == i & CR$years == yr.tmp[j]] <- cvtmp$catchCV[cvtmp$ages %in% CR$ages[CR$season == i & CR$years == yr.tmp[j]]]
+      CR$SD[CR$season == i & CR$years == yr.tmp[j]] <- cvtmp$catchSD[cvtmp$ages %in% CR$ages[CR$season == i & CR$years == yr.tmp[j]]]
     }
   }
 
@@ -39,7 +39,7 @@ plotBubbles <- function(sas, CVscale = TRUE) {
 
 
   p7 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
-    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch) / CV), alpha = .3) +
+    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch) / SD), alpha = .3) +
     facet_wrap(~season, nrow = df.tmb$nseason) +
     theme_classic() +
     ggplot2::scale_size(range = ss) +

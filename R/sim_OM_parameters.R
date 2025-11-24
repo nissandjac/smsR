@@ -23,15 +23,15 @@
 #' @param gamma_sel Numeric. Logistic fishing selectivity slope.
 #' @param tau_sel Numeric. Logistic fishing selectivity inflection age.
 #' @param maxage Integer. Maximum modeled age (age classes are \code{0:maxage}).
-#' @param a Numeric. Length–weight coefficient (when generating weights from VBGF).
-#' @param b_size Numeric. Length–weight exponent (when generating weights).
+#' @param a Numeric. Length weight coefficient when generating weights from VBGF.
+#' @param b_size Numeric. Length weight exponent (when generating weights).
 #' @param M Numeric. Baseline natural mortality used as the starting level or
 #'   constant value depending on \code{mortality}.
 #' @param b Numeric or length-\code{nyear} vector. Power for production/biomass
 #'   scaling used by the simulator (passed through as \code{b} in the OM list).
 #' @param R0 Numeric. Unfished recruitment level (scales recruitment).
 #' @param theta Numeric. Observation-model parameter (passed through).
-#' @param h Numeric. Beverton–Holt steepness; required when
+#' @param h Numeric. Beverton Holt steepness; required when
 #'   \code{recruitment \%in\% c("BH_steep","BH_env")}.
 #' @param SDcatch Numeric (sd on log scale). Catch observation error (\code{logSDcatch}).
 #' @param Fbarage Integer vector of length 2. Age range (inclusive) for reporting
@@ -39,9 +39,9 @@
 #' @param nsurvey Integer. Number of surveys.
 #' @param q Numeric length \code{nsurvey}. Survey catchability scalars.
 #' @param surveyStart Numeric length \code{nsurvey}. Start of survey in seasonal
-#'   time within a year (0–1).
+#'   time within a year (01).
 #' @param surveyEnd Numeric length \code{nsurvey}. End of survey in seasonal
-#'   time within a year (0–1).
+#'   time within a year (01).
 #' @param surveySD Numeric length \code{nsurvey}. Observation sd on survey index
 #'   (log scale).
 #' @param SDR Numeric. Recruitment deviation sd (used with \code{recruitment.type}).
@@ -70,8 +70,8 @@
 #'   \code{"rw"} (log-random walk with cap \code{M_limit}), \code{"AR"} (log-AR(1)),
 #'   \code{"increase"} (linear +\code{SDM} per year up to \code{M_limit}), or
 #'   \code{"decrease"} (linear -\code{SDM} per year down to \code{M_limit}, floored at 0).
-#' @param recruitment Character. Stock–recruit relationship: \code{"BH_steep"}
-#'   (Beverton–Holt with steepness), \code{"BH_env"} (BH with environmental effect
+#' @param recruitment Character. Stockrecruit relationship: \code{"BH_steep"}
+#'   (BevertonHolt with steepness), \code{"BH_env"} (BH with environmental effect
 #'   \code{beta_env} and \code{env}), or other options the simulator accepts;
 #'   value is passed through to the OM list.
 #' @param env \code{NULL}, vector, or matrix. Environmental covariate(s) used when
@@ -162,12 +162,12 @@ sim_OM_parameters <- function(nseason = 1,
                               maxage = 10,
                               a = 0.01,
                               b_size = 3,
-                              M = 0.2,
+                              M = 0.2/nseason,
                               b = 1,
                               R0 = 1e4,
                               theta = 2,
                               h = 0.5,
-                              SDcatch = 0.01,
+                              SDcatch = 0.3,
                               Fbarage = c(2, maxage-3),
                               nsurvey = 1,
                               q = rep(1, nsurvey),
@@ -181,6 +181,7 @@ sim_OM_parameters <- function(nseason = 1,
                               rseason = 1,
                               fishing.type = 'AR',
                               SDF = 0.15,
+                              Fseason = rep(1/nseason, nseason),
                               rho_F = 0.7,
                               SDM = 0.1,
                               rho = 0.8,
@@ -221,24 +222,29 @@ sim_OM_parameters <- function(nseason = 1,
 
   if(is.numeric(Linf)){
 
-  season_age <- seq(0, maxage+1/nseason, by = 1/nseason)
-
+  if(nseason > 1){
+  season_age <- seq(0, (maxage+1)-1/nseason, by = 1/nseason)
+  }else{
+    season_age <- 0:maxage
+  }
   Laa <- Linf*(1-exp(-K*(season_age-t0)))
 
   mat <- 1/(1+exp(-gamma*(season_age-tau)))
   mat[1] <- 0 # Don't let the recruits contribute to SSB in this model
-
+  #mat
+  #print(mat)
 
   wage_ssb <- wage_catch <- wage_survey <- wage_mid <- array(NA, dim = c(nyear, nage, nseason))
 
   # Assign to matrices
-  if(nseason == 1){
-
-  wage_ssb <- t(replicate(nyear,a*Laa^b_size ))
-  wage_catch <- t(replicate(nyear,a*Laa^b_size ))
-  wage_survey <- t(replicate(nyear,a*Laa^b_size ))
-  wage_mid <- t(replicate(nyear,a*Laa^b_size ))
-  }else{
+  # if(nseason == 1){
+  #
+  # wage_ssb <- t(replicate(nyear,a*Laa^b_size ))
+  # wage_catch <- t(replicate(nyear,a*Laa^b_size ))
+  # wage_survey <- t(replicate(nyear,a*Laa^b_size ))
+  # wage_mid <- t(replicate(nyear,a*Laa^b_size ))
+  # mat <- t(replicate(nyear, mat))
+  # }else{
   sizes <- matrix(a*Laa^b_size, nrow = nage, ncol = nseason, byrow = TRUE)
   # Weight at age
   wage_tmp  <- replicate(nyear+1, sizes, simplify = 'array')
@@ -249,7 +255,7 @@ sim_OM_parameters <- function(nseason = 1,
                    simplify = 'array'), c(1,3,2))
 
     }
-  }
+  #}
 
 
   sel <- 1/(1+exp(-gamma_sel*(age-tau_sel)))
@@ -271,38 +277,63 @@ sim_OM_parameters <- function(nseason = 1,
   }
 
 
+
+  #
+  if(length(F0) == 1){
+
   if(fishing.type == 'constant'){
     if(length(F0) == 1){
-      F0 <- matrix(F0, nyear, nseason)
+      F0 <- matrix(F0/nseason, nyear, nseason)
     }
 
   }
 
 
   # Do some magic for the seasonal AR models
+  if(sum(Fseason) != 1){
+    warning('F distributed by season does not sum to 1')
+  }
 
 
   if(fishing.type == 'AR'){
 
 
-    Fin <- rep(0, nyear*nseason)
-    Fin[1] <- F0
-    omega <- rep(NA, nyear*nseason)
+    Fin <- rep(0, nyear)
+    Fin[1] <- F0 # Scale to number of seasons
+    omega <- rep(NA, nyear)
     omega[1] <- 0
 
-    for(i in 2:(nyear*nseason)){
+    for(i in 2:(nyear)){
 
       omega[i] <- rho_F*omega[i-1]+sqrt(1-rho_F^2)*rnorm(1,0,sd = sqrt(SDF))
       Fin[i]<- Fin[1]*exp(omega[i]-0.5*(SDF^2))
 
 
     }
-    F0 <- matrix(Fin, nyear, nseason)
+    F0 <- matrix(0, nyear, nseason) # Assumes equal F in seasons
+    for(i in 1:nseason){
+    F0[,i] <- (Fin * Fseason[i])
+
+    }
+  }
+  }else{
+
+
+     if(length(F0) == nyear){
+        F0 <- matrix(F0, nyear, nseason)
+        message('Distributing F equally per season')
+      }
+
+    if(dim(F0)[1] != nyear){
+      warning('Check F input')
+    }
+
   }
 
 
-
   if(length(F0) != nyear*nseason){
+
+
     stop('wrong number of fishing mortality years')
   }
 
@@ -397,7 +428,28 @@ sim_OM_parameters <- function(nseason = 1,
     stop('wrong number of natural mortality years')
   }
 
+  if (length(dim(M0)) != 4) {
+    #message('Assuming equal M for all ages')
+    M0 <- array(M0, dim = c(nage, nyear + 1, 1, nseason))
+  }
 
+  if (length(dim(wage_catch)) != 4) {
+#    warning('Assuming equal weca for all years ')
+
+    wage_catch <- array(wage_catch, dim = c(nage, nyear + 1, 1, nseason))
+  }
+
+  if (length(dim(wage_ssb)) != 4) {
+ #   warning('west incorrect size, recycling values')
+
+    wage_ssb <- array(wage_ssb, dim = c(nage, nyear + 1, 1, nseason))
+  }
+
+  if (length(dim(mat)) != 4) {
+  #  warning('mat incorrect size, recycling values')
+
+    mat <- array(mat, dim = c(nage, nyear + 1, 1, nseason))
+  }
 
   # Insert Rdev function here
   Rdev <- NA
@@ -452,15 +504,11 @@ sim_OM_parameters <- function(nseason = 1,
 
   age_vec <- 1:nage
   # Calculate Ninit
-  Z <- M0[1] + Fpast * sel
+  Z <- M0[1]*nseason + Fpast * sel
   cumZ <- c(0,cumsum(Z[1:(nage-1)]))
-
-
   Ninit <- matrix(0, nage)
   Ninit[1:(nage - 1)] <- R0 * exp(-cumZ[1:(nage-1)]) # Only valid for equal M2 per age
   Ninit[nage] <- R0 * exp(-(cumZ[nage])) / (1 - exp(-(Z[nage])))
-
-
 
 
 

@@ -53,5 +53,5 @@ print(MR$p1()) # plot the results
 }
 \references{
 Mohn, R. (1999). The retrospective problem in sequential population analysis:
-An investigation using cod stock in the Northwest Atlantic. *ICES Journal of Marine Science*, 56(4), 473–488. \url{10.1006/jmsc.1999.0481}
+An investigation using cod stock in the Northwest Atlantic. *ICES Journal of Marine Science*, 56(4), 473-488. \url{10.1006/jmsc.1999.0481}
 }
