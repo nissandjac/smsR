@@ -169,7 +169,7 @@ get_TMB_parameters <- function(
   }
 
   nage <- length(ages)
-  nyears <- length(years)
+  nyear <- length(years)
 
   if(any(surveySeason > nseason)){
     stop('List correct season for the survey')
@@ -243,16 +243,16 @@ get_TMB_parameters <- function(
   mtrx$mat  <- fix_dim(mtrx$mat,  "maturity", exp_dim, nage, nyear, nseason)
 
   # Now check survey
-  if (any(dim(Surveyobs) != c(nage, nyears,nsurvey))) stop("Dimension mismatch of Survey.")
+  if (any(dim(Surveyobs) != c(nage, nyear,nsurvey))) stop("Dimension mismatch of Survey.")
 
   # Now check Catches
   # Add the extra dimension if nseason == 1
   if(length(dim(Catchobs)) == 2){
-    Catchobs <- array(Catchobs, dim = c(nage, nyears, 1))
+    Catchobs <- array(Catchobs, dim = c(nage, nyear, 1))
   }
 
 
-  if (any(dim(Catchobs) != c(nage, nyears,nseason))) stop("Dimension mismatch of catches.")
+  if (any(dim(Catchobs) != c(nage, nyear,nseason))) stop("Dimension mismatch of catches.")
 
   # if(is.null(betaSR)){
   #   nllfactor[3] <- 0
@@ -780,7 +780,7 @@ get_TMB_parameters <- function(
     bidx <- bidx[which(years %in% startYear:max(years))]
 
     years <- startYear:max(years)
-    nyears <- length(years)
+    nyear <- length(years)
   } else {
     weca <- mtrx$weca
     west <- mtrx$west
@@ -807,7 +807,7 @@ get_TMB_parameters <- function(
     bidx <- bidx[which(years %in% startYear:endYear), drop = FALSE]
 
     years <- startYear:endYear
-    nyears <- length(years)
+    nyear <- length(years)
   }
 
 

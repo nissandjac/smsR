@@ -666,7 +666,7 @@ getSurveySD <- function(df.tmb, sas) {
   rep.values <- rownames(sdrep)
   years <- df.tmb$years
 
-  tmp <- data.frame(surveyCV = sdrep[rep.values == "SDS", 1])
+  tmp <- data.frame(surveySD = sdrep[rep.values == "SDS", 1])
 
   tmp$SE <- sdrep[rep.values == "SDS", 2]
   tmp$low <- tmp$surveySD - 2 * tmp$SE
@@ -678,7 +678,7 @@ getSurveySD <- function(df.tmb, sas) {
 
   # tmp <- tmp[-which(tmp$surveyCV == 0),] # Remove the ones that are not caught
 
-  surveyCV <- tmp
+  surveySD <- tmp
   return(surveySD)
 }
 

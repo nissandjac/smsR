@@ -355,15 +355,15 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   SR$col[SR$ResidSurvey < 0] <- "Negative"
 
 
-  surveyCV <- getSurveyCV(df.tmb, sas)
-  SR$CV <- NA
+  surveySD <- getSurveySD(df.tmb, sas)
+  SR$SD <- NA
 
   if (df.tmb$nsurvey == 1) {
     snametmp <- dimnames(df.tmb$Surveyobs)[[3]]
 
     if(is.null(snametmp)){snametmp <- 1}
     SR$survey <- snametmp
-    surveyCV$survey <- snametmp
+    surveySD$survey <- snametmp
   }
 
 
@@ -373,11 +373,11 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   if(is.null(snames)){snames <- 1:df.tmb$nsurvey}
 
   for (i in 1:df.tmb$nsurvey) {
-    svtmp <- surveyCV[surveyCV$survey == snames[i], ]
+    svtmp <- surveySD[surveySD$survey == snames[i], ]
     yr.tmp <- unique(SR$years[SR$survey == snames[i]])
     for (j in 1:length(yr.tmp)) {
-      SR$CV[SR$survey == snames[i] & SR$years == yr.tmp[j]] <-
-        svtmp$surveyCV[which(svtmp$ages %in% (SR$ages[SR$survey == snames[i] & SR$years == yr.tmp[j]]))]
+      SR$SD[SR$survey == snames[i] & SR$years == yr.tmp[j]] <-
+        svtmp$surveySD[which(svtmp$ages %in% (SR$ages[SR$survey == snames[i] & SR$years == yr.tmp[j]]))]
     }
   }
 
@@ -395,7 +395,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
     ggplot2::scale_y_discrete("age")
 
   p9 <- ggplot(SR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
-    ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey) / CV), alpha = .3) +
+    ggplot2::geom_point(ggplot2::aes(size = abs(ResidSurvey) / SD), alpha = .3) +
     facet_wrap(~survey, nrow = df.tmb$nsurvey) +
     theme_classic() +
     ggplot2::scale_size(range = ss) +

@@ -265,8 +265,8 @@ fix_boundaries <- function(obj, lwr, upr){
   lower[names(lower) == "Fseason"] <- 0.0001
   lower[names(lower) == "SDsurvey"] <- 0.0001
   lower[names(lower) == "logSDrec"] <- log(0.01)
-  lower[names(lower) == "logSDcatch"] <- log(0.01)
-  lower[names(lower) == "creep"] <- -0.1
+  lower[names(lower) == "logSDcatch"] <- log(0.1)
+  lower[names(lower) == "creep"] <- - 0.1
   lower[names(lower) == 'logh'] <- log(0.21)
   lower[names(lower) == 'logSDM'] <- log(0.001)
   lower[names(lower) == 'ext_M'] <- -.5

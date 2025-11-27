@@ -26,7 +26,7 @@ plotBubbles <- function(sas, CVscale = TRUE) {
   catchSD <- getCatchSD(df.tmb, sas)
   CR$SD <- NA
   for (i in 1:df.tmb$nseason) {
-    cvtmp <- catchCV[catchSD$season == i, ]
+    cvtmp <- catchSD[catchSD$season == i, ]
     yr.tmp <- unique(CR$years[CR$season == i])
     for (j in 1:length(yr.tmp)) {
       CR$SD[CR$season == i & CR$years == yr.tmp[j]] <- cvtmp$catchSD[cvtmp$ages %in% CR$ages[CR$season == i & CR$years == yr.tmp[j]]]
@@ -53,8 +53,8 @@ plotBubbles <- function(sas, CVscale = TRUE) {
   SR$col[SR$ResidSurvey < 0] <- "Negative"
 
 
-  surveyCV <- getSurveyCV(df.tmb, sas)
-  SR$CV <- NA
+  surveySD <- getSurveySD(df.tmb, sas)
+  SR$SD <- NA
 
   if (df.tmb$nsurvey == 1) {
     SR$survey <- dimnames(df.tmb$Surveyobs)[[3]]
@@ -66,11 +66,11 @@ plotBubbles <- function(sas, CVscale = TRUE) {
   snames <- dimnames(df.tmb$Surveyobs)[[3]]
 
   for (i in 1:df.tmb$nsurvey) {
-    svtmp <- surveyCV[surveyCV$survey == snames[i], ]
+    svtmp <- surveySD[surveySD$survey == snames[i], ]
     yr.tmp <- unique(SR$years[SR$survey == snames[i]])
     for (j in 1:length(yr.tmp)) {
-      SR$CV[SR$survey == snames[i] & SR$years == yr.tmp[j]] <-
-        svtmp$surveyCV[which(svtmp$ages %in% (SR$ages[SR$survey == snames[i] & SR$years == yr.tmp[j]]))]
+      SR$SD[SR$survey == snames[i] & SR$years == yr.tmp[j]] <-
+        svtmp$surveySD[which(svtmp$ages %in% (SR$ages[SR$survey == snames[i] & SR$years == yr.tmp[j]]))]
     }
   }
 
@@ -91,7 +91,7 @@ plotBubbles <- function(sas, CVscale = TRUE) {
 
   if (CVscale == TRUE) {
     p <- ggplot(dat.plot, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
-      ggplot2::geom_point(ggplot2::aes(size = abs(residual) / CV), alpha = .3) +
+      ggplot2::geom_point(ggplot2::aes(size = abs(residual) / SD), alpha = .3) +
       facet_wrap(~fleet) +
       theme_classic() +
       ggplot2::scale_size(range = ss) +
@@ -112,6 +112,6 @@ plotBubbles <- function(sas, CVscale = TRUE) {
       ggplot2::labs(title = "Residuals", subtitle = "(log(obs) - log(estimated)")
   }
 
-  print(p)
+#  print(p)
   return(p)
 }
