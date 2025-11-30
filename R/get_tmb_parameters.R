@@ -105,7 +105,7 @@ get_TMB_parameters <- function(
     Qminage = rep(0, nsurvey),
     Qmaxage = rep(max(ages), nsurvey),
     Qlastage = Qmaxage,
-    isFseason = rep(1, nseason),
+    isFseason = NULL,
     CminageSeason = rep(0, nseason),
     CmaxageSeason = rep(max(ages), nseason),
     endFseason = nseason,
@@ -502,9 +502,16 @@ get_TMB_parameters <- function(
   #   useEffort <- 1
   # }
 
+
   if (nseason > 1) {
-    isFseason[length(isFseason)] <- 0 # This is a weird standard thing in sms
-  }
+
+    if(is.null(isFseason)){
+      isFseason <- rep(1, nseason)
+      isFseason[length(isFseason)] <- 0 # This is a weird standard thing in sms
+
+    }
+
+    }
   # Do the power law calcs
   if (is.na(powers[[1]])) {
     powersexp <- matrix(0, nrow = length(ages), ncol = nsurvey)

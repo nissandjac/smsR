@@ -278,7 +278,7 @@ fix_boundaries <- function(obj, lwr, upr){
   upper[names(upper) == "SDsurvey"] <- 2
   upper[names(upper) == "logSDrec"] <- log(4)
   upper[names(upper) == "logFyear"] <- log(10)
-  upper[names(upper) == "logSDcatch"] <- log(sqrt(2))
+  upper[names(upper) == "logSDcatch"] <- log(10)
   upper[names(upper) == "creep"] <- 0.2
   upper[names(upper) == 'logh'] <- log(0.99)
   upper[names(upper) == 'logSDM'] <- log(2)

@@ -42,7 +42,20 @@ getParms <- function(df.tmb, parms.true = NULL) {
   }
 
   if (df.tmb$useEffort == 0 & df.tmb$useBlocks == 1) {
-    Fseason <- matrix(1, nrow = df.tmb$nseason, ncol = length(unique(df.tmb$bidx)))
+
+    srows <- sum(df.tmb$isFseason)
+    scol <- length(df.tmb$CminageSeason[1]:max(df.tmb$age))
+    nblocks <- length(unique(df.tmb$bidx))
+    Fseason <- array(1, dim = c(srows, scol,  nblocks))
+   # Fseason <- matrix(1, nrow = sum(df.tmb$isFseason), ncol = nblocks)
+
+    # if(df.tmb$nseason == 2){
+    #   Fseason <- matrix(1, nrow = df.tmb$nseason -1, ncol = length(unique(df.tmb$bidx)))
+    # }
+
+    # Try an alternative selectivity that estimates Fseason on both age and season
+
+
   }
 
   if(df.tmb$nenv == 0){
@@ -57,12 +70,19 @@ getParms <- function(df.tmb, parms.true = NULL) {
     ngam <- max(df.tmb$Midx_CV)+1
   }
 
+  logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx)))
+
+  if(df.tmb$useBlocks == 1 && df.tmb$useEffort == 0){
+  logFage <- matrix(log(1), nrow = 3)
+  }
+
+
   parms <- list(
     logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
     logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage - 1),
     logFyear = rep(log(1), df.tmb$nyears - 1), # Mapped out
     Fseason = Fseason,
-    logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx))),
+    logFage = logFage,
     SDsurvey = SDsurvey,
     logSDcatch = as.matrix(logSDCatch),
     creep = 0,

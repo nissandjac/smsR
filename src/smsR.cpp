@@ -336,6 +336,9 @@ Fagein.setZero();
 for(int i=0;i<(nage);i++){ //
   for(int j=0;j<(nyears);j++){
 
+
+  if(useBlocks == 0 && useEffort == 0){
+
   if(i >= Fminage){
 
     if(i < Fmaxage){
@@ -344,6 +347,25 @@ for(int i=0;i<(nage);i++){ //
       Fagein(i,j) = exp(logFage(Fmaxage-Fminage,bidx(j)));
       }
     }
+    }
+  
+  if(useBlocks == 1 && useEffort == 0){
+
+  if(i >= Fminage){
+
+    if(i < Fmaxage){
+      Fagein(i,j) = exp(logFage(i-Fminage, 0));
+    }else{
+      Fagein(i,j) = exp(logFage(Fmaxage-Fminage,0));
+      }
+    }
+    }
+  
+
+
+
+
+
    }
 }
 
@@ -385,7 +407,7 @@ if(useBlocks == 0){
             if(nseason == 2){
                 Fquarter(i,j,qrts) = Type(1);
               }else{
-                Fquarter(i,j,qrts) = Type(1)/nseason; // Morton's trick to fix a degree of freedom that isn't needed for the parameterization
+                Fquarter(i,j,qrts) = Type(1)/nseason; // Morten's trick to fix a degree of freedom that isn't needed for the parameterization
             }
             }else{
             Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
@@ -395,7 +417,10 @@ if(useBlocks == 0){
       }
     }
   }
-}else{
+}
+
+if(useBlocks == 0 && useEffort == 1){
+
   for(int j=0;j<(nyears);j++){
     for(int i=0;i<nage;i++){ // Loop over other ages (recruits excluded)
       for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
@@ -424,6 +449,46 @@ if(useBlocks == 0){
 }
 //
 
+if(useBlocks == 1 && useEffort == 0){
+
+ for(int j=0;j<(nyears);j++){
+    for(int i=0;i<nage;i++){ // Loop over other ages (recruits excluded)
+      for(int qrts=0;qrts<nseason;qrts++){ // Loop over other ages
+
+        if(isFseason(qrts) == 1){
+          if(i < CminageSeason(qrts)){
+          Fquarter(i,j,qrts) = Type(0.0);
+
+        }else{
+            if(i >= CminageSeason(qrts)){ //  && i <= Fmaxage Is not used for some reason
+            Fquarter(i,j,qrts) = Fseason(qrts,i-(CminageSeason(qrts)),bidx(j));
+            }
+            // if(i > Fmaxage){
+            
+
+        }
+        }else{
+
+          if(i < CminageSeason(qrts)){
+          Fquarter(i,j,qrts) = 0;//Type(1);
+          }else{
+          if(i == 0){
+            if(nseason == 2){
+                Fquarter(i,j,qrts) = Type(1);
+              }else{
+                Fquarter(i,j,qrts) = Type(1)/nseason; // Morton's trick to fix a degree of freedom that isn't needed for the parameterization
+            }
+            }else{
+            Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
+REPORT(Fquarter)
 // REPORT(Fagein)
 // REPORT(Fyear)
 //
