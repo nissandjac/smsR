@@ -175,6 +175,9 @@ mohns_rho <- function(df.tmb,
       mps.new$logFyear <- factor(rep(NA, df.new$nyears-1))
     }
 
+
+
+
     if ("logRin" %in% names(mps.new)) {
       mps.new$logRin <- factor(rep(NA, df.new$nyears))
 
@@ -189,6 +192,9 @@ mohns_rho <- function(df.tmb,
 
     parms.new <- getParms(df.new)
 
+    if ("logFrandom" %in% names(mps.new)) {
+      mps.new$logFrandom <- factor(parms.new$logFrandom * NA)
+    }
     assess.new <- runAssessment(df.new, parms = parms.new, mps = mps.new, silent = TRUE)
 
 

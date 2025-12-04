@@ -104,8 +104,9 @@ get_TMB_parameters <- function(
     Fmaxage = max(ages),
     Qminage = rep(0, nsurvey),
     Qmaxage = rep(max(ages), nsurvey),
-    Qlastage = Qmaxage,
+    Qlastage = NULL,
     isFseason = NULL,
+    cscalar = matrix(1,nseason,nage),
     CminageSeason = rep(0, nseason),
     CmaxageSeason = rep(max(ages), nseason),
     endFseason = nseason,
@@ -126,7 +127,7 @@ get_TMB_parameters <- function(
     penepsCmax = 1e-3,
     Mprior = -1,
     SDMprior = 0.2,
-    powers = list(NA),
+    powers =  rep(list(NA), nsurvey),
     Pred_in = matrix(0),
     M_min = 0,
     M_max = max(ages),
@@ -134,6 +135,10 @@ get_TMB_parameters <- function(
     surveySD = replicate(nsurvey, 0, simplify = FALSE),
     catchSD = replicate(nseason, 0, simplify = FALSE),
     MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
+    csd_break = min(years),
+    csd = 0,
+    tuneCatch =0,
+    tuneStart = 0,
     prior_SDM = 0.4,
     estSD = c(0, 0, 0),
     SDmin = c(0.2, 0.2, 0.2),
@@ -146,6 +151,9 @@ get_TMB_parameters <- function(
     nenv = 0,
     warn = FALSE) {
   # Remove surveys for sensitivity analysis
+  if(is.null(Qlastage)){
+    Qlastage <- Qmaxage
+  }
 
    if (sum(leavesurveyout) != nsurvey) {
 
@@ -511,6 +519,8 @@ get_TMB_parameters <- function(
 
     }
 
+  }else{
+      isFseason <- 1
     }
   # Do the power law calcs
   if (is.na(powers[[1]])) {
@@ -572,6 +582,19 @@ get_TMB_parameters <- function(
 
     Cidx.CV[ages < CminageSeason[i], i] <- -98
     Cidx.CV[ages > CmaxageSeason[i], i] <- -98
+  }
+
+  # Time varying catch Sd index
+  csd_index <- rep(0, nyear) # No break
+
+  if(csd_break > min(years)){
+
+  csd_index[years >= csd_break] <- 1
+  csd <- length(unique(csd_index))-1
+
+  tuneStart <- which(years %in% csd_break)-1
+
+
   }
   #
   #   }else{
@@ -785,6 +808,8 @@ get_TMB_parameters <- function(
     effort <- effort.in[which(years %in% startYear:max(years)), ]
     nocatch <- nocatch[which(years %in% startYear:max(years)), ]
     bidx <- bidx[which(years %in% startYear:max(years))]
+    csd_index <- csd_index[which(years %in% startYear:endYear), drop = FALSE]
+
 
     years <- startYear:max(years)
     nyear <- length(years)
@@ -812,6 +837,7 @@ get_TMB_parameters <- function(
     effort <- effort.in[which(years %in% startYear:endYear), , drop = FALSE]
     nocatch <- nocatch[which(years %in% startYear:endYear), , drop = FALSE]
     bidx <- bidx[which(years %in% startYear:endYear), drop = FALSE]
+    csd_index <- csd_index[which(years %in% startYear:endYear), drop = FALSE]
 
     years <- startYear:endYear
     nyear <- length(years)
@@ -863,6 +889,9 @@ get_TMB_parameters <- function(
     Qidx_CV = Qidx.CV,
     Cidx_CV = Cidx.CV,
     catchSD = catchSDout,
+    csd_index = csd_index,
+    csd = csd,
+    cscalar = cscalar,
     Midx_CV = Midx.CV,
     isFseason = isFseason, # Fishing mortality in how many quarterS? ,
     endFseason = endFseason,
@@ -883,6 +912,8 @@ get_TMB_parameters <- function(
     peneps = peneps,
     penepsC = penepsC,
     penepsCmax = penepsCmax,
+    tuneCatch = tuneCatch,
+    tuneStart= tuneStart,
     Mprior = Mprior,
     prior_SDM = prior_SDM,
     isPredator = isPredator,
