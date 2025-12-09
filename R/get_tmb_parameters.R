@@ -93,9 +93,11 @@ get_TMB_parameters <- function(
     propM = NULL,
     propF = NULL,
     years,
+    CatchProportions = NULL,
     startYear = min(years),
     endYear = max(years),
     nseason = 4,
+    nsamples = matrix(0, ncol = nseason, nrow = length(years)),
     nsurvey = dim(Surveyobs)[3],
     ages = 0:20,
     Fbarage = c(1, max(ages)),
@@ -138,7 +140,7 @@ get_TMB_parameters <- function(
     csd_break = min(years),
     csd = 0,
     tuneCatch =0,
-    tuneStart = 0,
+    tuneStart = NULL,
     prior_SDM = 0.4,
     estSD = c(0, 0, 0),
     SDmin = c(0.2, 0.2, 0.2),
@@ -153,6 +155,13 @@ get_TMB_parameters <- function(
   # Remove surveys for sensitivity analysis
   if(is.null(Qlastage)){
     Qlastage <- Qmaxage
+  }
+
+  if(is.null(CatchProportions)){
+    isCatchprops = 0
+    CatchProportions <- matrix(0,1,1)
+  }else{
+    isCatchprops = 1
   }
 
    if (sum(leavesurveyout) != nsurvey) {
@@ -255,14 +264,18 @@ get_TMB_parameters <- function(
 
   # Now check Catches
   # Add the extra dimension if nseason == 1
+
   if(length(dim(Catchobs)) == 2){
-    Catchobs <- array(Catchobs, dim = c(nage, nyear, 1))
+  Catchobs <- array(Catchobs, dim = c(nage, nyear, 1))
   }
 
+  if(isCatchprops == 0){
+    if (any(dim(Catchobs) != c(nage, nyear,nseason))) stop("Dimension mismatch of catches.")
+  }else{
+    if(any(dim(Catchobs) != c(1, nyear,nseason))) stop("Dimension mismatch of catches.")
+  }
 
-  if (any(dim(Catchobs) != c(nage, nyear,nseason))) stop("Dimension mismatch of catches.")
-
-  # if(is.null(betaSR)){
+    # if(is.null(betaSR)){
   #   nllfactor[3] <- 0
   # }
 
@@ -584,18 +597,11 @@ get_TMB_parameters <- function(
     Cidx.CV[ages > CmaxageSeason[i], i] <- -98
   }
 
-  # Time varying catch Sd index
-  csd_index <- rep(0, nyear) # No break
-
-  if(csd_break > min(years)){
-
-  csd_index[years >= csd_break] <- 1
-  csd <- length(unique(csd_index))-1
-
-  tuneStart <- which(years %in% csd_break)-1
-
-
+  if(isCatchprops == 1){
+    Cidx.CV <- matrix(1:nseason, ncol = nseason)
   }
+
+
   #
   #   }else{
   #
@@ -655,6 +661,8 @@ get_TMB_parameters <- function(
 
   no <- matrix(0, nrow = nrow(catchSDout), ncol = nseason)
 
+  if(isCatchprops == 0){
+
   for (i in 1:nrow(catchSDout)) {
     for (qrts in 1:nseason) {
       if ((i - 1) >= CminageSeason[qrts]) {
@@ -670,11 +678,12 @@ get_TMB_parameters <- function(
       }
     }
   }
-
   if (nrow(catchSDout) == 1 & nseason == 1) {
     no[i, qrts] <- length(Catchobs[Catchobs > 0])
   }
-
+  }else{
+#  no <- NULL
+}
   #  Catchobs[Catchobs <= 1] <- 0
 
 
@@ -782,8 +791,11 @@ get_TMB_parameters <- function(
   dimnames(propF) <- dnames
 
   dnames <- list(ages = ages, years = c(years), seasons = 1:nseason)
+  if(isCatchprops == 0){
   dimnames(Catchobs) <- dnames
-
+  }else{
+  dimnames(Catchobs) <- list(1, years, seasons =1:nseason)
+  }
   if(is.null(dimnames(Surveyobs))){
   dnames <- list(ages = ages, year = c(years), survey = 1:nsurvey)
   dimnames(Surveyobs) <- dnames
@@ -802,13 +814,18 @@ get_TMB_parameters <- function(
     propF <- propF[, c(years %in% startYear:max(years), TRUE), ]
 
     Surveyobs <- Surveyobs[, which(years %in% startYear:max(years)), ]
+
+    if(isCatchprops ==0){
     Catchobs <- Catchobs[, which(years %in% startYear:max(years)), ]
+    }else{
+    Catchobs <- Catchobs[which(years %in% startYear:max(years)), ]
+    }
 
     scv <- scv[, which(years %in% startYear:max(years)), ]
     effort <- effort.in[which(years %in% startYear:max(years)), ]
     nocatch <- nocatch[which(years %in% startYear:max(years)), ]
     bidx <- bidx[which(years %in% startYear:max(years))]
-    csd_index <- csd_index[which(years %in% startYear:endYear), drop = FALSE]
+   # csd_index <- csd_index[which(years %in% startYear:endYear), drop = FALSE]
 
 
     years <- startYear:max(years)
@@ -831,18 +848,39 @@ get_TMB_parameters <- function(
     propF <- propF[, c(years %in% startYear:endYear, TRUE), , drop = FALSE]
 
     Surveyobs <- Surveyobs[, which(years %in% startYear:endYear), , drop = FALSE]
+
     Catchobs <- Catchobs[, which(years %in% startYear:endYear), , drop = FALSE]
 
     scv <- scv[, which(years %in% startYear:endYear), , drop = FALSE]
     effort <- effort.in[which(years %in% startYear:endYear), , drop = FALSE]
     nocatch <- nocatch[which(years %in% startYear:endYear), , drop = FALSE]
     bidx <- bidx[which(years %in% startYear:endYear), drop = FALSE]
-    csd_index <- csd_index[which(years %in% startYear:endYear), drop = FALSE]
+   #csd_index <- csd_index[which(years %in% startYear:endYear), drop = FALSE]
 
     years <- startYear:endYear
     nyear <- length(years)
   }
 
+
+
+  # Time varying catch Sd index
+  csd_index <- rep(0, nyear) # No break
+
+  if(csd_break > min(years)){
+
+
+    csd_index[years >= csd_break] <- 1
+    csd <- length(unique(csd_index))-1
+
+    if(is.null(tuneStart)){
+      tuneStart <- which(years %in% csd_break)-1
+    }else{
+      tuneStart = which(years %in% tuneStart)-1
+    }
+
+  }
+
+  if(is.null(tuneStart)){tuneStart = 0}
 
  # Fill environmental matrix with 0's if its not there
   env_matrix <- matrix(0,  nenv,length(years))
@@ -863,6 +901,9 @@ get_TMB_parameters <- function(
     west = west,
     Surveyobs = Surveyobs,
     Catchobs = Catchobs,
+    CatchProportions = CatchProportions,
+    isCatchprops = isCatchprops,
+    nsamples = nsamples,
     propM = propM,
     propF = propF,
     no = no,

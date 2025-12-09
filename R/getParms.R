@@ -82,9 +82,11 @@ getParms <- function(df.tmb, parms.true = NULL) {
 
 
   logFyear <- rep(1, df.tmb$nyears-1)
-
-
-
+  if(df.tmb$isCatchprops == 0){
+  R0init <- log(sum(df.tmb$Catchobs[,1,])*5)
+  }else{
+    R0init = log(1e5)
+  }
   parms <- list(
     logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
     logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage - 1),
@@ -106,9 +108,10 @@ getParms <- function(df.tmb, parms.true = NULL) {
     env = rep(0, nenv),
     gam_M = log(rep(0.01, ngam)),
     ext_M = matrix(0, ncol = ngam, nrow = df.tmb$nyears),
-    logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
+    logR0 = R0init,
     logh = log(0.5),
-    trans_rho = 0
+    trans_rho = 0,
+    logphicatch = log(20)
   )
 
   if (df.tmb$nseason == 1) {
@@ -277,12 +280,17 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
     mps$gam_M <- factor(parms$gam_M * NA)
   }
 
+  if(df.tmb$isCatchprops == 0){
+    mps$logphicatch <- factor(parms$logphicatch * NA)
+  }
 
   for (i in 1:length(mapExtra)) {
     if (is.na(mapExtra[i]) == 0) {
       mps[[mapExtra[i]]] <- factor(parms[[mapExtra[i]]] * NA)
     }
   }
+
+
 
 
   return(mps)

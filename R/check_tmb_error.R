@@ -25,8 +25,14 @@ if(all(dim(df.tmb$west) != c(nage, nyears+1, nseason))){
   stop(paste(cstring, 'west'))
 }
 
-if(all(dim(df.tmb$Catchobs) != c(nage, nyears, nseason))){
-  stop(paste(cstring, 'Catchobs'))
+if(df.tmb$isCatchprops == 0){
+  if(all(dim(df.tmb$Catchobs) != c(nage, nyears, nseason))){
+    stop(paste(cstring, 'Catchobs'))
+    }
+  }else{
+    if(all(dim(df.tmb$Catchobs) != c(1,nyears, nseason))){
+      stop(paste(cstring, 'Catchobs'))}
+
 }
 
 if(all(dim(df.tmb$Surveyobs) != c(nage, nyears, df.tmb$nsurvey))){

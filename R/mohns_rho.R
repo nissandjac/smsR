@@ -149,6 +149,8 @@ mohns_rho <- function(df.tmb,
     df.new$Mat <- df.new$Mat[,1:(df.new$nyears+1),, drop = F]
     df.new$M <- df.new$M[,1:(df.new$nyears+1),, drop = F]
     df.new$M_matrix <- df.new$M_matrix[,1:df.new$nyears, drop = F]
+    df.new$csd_index <- df.new$csd_index[1:df.new$nyears]
+
 #
 #
 #     parms.new <- parms
@@ -162,7 +164,6 @@ mohns_rho <- function(df.tmb,
 #       parms.new$logRin <- parms.new$logRin[1:(length(parms.new$logRin)-1)]
 #     }
 
-
     if (max(df.new$bidx) > 0) {
       if (max(df.new$years) < max(df.new$years[df.new$bidx])) {
         stop("peeling below the latest selectivity year")
@@ -174,9 +175,6 @@ mohns_rho <- function(df.tmb,
     if ("logFyear" %in% names(mps.new)) {
       mps.new$logFyear <- factor(rep(NA, df.new$nyears-1))
     }
-
-
-
 
     if ("logRin" %in% names(mps.new)) {
       mps.new$logRin <- factor(rep(NA, df.new$nyears))
