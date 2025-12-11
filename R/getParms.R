@@ -20,6 +20,10 @@
 getParms <- function(df.tmb, parms.true = NULL) {
   # Try initial parameters in weird spots
   logSDCatch <- log(rep(.6, max(df.tmb$Cidx_CV) + 1))
+  logSDCatch <- matrix(logSDCatch, ncol = max(df.tmb$csd_index)+1, nrow = length(logSDCatch))
+
+
+
   SDsurvey <- rep(.1, length(unique(df.tmb$Qidx_CV[df.tmb$Qidx_CV > -1])))
   logQ <- sum(df.tmb$Qlastage - df.tmb$Qminage) + length(df.tmb$Qidx)
 
@@ -44,7 +48,7 @@ getParms <- function(df.tmb, parms.true = NULL) {
   if (df.tmb$useEffort == 0 & df.tmb$useBlocks == 1) {
 
     srows <- sum(df.tmb$isFseason)
-    scol <- length(df.tmb$CminageSeason[1]:max(df.tmb$age))
+    scol <- length(df.tmb$CminageSeason[1]:df.tmb$Fmaxage)
     nblocks <- length(unique(df.tmb$bidx))
     Fseason <- array(1, dim = c(srows, scol,  nblocks))
    # Fseason <- matrix(1, nrow = sum(df.tmb$isFseason), ncol = nblocks)
@@ -73,32 +77,41 @@ getParms <- function(df.tmb, parms.true = NULL) {
   logFage = matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage), ncol = length(unique(df.tmb$bidx)))
 
   if(df.tmb$useBlocks == 1 && df.tmb$useEffort == 0){
-  logFage <- matrix(log(1), nrow = 3)
+  logFage <- matrix(log(1), nrow = length(df.tmb$Fminage:df.tmb$Fmaxage))
   }
 
 
+  logFyear <- rep(1, df.tmb$nyears-1)
+  if(df.tmb$isCatchprops == 0){
+  R0init <- log(sum(df.tmb$Catchobs[,1,])*5)
+  }else{
+    R0init = log(1e5)
+  }
   parms <- list(
     logRin = rep(log(max(df.tmb$Catchobs)), df.tmb$nyears),
     logNinit = rep(log(max(df.tmb$Catchobs)), df.tmb$nage - 1),
-    logFyear = rep(log(1), df.tmb$nyears - 1), # Mapped out
+    logFyear = log(logFyear), # Mapped out
     Fseason = Fseason,
     logFage = logFage,
     SDsurvey = SDsurvey,
     logSDcatch = as.matrix(logSDCatch),
     creep = 0,
     logQ = rep(log(1), logQ), # length(df.tmb$surveyCV)
+    logFrandom = log(1),
     pin = 1,
     logalpha = 2,
     logbeta = log(betaSR),
     logSDrec = log(1),
     logSDF = log(0.2),
     logSDM = log(rep(0.2,  ngam)),
+    logsdc = log(0.2),
     env = rep(0, nenv),
-    ext_M = matrix(0, ncol = ngam, nrow = df.tmb$nyears),
     gam_M = log(rep(0.01, ngam)),
-    logR0 = log(sum(df.tmb$Catchobs[,1,])*5),
+    ext_M = matrix(0, ncol = ngam, nrow = df.tmb$nyears),
+    logR0 = R0init,
     logh = log(0.5),
-    trans_rho = 0
+    trans_rho = 0,
+    logphicatch = log(20)
   )
 
   if (df.tmb$nseason == 1) {
@@ -187,6 +200,7 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
     mps$pin <- factor(parms$pin * NA)
   }
 
+  mps$logsdc <- factor(parms$logsdc * NA)
 
   if (df.tmb$estSD[2] == 2) {
     mps$logSDcatch <- factor(parms$logSDcatch * NA)
@@ -197,6 +211,8 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
   }
 
 
+
+  if(df.tmb$tuneCatch == 0)
 
   if (df.tmb$useEffort == 1) {
     mps$logFyear <- factor(parms$logFyear * NA)
@@ -214,8 +230,13 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
     mps$creep <- factor(parms$creep * NA)
   }
 
+  if(df.tmb$randomF == 0){
+  mps$logFrandom <- factor(parms$logFrandom * NA)
+  }
   if (df.tmb$randomF == 0) {
     mps$logSDF <- factor(parms$logSDF * NA)
+  }else{
+#    mps$logFyear <- factor(parms$logFyear * NA)
   }
 
   if(df.tmb$recmodel == 3){
@@ -259,12 +280,17 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
     mps$gam_M <- factor(parms$gam_M * NA)
   }
 
+  if(df.tmb$isCatchprops == 0){
+    mps$logphicatch <- factor(parms$logphicatch * NA)
+  }
 
   for (i in 1:length(mapExtra)) {
     if (is.na(mapExtra[i]) == 0) {
       mps[[mapExtra[i]]] <- factor(parms[[mapExtra[i]]] * NA)
     }
   }
+
+
 
 
   return(mps)

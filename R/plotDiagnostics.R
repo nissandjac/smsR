@@ -80,6 +80,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
 
   catch <- df.tmb$Catchobs
   catch.fit <- getCatchN(df.tmb, sas) %>% dplyr::rename("age" = ages)
+  catch.fit$CatchN[catch.fit$CatchN == 1] <- NA
 
   for (i in 1:df.tmb$nseason) {
     c.out <- as.data.frame(t(catch[, , i]))
@@ -101,8 +102,8 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   catch.fit$age <- as.character(catch.fit$age)
   c.exp$CatchN[c.exp$CatchN == 0] <- NA
   catch.fit$CatchN[catch.fit$CatchN == 0] <- NA
-
-  p2 <- ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age)) +
+  catch.fit <- na.omit(catch.fit)
+  p2 <-  ggplot2::ggplot(c.exp, ggplot2::aes(x = year, y = CatchN, color = age)) +
     ggplot2::geom_point() +
     ggplot2::facet_grid(season ~ age, scales = "free") +
     ggplot2::theme_bw() +
@@ -113,6 +114,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
       data = catch.fit, ggplot2::aes(x = years, ymin = low, ymax = high, fill = age),
       alpha = .1, linetype = 0
     )
+
 
 
 
@@ -324,19 +326,7 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
     ggplot2::scale_y_discrete("age")
   # Scale CR with cv
 
-  catchSD <- getCatchSD(df.tmb, sas)
-  CR$SD <- NA
-  for (i in 1:df.tmb$nseason) {
-    cvtmp <- catchSD[catchSD$season == i, ]
-    yr.tmp <- unique(CR$years[CR$season == i])
-    for (j in 1:length(yr.tmp)) {
-      CR$SD[CR$season == i & CR$years == yr.tmp[j]] <- cvtmp$catchSD[cvtmp$ages %in% CR$ages[CR$season == i & CR$years == yr.tmp[j]]]
-    }
-  }
-
-
   ss <- c(round(range(abs(CR$ResidCatch))[1]), max(abs(CR$ResidCatch)) * 1.2)
-
 
 
   p7 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
@@ -355,32 +345,10 @@ plotDiagnostics <- function(df.tmb, sas, mr = NULL) {
   SR$col[SR$ResidSurvey < 0] <- "Negative"
 
 
-  surveySD <- getSurveySD(df.tmb, sas)
-  SR$SD <- NA
-
-  if (df.tmb$nsurvey == 1) {
-    snametmp <- dimnames(df.tmb$Surveyobs)[[3]]
-
-    if(is.null(snametmp)){snametmp <- 1}
-    SR$survey <- snametmp
-    surveySD$survey <- snametmp
-  }
-
-
 
   snames <- dimnames(df.tmb$Surveyobs)[[3]]
 
   if(is.null(snames)){snames <- 1:df.tmb$nsurvey}
-
-  for (i in 1:df.tmb$nsurvey) {
-    svtmp <- surveySD[surveySD$survey == snames[i], ]
-    yr.tmp <- unique(SR$years[SR$survey == snames[i]])
-    for (j in 1:length(yr.tmp)) {
-      SR$SD[SR$survey == snames[i] & SR$years == yr.tmp[j]] <-
-        svtmp$surveySD[which(svtmp$ages %in% (SR$ages[SR$survey == snames[i] & SR$years == yr.tmp[j]]))]
-    }
-  }
-
 
   ss <- c(round(range(abs(SR$ResidSurvey))[1]), max(abs(SR$ResidSurvey)) * 3)
 

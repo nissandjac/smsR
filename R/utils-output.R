@@ -341,6 +341,52 @@ getN <- function(df.tmb, sas) {
 }
 
 
+#' Get catch numbers
+#' @description
+#' Get the numbers at age in the catch per season and year. Units are numbers.
+#'
+#' @param df.tmb input parameters from \code{\link{get_TMB_parameters}}
+#' @param sas fitted smsR object from \code{\link{runAssessment}}
+#'
+#' @return
+#' data frame containing the numbers of individuals by age in the catch each year.
+#' @description
+#' low and high are the 95\% confidence intervals.
+#' SE is standard error of log N
+#' @export
+#'
+#' @examples
+#' CatchN <- getCatchSeason(df.tmb, sas)
+#' print(CatchSeason)
+getCatchSeason <- function(df.tmb, sas) {
+  reps <- sas$reps
+
+  sdrep <- summary(reps)
+  rep.values <- rownames(sdrep)
+  years <- df.tmb$years
+
+  tmp <- data.frame(CatchN = sdrep[rep.values == "logCatchN", 1])
+  tmp$SE <- sdrep[rep.values == "logCatchN", 2]
+  tmp$low <- tmp$CatchN - 2 * tmp$SE
+  tmp$high <- tmp$CatchN + 2 * tmp$SE
+  tmp$ages <- df.tmb$age
+  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears))
+  tmp$years <- rep(years, each = df.tmb$nage)
+  weca <- getWeight(df.tmb, WW = 'weca')
+  weca <- weca[weca$years %in% max(df.tmb$years),]
+  tmp$weca <- weca$value
+
+  tmp$Catchseason <- exp(tmp$CatchN)*tmp$weca
+  tmp$low <- exp(tmp$low)*tmp$weca
+  tmp$high <- exp(tmp$high)*tmp$weca
+  tmp <- tmp[,-which(names(tmp) %in% c('weca','CatchN'))]
+  tmp <- tmp[ , c("Catchseason", setdiff(names(tmp), "Catchseason")) ]
+  tmp <- tmp %>% dplyr::group_by(years, season) %>%
+    dplyr::summarise(Catchseason = sum(Catchseason))
+
+
+  return(tmp)
+}
 
 #' Get catch numbers
 #' @description
@@ -407,6 +453,29 @@ getYield <- function(df.tmb) {
 
   return(tmp)
 }
+
+#' Get the seasonal input yield
+#'
+#' @param df.tmb a list of parameters for smsR model from \link{get_TMB_parameters()}
+#'
+#' @returns
+#' a data frame of yield
+#' @export
+#'
+#' @examples
+#'
+#' Yield <- getYieldSeason(df.tmb) # Get observed catch at age as a data frame
+#'
+getYieldSeason <- function(df.tmb) {
+
+  Yield <- apply(df.tmb$Catchobs * df.tmb$weca[, 1:df.tmb$nyears, , drop = FALSE], MARGIN = c(2,3), FUN = sum)
+  tmp <- data.frame(years = df.tmb$years, Yield = Yield)
+  colnames(tmp)[2:(df.tmb$nseason+1)] <- paste('season',1:nseason, sep='-')
+  #colnames(tmp) <- NULL
+
+  return(tmp)
+}
+
 
 
 #' Get fishing mortality
@@ -534,6 +603,21 @@ getResidCatch <- function(df.tmb, sas) {
   tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage * (df.tmb$nyears))
   tmp$years <- rep(years, each = df.tmb$nage)
 
+  # Scale CR with cv
+  catchSD <- getCatchSD(df.tmb, sas)
+  # extract years for each varblock
+
+  if(df.tmb$csd == 1){
+    yrs1 <- df.tmb$years[df.tmb$csd_index == 0]
+    yrs2 <- df.tmb$years[df.tmb$csd_index == 1]
+
+    catchSD_long <-  c(rep(catchSD$catchSD[catchSD$varblock == 1], length(yrs1)),
+                                         rep(catchSD$catchSD[catchSD$varblock == 2], length(yrs2)))
+  }else{
+    catchSD_long <- rep(catchSD$catchSD, length(df.tmb$years))
+  }
+  tmp$SD <- catchSD_long
+
 
   if(any(is.na(tmp$ResidCatch))){
   tmp <- tmp[-which(is.na(tmp$ResidCatch)), ]
@@ -579,6 +663,20 @@ getResidSurvey <- function(df.tmb, sas) {
   tmp$ages <- df.tmb$age
   tmp$years <- rep(years, each = df.tmb$nage)
   tmp$survey <- rep(dimnames(df.tmb$Surveyobs)$survey, each = df.tmb$nage * (df.tmb$nyears))
+
+  # Add sd
+  surveySD <- getSurveySD(df.tmb, sas)
+  snames <- unique(surveySD$survey)
+  for(i in snames){
+    ytmp <- unique(tmp$years[tmp$survey %in% i])
+    if(i == snames[1]){
+      surveySD_long <- rep(surveySD$surveySD[surveySD$survey %in% i], length(ytmp))
+    }else{
+      surveySD_long <- c(surveySD_long,rep(surveySD$surveySD[surveySD$survey %in% i],
+                                           length(ytmp)))
+    }
+  }
+  tmp$SD <- surveySD_long
 
 
   if(any(is.na(tmp$ResidSurvey))){
@@ -640,10 +738,10 @@ getCatchSD <- function(df.tmb, sas) {
   tmp$low <- tmp$catchSD - 2 * tmp$SE
   tmp$high <- tmp$catchSD + 2 * tmp$SE
 
-  tmp$ages <- df.tmb$age
+  tmp$ages <- rep(df.tmb$age, df.tmb$csd+1)
 
-  tmp$season <- rep(1:df.tmb$nseason, each = df.tmb$nage)
-
+  tmp$season <- rep(rep(1:df.tmb$nseason, each = df.tmb$nage) , df.tmb$csd+1)
+  tmp$varblock <- rep(unique(df.tmb$csd_index)+1, each = df.tmb$nage * df.tmb$nseason)
   # tmp <- tmp[-which(tmp$catchSD == 0),] # Remove the ones that are not caught
 
 
@@ -807,26 +905,50 @@ getSR <- function(df.tmb, sas, method = 'mean') {
 
   years <- df.tmb$years
   SSB <- getSSB(df.tmb, sas)
+  R <- getR(df.tmb, sas)
+
 
   if(df.tmb$recmodel == 1){
+    # log(alpha) and its SE
+    SRstock <- sdrep[rep.values == "logalpha", 1]
+    SE      <- sdrep[rep.values == "logalpha", 2]
 
-  SRstock <- sdrep[rep.values == "logalpha", 1]
-  SE <- (sdrep[rep.values == "logalpha", 2])
+    # method should be a character, e.g. method <- "mean" or "median"
+    if (method == "mean") {
+      # process variance on log scale for mean of lognormal
+      sigmaR  <- exp(sdrep["logSDrec", "Estimate"])  # SD on log scale
+      sigma2  <- sigmaR^2                             # variance on log scale
+      adj        <- 0.5 * sigma2          # shift for mean curve
+    } else {
+      # median: no shift from lognormal
+      adj <- 0
+    }
 
-  SDrec2_hat <- sdrep[rep.values == "SDrec2", "Estimate"]  # adjust name if needed
+    # CI for log(alpha)
+    low  <- SRstock - 2 * SE
+    high <- SRstock + 2 * SE
 
+    # SSB range and beta
+    SSBrange <- seq(1, max(SSB$SSB, na.rm = TRUE), length.out = nrow(R))
 
-  low <- SRstock - 2 * SE
-  high <- SRstock + 2 * SE
+    # see if beta is estimated
+    beta_est <- exp(sas$reps$par.fixed['logbeta'])
+    if(is.na(beta_est)){
+      betaSR   <- as.numeric(df.tmb$betaSR)
+    }else{
+      betaSR <- beta_est
+    }
+    # main hockey-stick curve (median if adj = 0, mean if adj = 0.5*sigma2_hat)
+    SR <- exp(SRstock + log(SSBrange) + adj)
+    SR[SSBrange > betaSR] <- exp(SRstock + log(betaSR) + adj)
 
-  SSBrange <- seq(1, max(SSB$SSB), length.out = 100)
-  SR <- exp(SRstock + log(SSBrange)+0.5 * SDrec2_hat)
-  SR[SSBrange > df.tmb$betaSR] <- exp(SRstock + log(df.tmb$betaSR))
+    # curves using log(alpha) ± 2*SE (parameter uncertainty band)
+    mins <- exp(low + log(SSBrange) + adj)
+    mins[SSBrange > betaSR] <- exp(low + log(betaSR) + adj)
 
-  mins <- exp(low + log(SSBrange))
-  mins[SSBrange > df.tmb$betaSR] <- exp(low + log(df.tmb$betaSR))
-  maxs <- exp(high + log(SSBrange))
-  maxs[SSBrange > df.tmb$betaSR] <- exp(high + log(df.tmb$betaSR))
+    maxs <- exp(high + log(SSBrange) + adj)
+    maxs[SSBrange > betaSR] <- exp(high + log(betaSR) + adj)
+
   }
 
   if(df.tmb$recmodel == 2){
@@ -839,9 +961,12 @@ getSR <- function(df.tmb, sas, method = 'mean') {
 
   }
 
+  # Get the estimated recruitment
 
-
-  SR.out <- data.frame(SR = SR, minSR = mins, maxSR = maxs, SSB = SSBrange)
+  SR.out <- data.frame(SR = SR, R = R$R,
+                       low = R$low,
+                       high = R$high,
+                       minSR = mins, maxSR = maxs, SSB = SSBrange)
 
   return(SR.out)
 }

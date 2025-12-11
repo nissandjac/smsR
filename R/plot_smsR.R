@@ -20,10 +20,21 @@
 #' @importFrom ggplot2 facet_grid facet_wrap xlab ylab unit theme theme_classic theme_bw
 #' @importFrom patchwork plot_layout
 #'
-plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = sas$dat$betaSR, Bpa = NULL, printFig = 0) {
+plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = NULL, Bpa = NULL, printFig = 0) {
 
   if(is.null(df.tmb)){
     df.tmb <- sas$dat
+  }
+
+  if(is.null(Blim)){
+    # see if beta is estimated
+    beta_est <- exp(sas$reps$par.fixed['logbeta'])
+    if(is.na(beta_est)){
+      betaSR   <- as.numeric(df.tmb$betaSR)
+    }
+    Blim <- betaSR
+
+
   }
 
   SSB <- getSSB(df.tmb, sas)

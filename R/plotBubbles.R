@@ -22,24 +22,12 @@ plotBubbles <- function(sas, CVscale = TRUE) {
   CR$col[CR$ResidCatch < 0] <- "Negative"
 
 
-  # Scale CR with cv
-  catchSD <- getCatchSD(df.tmb, sas)
-  CR$SD <- NA
-  for (i in 1:df.tmb$nseason) {
-    cvtmp <- catchSD[catchSD$season == i, ]
-    yr.tmp <- unique(CR$years[CR$season == i])
-    for (j in 1:length(yr.tmp)) {
-      CR$SD[CR$season == i & CR$years == yr.tmp[j]] <- cvtmp$catchSD[cvtmp$ages %in% CR$ages[CR$season == i & CR$years == yr.tmp[j]]]
-    }
-  }
-
-
   ss <- c(round(range(abs(CR$ResidCatch))[1]), max(abs(CR$ResidCatch)) * 1.2)
 
 
 
   p7 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
-    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch) / SD), alpha = .3) +
+    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch) / CSD), alpha = .3) +
     facet_wrap(~season, nrow = df.tmb$nseason) +
     theme_classic() +
     ggplot2::scale_size(range = ss) +
@@ -53,9 +41,6 @@ plotBubbles <- function(sas, CVscale = TRUE) {
   SR$col[SR$ResidSurvey < 0] <- "Negative"
 
 
-  surveySD <- getSurveySD(df.tmb, sas)
-  SR$SD <- NA
-
   if (df.tmb$nsurvey == 1) {
     SR$survey <- dimnames(df.tmb$Surveyobs)[[3]]
     surveyCV$survey <- dimnames(df.tmb$Surveyobs)[[3]]
@@ -64,15 +49,6 @@ plotBubbles <- function(sas, CVscale = TRUE) {
 
 
   snames <- dimnames(df.tmb$Surveyobs)[[3]]
-
-  for (i in 1:df.tmb$nsurvey) {
-    svtmp <- surveySD[surveySD$survey == snames[i], ]
-    yr.tmp <- unique(SR$years[SR$survey == snames[i]])
-    for (j in 1:length(yr.tmp)) {
-      SR$SD[SR$survey == snames[i] & SR$years == yr.tmp[j]] <-
-        svtmp$surveySD[which(svtmp$ages %in% (SR$ages[SR$survey == snames[i] & SR$years == yr.tmp[j]]))]
-    }
-  }
 
 
   # Bind the two together for a big plot
