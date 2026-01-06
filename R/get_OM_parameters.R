@@ -162,7 +162,8 @@ get_OM_parameters <- function(df.tmb,
     Rin = rec,
     move = move,
     R0 = df.tmb$betaSR * exp(parms.true$value[parms.true$parameter == "logalpha"]),
-    SDR = exp(parms.true$value[parms.true$parameter == "logSDrec"]),
+    logSDR = exp(parms.true$value[parms.true$parameter == "logSDrec"]),
+    logSDcatch = log(0),
     b = rep(0, df.tmb$nyears),
     last_year = max(df.tmb$years)
   )

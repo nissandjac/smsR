@@ -372,6 +372,20 @@ for(int i=0;i<(nage);i++){ //
     }
     }
   
+ if(useBlocks == 1 && useEffort == 1){
+
+  if(i >= Fminage){
+
+    if(i < Fmaxage){
+      Fagein(i,j) = exp(logFage(i-Fminage, bidx(j)));
+    }else{
+      Fagein(i,j) = exp(logFage(Fmaxage-Fminage,bidx(j)));
+      }
+    }
+    }
+
+
+
   if(useBlocks == 1 && useEffort == 0){
 
   if(i >= Fminage){
@@ -383,12 +397,6 @@ for(int i=0;i<(nage);i++){ //
       }
     }
     }
-  
-
-
-
-
-
    }
 }
 
@@ -442,7 +450,7 @@ if(useBlocks == 0){
   }
 }
 
-if(useBlocks == 0 && useEffort == 1){
+if(useEffort == 1){ // There was a useblocks call here as well. Check with area3
 
   for(int j=0;j<(nyears);j++){
     for(int i=0;i<nage;i++){ // Loop over other ages (recruits excluded)
@@ -1015,9 +1023,9 @@ array<Type>SD_catch2(nage, nseason, csd+1);
 SD_catch2.setZero();
 
 // Try an index block 
-for(int time = 0; time < nyears; time++){
+// for(int time = 0; time < nyears; time++){
  
-}
+// }
 
 
 
