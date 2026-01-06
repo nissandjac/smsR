@@ -57,7 +57,7 @@ run.agebased.sms.op <- function(df,
 
 
   R0 <- df$R0
-  SDR <- df$SDR
+  SDR <- exp(df$logSDR)
 
   # Calculate N0 based on R0
   mage <- max(df$age) # Max age
@@ -84,6 +84,11 @@ run.agebased.sms.op <- function(df,
   }
 
 
+  if(length(dim(M)) != 4){
+    M <- array(M, dim = c(df$nage, ncol(M), 1, df$nseason))
+  }
+
+
   M0 <- rep(0, mage * 3 + 1)
   M0[1:nage] <- M[, 1, 1, 1] * df$nseason
   M0[nage:length(M0)] <- M[nage, 1, 1, 1] * df$nseason
@@ -96,13 +101,31 @@ run.agebased.sms.op <- function(df,
   N0tmp[1:(nagetmp - 1)] <- R0 * exp(-agetmp[1:(nagetmp - 1)] * M0[1:(nagetmp - 1)])
   N0tmp[nagetmp] <- R0 * exp(-M0[nagetmp] * agetmp[nagetmp]) / (1 - exp(-M0[nagetmp]))
 
-  }
-
   N0 <- matrix(NA, nage)
   N0[1:(nage - 1)] <- N0tmp[1:(nage - 1)]
   N0[nage] <- sum(N0tmp[nage:nagetmp])
 
   SSB_0 <- sum(N0 * west[, 1, 1, 1] * mat[, 1, 1, 1])
+
+  }else{
+    SSB_0 <- NA
+  }
+
+
+
+  if(length(dim(west)) != 4){ # add a one to the spatial dimension
+    west <- array(west, dim = c(df$nage, ncol(west), 1, df$nseason))
+  }
+
+  if(length(dim(mat)) != 4){ # Same as above
+    mat <- array(mat, dim = c(df$nage, ncol(mat), 1, df$nseason))
+  }
+
+  if(length(dim(weca)) != 4){ # Same as above
+    weca <- array(weca, dim = c(df$nage, ncol(weca), 1, df$nseason))
+  }
+
+
 
 
   # Recruitment per country
@@ -331,7 +354,7 @@ run.agebased.sms.op <- function(df,
             R <- df$R0
 
             # add error
-            Ry <- rnorm(1, mean = 0, sd = df$SDR)
+            Ry <- rnorm(1, mean = 0, sd = exp(df$logSDR))
             R.err <- exp(-0.5 * df$b[yr] * SDR^2 + Ry)
 
             N.save.age[1, yr, space, season] <- R * R.err
