@@ -1390,8 +1390,10 @@ for(int time=0;time<(nyears);time++){ // Loop over other years
 
 if(tuneCatch == 1){
   for(int time=tuneStart;time<nyears;time++){ // Loop over years
+    if(Catchtot_obs(time)>0){
        nllC += -dnorm( log(Catchtot_obs(time)),logCatchtot(time), sdc, true);
-  }
+    }
+  }  
 }
 
 array<Type> CatchNtot(nyears, nseason);
