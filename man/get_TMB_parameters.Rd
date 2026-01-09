@@ -11,9 +11,11 @@ get_TMB_parameters(
   propM = NULL,
   propF = NULL,
   years,
+  CatchProportions = NULL,
   startYear = min(years),
   endYear = max(years),
   nseason = 4,
+  nsamples = matrix(0, ncol = nseason, nrow = length(years)),
   nsurvey = dim(Surveyobs)[3],
   ages = 0:20,
   Fbarage = c(1, max(ages)),
@@ -22,8 +24,9 @@ get_TMB_parameters(
   Fmaxage = max(ages),
   Qminage = rep(0, nsurvey),
   Qmaxage = rep(max(ages), nsurvey),
-  Qlastage = Qmaxage,
+  Qlastage = NULL,
   isFseason = NULL,
+  cscalar = matrix(1, nseason, nage),
   CminageSeason = rep(0, nseason),
   CmaxageSeason = rep(max(ages), nseason),
   endFseason = nseason,
@@ -44,7 +47,7 @@ get_TMB_parameters(
   penepsCmax = 0.001,
   Mprior = -1,
   SDMprior = 0.2,
-  powers = list(NA),
+  powers = rep(list(NA), nsurvey),
   Pred_in = matrix(0),
   M_min = 0,
   M_max = max(ages),
@@ -54,6 +57,9 @@ get_TMB_parameters(
   MCV = matrix(c(0, max(ages)), nrow = 2, ncol = 1),
   csd_break = min(years),
   csd = 0,
+  tuneCatch = 0,
+  tuneStart = NULL,
+  tuneEnd = NULL,
   prior_SDM = 0.4,
   estSD = c(0, 0, 0),
   SDmin = c(0.2, 0.2, 0.2),
@@ -180,8 +186,9 @@ get_TMB_parameters(
 
 \item{recmodel}{Recruitment model specification. Options:
 - `1`: Hockey-stick model with input breakpoint (`betaSR`).
-- `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
-- `3`: Beverton Holt model.}
+- `2`: Recruitment estimated as deviations from an estimated mean value with an AR1 process in the likelihood
+- `3`: Beverton Holt model with steepness.
+- `4`: Beverton Holt model with steepness and environmentally mediated deviations - requires env_matrix}
 
 \item{nenv}{Number of environmental covariates affecting recruitment.}
 }

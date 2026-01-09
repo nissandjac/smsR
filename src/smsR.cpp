@@ -773,12 +773,9 @@ for(int time=0;time<(nyears);time++){ // Start time loop
 
           if(recmodel == 2){ // Ricker model with deviations 
           
-  
-
-          Rin(time) = exp(log(Rinit) + log(Rin(time)));
-          Rsave(time) = Rin(time);
+          Rsave(time) = exp(log(Rinit) + logRin(time));
           Nsave(0,time,qrts) = Rsave(time);
-          logRec(time) = log(Rin(time));
+          logRec(time) = log(Rsave(time));
           }
 
           if(recmodel == 3){ // Beverton Holt steepness formulation 

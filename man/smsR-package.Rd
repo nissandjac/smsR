@@ -16,7 +16,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Anonymous Anonymous \email{Anonymous@secret.com} (\href{https://orcid.org/Anonymous}{ORCID})
+\strong{Maintainer}: Nis Sand Jacobsen \email{nsja@aqua.dtu.dk} (\href{https://orcid.org/0000-0001-8754-4518}{ORCID})
 
 }
 \keyword{internal}

@@ -2,11 +2,11 @@ Package: smsR
 Title: Stochastic MultiSpecies stock assessment model
 Version: 0.0.0.9000
 Authors@R:
-    person(given = "Anonymous",
-           family = "Anonymous",
+    person(given = "Nis Sand",
+           family = "Jacobsen",
            role = c("aut", "cre"),
-           email = "Anonymous@secret.com",
-           comment = c(ORCID = "Anonymous"))
+           email = "nsja@aqua.dtu.dk",
+           comment = c(ORCID = "0000-0001-8754-4518"))
 Imports:
     TMB,
     ggplot2 (>= 3.3.0),

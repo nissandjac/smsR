@@ -93,6 +93,17 @@ run.agebased.sms.op <- function(df,
   M0[1:nage] <- M[, 1, 1, 1] * df$nseason
   M0[nage:length(M0)] <- M[nage, 1, 1, 1] * df$nseason
 
+  if(length(dim(west)) != 4){ # add a one to the spatial dimension
+    west <- array(west, dim = c(df$nage, ncol(west), 1, df$nseason))
+  }
+
+  if(length(dim(mat)) != 4){ # Same as above
+    mat <- array(mat, dim = c(df$nage, ncol(mat), 1, df$nseason))
+  }
+
+  if(length(dim(weca)) != 4){ # Same as above
+    weca <- array(weca, dim = c(df$nage, ncol(weca), 1, df$nseason))
+  }
 
 
   if(df$recruitment == 'BH_steep'){
@@ -113,17 +124,6 @@ run.agebased.sms.op <- function(df,
 
 
 
-  if(length(dim(west)) != 4){ # add a one to the spatial dimension
-    west <- array(west, dim = c(df$nage, ncol(west), 1, df$nseason))
-  }
-
-  if(length(dim(mat)) != 4){ # Same as above
-    mat <- array(mat, dim = c(df$nage, ncol(mat), 1, df$nseason))
-  }
-
-  if(length(dim(weca)) != 4){ # Same as above
-    weca <- array(weca, dim = c(df$nage, ncol(weca), 1, df$nseason))
-  }
 
 
 
@@ -698,5 +698,5 @@ run.agebased.sms.op <- function(df,
     Fsel = Fsel.save
   )
 
-  return(df.out)
+  return(structure(df.out, class = 'sms_om'))
 }

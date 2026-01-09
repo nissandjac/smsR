@@ -10,6 +10,8 @@
 #' @param years years to calculate
 #' @param seasons seasons to calc
 #' @param scv.tv Time varying CV from survey
+#' @param min.cage minimum ages in catch
+#' @param max.cage maximum ages in catch
 #'
 #' @return returns a list of input data for smsR from an old sms format
 #'
@@ -22,6 +24,8 @@ getDataSMS <- function(wd,
                        survey.names = NA,
                        survey.quarter = NA,
                        effort = FALSE,
+                       min.cage = 0,
+                       max.cage = maxage,
                        years,
                        seasons,
                        scv.tv = 0) {

@@ -8,7 +8,7 @@
   sas,
   df.tmb = NULL,
   type = "default",
-  Blim = sas$dat$betaSR,
+  Blim = NULL,
   Bpa = NULL,
   printFig = 0
 )

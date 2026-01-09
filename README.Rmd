@@ -93,4 +93,76 @@ mr <- mohns_rho(df.tmb, peels = 5, parms = parms, plotfigure = FALSE)
 mr$p1()
 ```
 
+## Simulating data 
+*smsR* includes a range of functions to simulate data. Here is an example of a simple model with Beverton Holt as the stock recruitment relationship. Here two essential functions are used $sim_OM_parameters()$ and $run.agebased.sms.op()$. See ?$sim_OM_parameters()$ for default values that are used when unspecified. 
+
+```{r}
+
+# Define the number of seasons and number of years 
+nseason <- 2
+nyear <- 30
+
+# Model fishing mortality with contrast to ensure parity in parameter estimation 
+Fin <- matrix(c(seq(0.1,0.5,length.out = 15),seq(0.5,0.1,length.out = 15)),
+                nyear,
+                nseason)
+# Initiate a list of parameters for an operating model. Note that parameters from a generic stock are used per default for selectivity, maturity, recruitment etc. 
+
+dat <- sim_OM_parameters(nseason = nseason,
+                           nyear = nyear,
+                           F0 = Fin,
+                           M = .3, # natural mortality 
+                           Fpast = .2, # Fishing mortality before simulation starts 
+                           maxage = 5, # Maximum age 
+                           recruitment = 'BH_steep' # Stock recruitment function 
+                         )
+
+# Run the operating model 
+OM <- run.agebased.sms.op(dat)
+
+```
+
+
+We can then turn this 
+
+```{r}
+# Required data to fit
+Surveyobs <- OM$survey
+Catchobs <- OM$Catchobs
+
+# Most simple model
+mtrx <- list(weca = dat$weca, west = dat$west, mat = dat$mat, M = dat$M)
+
+df.tmb <- get_TMB_parameters(mtrx,
+                             Surveyobs, # From a simulated model
+                             Catchobs, # From a simulated model
+                             years = 1:nyear,
+                             nseason = dat$nseason,
+                             ages= 0:5,
+                             recmodel = 3#,
+                             #randomR = 1
+)
+
+
+parms <- getParms(df.tmb)
+
+#parms$logbeta <- 1e-5
+mps <- getMPS(df.tmb, parms)
+sas <- runAssessment(df.tmb, parms , mps = mps , debug = TRUE)
+# See if Fmsy works
+plot(sas)
+
+
+# Get Fsmy
+getFmsy(sas, recruitment = 'BH_steep')
+
+
+```
+
+
+## Random effects 
+Since the model runs in TMB, it is possible to estimate some parameters as random effects, specifically time varying natural mortality, recruitment, and fishing mortality. The model currently does not 
+
+
+
 

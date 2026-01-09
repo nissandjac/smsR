@@ -12,6 +12,8 @@ getDataSMS(
   survey.names = NA,
   survey.quarter = NA,
   effort = FALSE,
+  min.cage = 0,
+  max.cage = maxage,
   years,
   seasons,
   scv.tv = 0
@@ -31,6 +33,10 @@ getDataSMS(
 \item{survey.quarter}{which quarters do surveys happen}
 
 \item{effort}{set to true to read in effort data}
+
+\item{min.cage}{minimum ages in catch}
+
+\item{max.cage}{maximum ages in catch}
 
 \item{years}{years to calculate}
 

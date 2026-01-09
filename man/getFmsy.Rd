@@ -9,7 +9,8 @@ getFmsy(
   nyears = 50,
   recruitment = "hockey",
   plotMSY = FALSE,
-  stochastic = FALSE
+  stochastic = FALSE,
+  nruns = 1000
 )
 }
 \arguments{
@@ -23,7 +24,7 @@ getFmsy(
 
 \item{stochastic}{stochastic fmsy?}
 
-\item{df.tmb}{sms data frame}
+\item{nruns}{number of replicates in stochastic fmsy}
 }
 \value{
 returns the fishing mortality that leads to Fmsy

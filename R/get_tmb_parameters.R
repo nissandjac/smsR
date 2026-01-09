@@ -47,8 +47,9 @@
 #' @param catchSD Grouping variable for catch SD.
 #' @param recmodel Recruitment model specification. Options:
 #'   - `1`: Hockey-stick model with input breakpoint (`betaSR`).
-#'   - `2`: Recruitment estimated as deviations from an estimated mean value (can include environmental input).
-#'   - `3`: Beverton Holt model.
+#'   - `2`: Recruitment estimated as deviations from an estimated mean value with an AR1 process in the likelihood
+#'   - `3`: Beverton Holt model with steepness.
+#'   - `4`: Beverton Holt model with steepness and environmentally mediated deviations - requires env_matrix
 #' @param estSD Vector indicating which deviation parameters to estimate.
 #' @param SDmin Minimum CV values for estimation.
 #' @param betaSR Hockey-stick model breakpoint parameter.
@@ -141,6 +142,7 @@ get_TMB_parameters <- function(
     csd = 0,
     tuneCatch =0,
     tuneStart = NULL,
+    tuneEnd = NULL,
     prior_SDM = 0.4,
     estSD = c(0, 0, 0),
     SDmin = c(0.2, 0.2, 0.2),
@@ -152,6 +154,7 @@ get_TMB_parameters <- function(
     recmodel = 1,
     nenv = 0,
     warn = FALSE) {
+
   # Remove surveys for sensitivity analysis
   if(is.null(Qlastage)){
     Qlastage <- Qmaxage
@@ -194,7 +197,43 @@ get_TMB_parameters <- function(
 
   # Do a sanity check of dimension sizes of input data
 
+  # If the life history parameters come from the OM, sum / average over space
+  # Required life history
+  if(length(dim(mtrx$weca)) == 4){
+    if(dim(mtrx$weca)[3]> 1){
+      mtrx$weca <- apply(mtrx$weca, c(1, 2, 4), mean, na.rm = TRUE)
+      message('Assuming weca comes from OM. Averaging over spatial dimension')
+    }else{
+      mtrx$weca <- mtrx$weca[,,1,]
+    }
+  }
 
+  if(length(dim(mtrx$west)) == 4){
+    if(dim(mtrx$west)[3]> 1){
+      mtrx$west <- apply(mtrx$west, c(1, 2, 4), sum, na.rm = TRUE)
+      message('Assuming west comes from OM. Averaging over spatial dimension')
+    }else{
+      mtrx$west <- mtrx$west[,,1,]
+    }
+  }
+
+  if(length(dim(mtrx$mat)) == 4){
+    if(dim(mtrx$mat)[3]> 1){
+      mtrx$mat <- apply(mtrx$mat, c(1, 2, 4), mean, na.rm = TRUE)
+      message('Assuming mat comes from OM. Averaging over spatial dimension')
+    }else{
+      mtrx$mat <- mtrx$mat[,,1,]
+    }
+  }
+
+  if(length(dim(mtrx$M)) == 4){
+    if(dim(mtrx$M)[3]> 1){
+      mtrx$M <- apply(mtrx$M, c(1, 2, 4), mean, na.rm = TRUE)
+      message('Assuming M comes from OM. Averaging over spatial dimension')
+    }else{
+      mtrx$M <- mtrx$M[,,1,]
+    }
+  }
 
   exp_dim <- c(nage, nyear + 1, nseason)
 
@@ -881,7 +920,7 @@ get_TMB_parameters <- function(
   }
 
   if(is.null(tuneStart)){tuneStart = 0}
-
+  if(is.null(tuneEnd)){tuneEnd = length(years)}
  # Fill environmental matrix with 0's if its not there
   env_matrix <- matrix(0,  nenv,length(years))
   M_matrix <- matrix(0, 1, length(years))
@@ -955,6 +994,7 @@ get_TMB_parameters <- function(
     penepsCmax = penepsCmax,
     tuneCatch = tuneCatch,
     tuneStart= tuneStart,
+    tuneEnd = tuneEnd,
     Mprior = Mprior,
     prior_SDM = prior_SDM,
     isPredator = isPredator,
