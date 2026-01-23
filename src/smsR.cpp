@@ -354,6 +354,8 @@ for(int i=0;i<(logQ.size());i++){ //
 
 // Age contribution of fishing mortality
 
+
+// This section needs some cleaning....
 Fagein.setZero();
 //
 for(int i=0;i<(nage);i++){ //
@@ -373,6 +375,18 @@ for(int i=0;i<(nage);i++){ //
     }
   
  if(useBlocks == 1 && useEffort == 1){
+
+  if(i >= Fminage){
+
+    if(i < Fmaxage){
+      Fagein(i,j) = exp(logFage(i-Fminage, bidx(j)));
+    }else{
+      Fagein(i,j) = exp(logFage(Fmaxage-Fminage,bidx(j)));
+      }
+    }
+    }
+
+  if(useBlocks == 0 && useEffort == 1){
 
   if(i >= Fminage){
 

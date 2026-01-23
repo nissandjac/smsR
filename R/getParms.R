@@ -212,7 +212,7 @@ getMPS <- function(df.tmb, parms, mapExtra = NA) {
 
 
 
-  if(df.tmb$tuneCatch == 0)
+#  if(df.tmb$tuneCatch == 0)
 
   if (df.tmb$useEffort == 1) {
     mps$logFyear <- factor(parms$logFyear * NA)
