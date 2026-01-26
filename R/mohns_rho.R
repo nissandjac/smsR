@@ -270,7 +270,7 @@ mohns_rho <- function(df.tmb,
     limits <- c(min(df.plot$years), max(df.plot$years))
   }
 
-  Rlims <- c(min(df.var$Rmin), max(df.plot$R) * 1.5)
+  Rlims <- c(min(df.var$Rmin), max(df.save$R) * 1.5)
 
   p1 <- function() {
     x1 <- ggplot2::ggplot(df.plot, aes(x = years, y = SSB, color = factor(peel))) +
