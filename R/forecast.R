@@ -467,7 +467,7 @@ getForecastTable <- function(df.tmb,
   Fbar <- getFbar(df.tmb, sas)
 
   # Btarget = Blim
-  Flim <- calcBescape(Btarget = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 10)
+  Flim <- calcBescape(Btarget = df.tmb$betaSR, df.tmb, N_current, Fsel, Fcap = 30)
   flim <- forecast.sms(df.tmb , N_current , Flim*Fsel)
 
 
