@@ -452,10 +452,10 @@ if(useBlocks == 0){
             if(nseason == 2){
                 Fquarter(i,j,qrts) = Type(1);
               }else{
-                Fquarter(i,j,qrts) = Type(1)/nseason; // Morten's trick to fix a degree of freedom that isn't needed for the parameterization
+                Fquarter(i,j,qrts) = Type(1)/nseason; // Fix a degree of freedom that isn't needed for the parameterization
             }
             }else{
-            Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
+            Fquarter(i,j,qrts) = Type(1)/nseason; // 
             }
           }
         }
@@ -478,15 +478,14 @@ if(useEffort == 1){ // There was a useblocks call here as well. Check with area3
           }
         }else{
 
-          if(i == 0){ // Not sure why this is happening.
+          if(i == 0){ 
             if(nseason == 2){
                 Fquarter(i,j,qrts) = Type(1);
               }else{
-                Fquarter(i,j,qrts) = Type(1)/nseason; // This is a hack - ask Morten
+                Fquarter(i,j,qrts) = Type(1)/nseason; // Fix a degree of freedom that isn't needed for the parameterization
             }
           }else{
-            Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
-          }
+            Fquarter(i,j,qrts) = Type(1)/nseason; // W
         }
       }
     }
@@ -526,10 +525,10 @@ if(useBlocks == 1 && useEffort == 0){
             if(nseason == 2){
                 Fquarter(i,j,qrts) = Type(1);
               }else{
-                Fquarter(i,j,qrts) = Type(1)/nseason; // Morton's trick to fix a degree of freedom that isn't needed for the parameterization
+                Fquarter(i,j,qrts) = Type(1)/nseason; // Fix a degree of freedom that isn't needed for the parameterization
             }
             }else{
-            Fquarter(i,j,qrts) = Type(1)/nseason; // Where does this come from?
+            Fquarter(i,j,qrts) = Type(1)/nseason; // 
             }
           }
         }
