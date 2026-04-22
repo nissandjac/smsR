@@ -491,6 +491,7 @@ if(useEffort == 1){ // There was a useblocks call here as well. Check with area3
     }
   }
 }
+}
 //
 
 if(useBlocks == 1 && useEffort == 0){

@@ -52,7 +52,7 @@ plot.sms <- function(sas, df.tmb = NULL, type = "default", Blim = NULL, Bpa = NU
       geom_line(linewidth = 1.2) +
       theme_classic() +
       geom_ribbon(aes(ymin = low / 1000, ymax = high / 1000), fill = alpha("red", 0.2), linetype = 0) +
-      scale_y_continuous("SSB\n(000 t)") +
+      scale_y_continuous("SSB\n(1000 t)") +
       theme(legend.position = c(0.8, .8)) +
       coord_cartesian(ylim = lims) +
       scale_x_continuous("")
