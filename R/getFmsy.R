@@ -21,6 +21,14 @@ getFmsy <- function(sas,
   years <- 1:nyears
   nyears <- length(years)
 
+  # Get the index for forecast
+  if(dim(df.tmb$weca)[2] == df.tmb$nyears){
+    fc_idx <- df.tmb$nyears
+  }else{
+    fc_idx <- df.tmb$nyears+1
+  }
+
+
   if(sas$dat$randomM == 1){
 
   M_estimated <- getM_var(sas$dat, sas) %>% filter(years %in% max(sas$dat$years))
@@ -28,23 +36,23 @@ getFmsy <- function(sas,
 
   M <-   array(M_estimated$M_var, dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   }else{
-  M <- array(df.tmb$M[, df.tmb$nyears, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
+  M <- array(df.tmb$M[, fc_idx, ], dim = c(df.tmb$nage, nyears, df.tmb$nseason))
   }
 
-  mat_last <- df.tmb$Mat[, df.tmb$nyears, , drop = FALSE]   # nage × 1 × nseason
+  mat_last <- df.tmb$Mat[, fc_idx, , drop = FALSE]   # nage × 1 × nseason
   mat <- mat_last[, rep(1, nyears), , drop = FALSE]
 
 
-  weca_last <- df.tmb$weca[, df.tmb$nyears, , drop = FALSE]   # nage × 1 × nseason
+  weca_last <- df.tmb$weca[, fc_idx, , drop = FALSE]   # nage × 1 × nseason
   weca <- weca_last[, rep(1, nyears), , drop = FALSE]
 
-  west_last <- df.tmb$west[, df.tmb$nyears, , drop = FALSE]   # nage × 1 × nseason
+  west_last <- df.tmb$west[, fc_idx, , drop = FALSE]   # nage × 1 × nseason
   west <- west_last[, rep(1, nyears), , drop = FALSE]
 
-  propM_last <- df.tmb$propM[, df.tmb$nyears, , drop = FALSE]   # nage × 1 × nseason
+  propM_last <- df.tmb$propM[, fc_idx, , drop = FALSE]   # nage × 1 × nseason
   propM <- propM_last[, rep(1, nyears), , drop = FALSE]
 
-  propF_last <- df.tmb$propF[, df.tmb$nyears, , drop = FALSE]   # nage × 1 × nseason
+  propF_last <- df.tmb$propF[, fc_idx, , drop = FALSE]   # nage × 1 × nseason
   propF <- propF_last[, rep(1, nyears), , drop = FALSE]
 
   Fselin <- getSelectivity(df.tmb, sas)
@@ -78,12 +86,14 @@ getFmsy <- function(sas,
     alphaSR <- exp(parms.est$value[parms.est$parameter == "logalpha"])
     betaSR <- df.tmb$betaSR
     R0 <- alphaSR * df.tmb$betaSR
+    h_val <- NA
+    Ninit <- c(R0,exp(parms.est$value[parms.est$parameter == 'logNinit']))
   } else {
     alphaSR <- NA
     betaSR <- NA
     R0 <- exp(parms.est$value[parms.est$parameter == "logR0"])
     h_val <- attr(sas$obj$env$parameters$logh, "shape")
-
+    Ninit <- NULL
   }
 
   if(sas$dat$nenv >0){
@@ -132,7 +142,7 @@ getFmsy <- function(sas,
     recruitment = recruitment,
     rseason = df.tmb$recseason,
     Fmodel = "sim",
-    Ninit = NULL,
+    Ninit = Ninit,
     Rin = NA,
     move = FALSE,
     R0 = R0,

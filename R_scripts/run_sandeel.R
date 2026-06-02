@@ -35,6 +35,8 @@ parms <- getParms(df.tmb)
 sas <- runAssessment(df.tmb, parms = parms)
 
 plot(sas)
+
+
 removeSurvey(sas)
 mr <- mohns_rho(df.tmb, peels = 5, parms)
 getForecastTable(df.tmb, sas, Btarget = 140824, Flimit = 0.36, TACold = 120428, TACtarget = 5000)
