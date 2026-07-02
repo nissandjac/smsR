@@ -83,11 +83,37 @@ getFmsy <- function(sas,
   # SDR <- exp(parms.est$value[parms.est$parameter == 'logSDrec'])
 
   if (recruitment == "hockey") {
+
+
+    if(sas$dat$recmodel == 1){
     alphaSR <- exp(parms.est$value[parms.est$parameter == "logalpha"])
     betaSR <- df.tmb$betaSR
     R0 <- alphaSR * df.tmb$betaSR
     h_val <- NA
     Ninit <- c(R0,exp(parms.est$value[parms.est$parameter == 'logNinit']))
+    }
+
+    if(sas$dat$recmodel == 2){
+      r_obs   <- getR(sas$dat, sas)$R
+      ssb_obs <- getSSB(sas$dat, sas)$SSB[seq_along(r_obs)]
+
+      hs_nll <- function(pars) {
+        alpha <- exp(pars[1])
+        Bknee <- exp(pars[2])
+        r_pred <- alpha * pmin(ssb_obs, Bknee)
+        sum((log(r_obs) - log(r_pred))^2)
+      }
+
+      init_pars <- c(log(mean(r_obs) / mean(ssb_obs)), log(median(ssb_obs)))
+      hs_opt <- optim(init_pars, hs_nll, method = "Nelder-Mead")
+
+      alphaSR <- exp(hs_opt$par[1])
+      betaSR  <- exp(hs_opt$par[2])
+      R0      <- alphaSR * betaSR
+      h_val   <- NA
+      Ninit   <- c(R0, exp(parms.est$value[parms.est$parameter == 'logNinit']))
+    }
+
   } else {
     alphaSR <- NA
     betaSR <- NA
@@ -112,7 +138,6 @@ getFmsy <- function(sas,
   Q <- getCatchability(df.tmb, sas)
   Q <- array(Q$Q, dim = c(df.tmb$nage, df.tmb$nsurvey), )
   Q[is.na(Q)] <- 0
-
 
 
 

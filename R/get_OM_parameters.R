@@ -65,11 +65,20 @@ get_OM_parameters <- function(df.tmb,
 
   if (is.null(sas) == FALSE) {
     parms.true <- getEstimatedParms(sas)
+
+
+    if (is.null(recruitment)) {
+      rec <- exp(parms.true$value[parms.true$parameter == "logRin"])
+    }
+
+
+    if(df.tmb$recmodel == 2){
+      rec <- getR(df.tmb, sas)$R
+    }
+
   }
 
-  if (is.null(recruitment)) {
-    rec <- exp(parms.true$value[parms.true$parameter == "logRin"])
-  }
+
 
   # Turn life history parameters into spatial objects
 
