@@ -9,6 +9,7 @@ get_OM_parameters(
   sas = NULL,
   surveySD = 0.4,
   recruitment = NULL,
+  method = "nls",
   nspace = 1,
   moveinit = 1,
   movemax = 0.3,
@@ -24,7 +25,23 @@ get_OM_parameters(
 
 \item{surveySD}{SD on survey}
 
-\item{recruitment}{Type of recruitment function shape}
+\item{recruitment}{Type of recruitment function shape used by the returned OM
+(consumed by \code{\link{forecast_op}} / \code{\link{run.agebased.sms.op}}).
+Defaults to \code{NULL}, which resolves to \code{"estimated"} (recruitment
+held at the geometric mean of the historical series, no SSB feedback) -
+the usual choice for short-term forecasts even when a reference point like
+Fmsy was derived under a stock-recruit assumption. Pass \code{"hockey"}
+explicitly to instead forecast under a hockey-stick stock-recruit
+relationship; when \code{df.tmb$recmodel == 2} (recruitment estimated
+freely per year in the assessment, no analytic SR relationship), that
+hockey-stick is fit post-hoc to the assessment's own (SSB, R) history via
+\code{method}, identically to \code{\link{getFmsy}}, so a forecast run at
+\code{Fnew = getFmsy(..., recruitment = "hockey")$Fmsy} reproduces the
+same equilibrium dynamics Fmsy was computed under.}
+
+\item{method}{Only used when \code{recruitment == "hockey"} and
+\code{df.tmb$recmodel == 2}. \code{"nls"} (default) or \code{"segmented"} -
+see \code{\link{getFmsy}}.}
 
 \item{nspace}{number of spatial cells}
 

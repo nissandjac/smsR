@@ -36,7 +36,7 @@ specified recruitment assumption and identifies the \emph{F} that maximizes yiel
 }
 \examples{
 \dontrun{
-fmsy <- getFmsy.OM(sas = fitted_model, df = om_params, nyears = 100,
+fmsy <- getFmsy.OM(OM = om_run, df = om_params, nyears = 100,
                    recruitment = "hockey", plotMSY = TRUE, stochastic = TRUE)
 }
 }

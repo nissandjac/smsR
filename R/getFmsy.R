@@ -3,9 +3,18 @@
 #' @param sas Fitted sms model
 #' @param nyears number of years to simulate
 #' @param recruitment recruitment type to calculate Fmsy. Currently only hockey works.
-#' @param plotMSY TRUE OR FALSE to plot the result
+#' @param plotMSY TRUE OR FALSE to plot the result. When \code{recruitment == "hockey"} and
+#'   \code{sas$dat$recmodel == 2}, this also plots the observed (SSB, R) pairs with the fitted
+#'   hockey-stick curve overlaid, so the fit can be checked visually.
 #' @param stochastic stochastic fmsy?
 #' @param nruns number of replicates in stochastic fmsy
+#' @param method Only used when \code{recruitment == "hockey"} and \code{sas$dat$recmodel == 2}
+#'   (i.e. recruitment was estimated freely per year in the assessment, so the hockey-stick
+#'   has to be fit post-hoc to the assessment's own (SSB, R) history). \code{"nls"} (default)
+#'   fits alpha/beta by minimizing squared log-residuals with \code{optim()}. \code{"segmented"}
+#'   instead uses the \pkg{segmented} package: an OLS line is fit and then refined into a
+#'   breakpoint model via \code{segmented::segmented()}, using the fitted breakpoint as beta
+#'   and the pre-breakpoint segment's slope as alpha. Requires the \pkg{segmented} package.
 #'
 #' @return returns the fishing mortality that leads to Fmsy
 #' @export
@@ -15,7 +24,8 @@ getFmsy <- function(sas,
                     recruitment = "hockey",
                     plotMSY = FALSE,
                     stochastic = FALSE,
-                    nruns = 1000) {
+                    nruns = 1000,
+                    method = "nls") {
   #  Number
   df.tmb <- sas$dat
   years <- 1:nyears
@@ -94,21 +104,27 @@ getFmsy <- function(sas,
     }
 
     if(sas$dat$recmodel == 2){
-      r_obs   <- getR(sas$dat, sas)$R
-      ssb_obs <- getSSB(sas$dat, sas)$SSB[seq_along(r_obs)]
+      hs_fit  <- .fit_hockey_recruitment(sas$dat, sas, method = method)
+      alphaSR <- hs_fit$alphaSR
+      betaSR  <- hs_fit$betaSR
 
-      hs_nll <- function(pars) {
-        alpha <- exp(pars[1])
-        Bknee <- exp(pars[2])
-        r_pred <- alpha * pmin(ssb_obs, Bknee)
-        sum((log(r_obs) - log(r_pred))^2)
+      if (plotMSY == TRUE) {
+        ssb_seq <- seq(0, max(hs_fit$ssb_obs) * 1.05, length.out = 200)
+        hs_fit_df <- data.frame(SSB = ssb_seq, R = alphaSR * pmin(ssb_seq, betaSR))
+        hs_obs_df <- data.frame(SSB = hs_fit$ssb_obs, R = hs_fit$r_obs)
+
+        print(
+          ggplot() +
+            geom_point(data = hs_obs_df, aes(x = SSB, y = R), alpha = 0.6) +
+            geom_line(data = hs_fit_df, aes(x = SSB, y = R), color = "steelblue", linewidth = 1.1) +
+            geom_vline(xintercept = betaSR, linetype = "dashed", color = "gray40") +
+            theme_classic() +
+            scale_x_continuous("SSB") +
+            scale_y_continuous("Recruitment") +
+            ggtitle(paste0("Hockey-stick fit (method = '", method, "')"))
+        )
       }
 
-      init_pars <- c(log(mean(r_obs) / mean(ssb_obs)), log(median(ssb_obs)))
-      hs_opt <- optim(init_pars, hs_nll, method = "Nelder-Mead")
-
-      alphaSR <- exp(hs_opt$par[1])
-      betaSR  <- exp(hs_opt$par[2])
       R0      <- alphaSR * betaSR
       h_val   <- NA
       Ninit   <- c(R0, exp(parms.est$value[parms.est$parameter == 'logNinit']))

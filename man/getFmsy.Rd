@@ -10,7 +10,8 @@ getFmsy(
   recruitment = "hockey",
   plotMSY = FALSE,
   stochastic = FALSE,
-  nruns = 1000
+  nruns = 1000,
+  method = "nls"
 )
 }
 \arguments{
@@ -20,11 +21,21 @@ getFmsy(
 
 \item{recruitment}{recruitment type to calculate Fmsy. Currently only hockey works.}
 
-\item{plotMSY}{TRUE OR FALSE to plot the result}
+\item{plotMSY}{TRUE OR FALSE to plot the result. When \code{recruitment == "hockey"} and
+\code{sas$dat$recmodel == 2}, this also plots the observed (SSB, R) pairs with the fitted
+hockey-stick curve overlaid, so the fit can be checked visually.}
 
 \item{stochastic}{stochastic fmsy?}
 
 \item{nruns}{number of replicates in stochastic fmsy}
+
+\item{method}{Only used when \code{recruitment == "hockey"} and \code{sas$dat$recmodel == 2}
+(i.e. recruitment was estimated freely per year in the assessment, so the hockey-stick
+has to be fit post-hoc to the assessment's own (SSB, R) history). \code{"nls"} (default)
+fits alpha/beta by minimizing squared log-residuals with \code{optim()}. \code{"segmented"}
+instead uses the \pkg{segmented} package: an OLS line is fit and then refined into a
+breakpoint model via \code{segmented::segmented()}, using the fitted breakpoint as beta
+and the pre-breakpoint segment's slope as alpha. Requires the \pkg{segmented} package.}
 }
 \value{
 returns the fishing mortality that leads to Fmsy

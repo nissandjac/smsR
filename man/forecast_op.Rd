@@ -11,23 +11,47 @@ forecast_op(
   Fnew = matrix(0.2, nrow = df$nseason, ncol = nyear),
   env_new = NULL,
   stochastic = FALSE,
-  seed = NULL
+  seed = NULL,
+  Rmean_years = NULL
 )
 }
 \arguments{
 \item{df}{List containing historical OM parameters (e.g., mortality, selectivity, maturity).}
 
-\item{Ninit}{Numeric vector. Numbers-at-age in the last year of the historical OM (used to initialize forecast).}
+\item{Ninit}{Numeric vector. Numbers-at-age going into the first forecast year, i.e. the
+state \emph{after} the last historical year has been survived - the
+\code{nyears + 1} slot of \code{run.agebased.sms.op()}'s \code{N.save.age} output
+(\code{OM$N.save.age[, dim(OM$N.save.age)[2], , 1]}), not the \code{nyears} slot.}
 
 \item{nyear}{Integer. Number of years to forecast.}
 
-\item{Fnew}{Numeric or vector. Fishing mortality to apply in the forecast years.}
+\item{Fnew}{Numeric or matrix. Fishing mortality to apply in the forecast years.
+A \code{nseason x nyear} matrix is applied directly, season by season. A single
+number is instead treated as a target \strong{Fbar} and rescaled internally (using
+the forecast's selectivity-at-age over \code{df$Fbarage}) to the constant per-season
+F level that reproduces that Fbar exactly, so e.g. \code{Fnew = 0.2} yields a
+realized \code{Fbar} of 0.2, not a raw F of 0.2 on the fully-selected age.}
 
-\item{env_new}{Optional environmental input(s) used in forecasting (e.g., temperature, productivity).}
+\item{env_new}{Optional environmental input(s) used in forecasting (e.g., temperature, productivity).
+Row \code{i} is the covariate for forecast year \code{i}.}
 
 \item{stochastic}{Logical. Should recruitment deviations be stochastic? Defaults to \code{FALSE}.}
 
 \item{seed}{Optional integer. Random seed for reproducibility if \code{stochastic = TRUE}.}
+
+\item{Rmean_years}{Only used when \code{df$recruitment == "estimated"} (i.e. the
+historical run used a free recruitment estimate per year, not a stock-recruit
+curve). There is no future \code{df$Rin} to draw on, so forecast recruitment is
+instead the geometric mean of historical \code{df$Rin} (with the usual
+bias-corrected lognormal deviation applied), restricted to the actual calendar
+years given here, e.g. \code{Rmean_years = 2015:2020} or
+\code{Rmean_years = c(2015, 2018, 2020)}. Years are matched against
+\code{df$years}; years outside the historical range are ignored.
+Defaults to \code{NULL}, which averages over the full historical \code{df$years} series.
+Ignored for stock-recruit-based recruitment models (\code{"Ricker"}, \code{"hockey"},
+\code{"BH_steep"}, \code{"BH_env"}) - those already respond to forecast SSB. To
+forecast from a stock-recruit relationship instead of a geometric mean, set
+\code{df$recruitment} to one of those types before calling \code{forecast_op()}.}
 }
 \value{
 A list containing forecasted operating model outputs, such as numbers-at-age, SSB, recruitment, and catch.
@@ -39,10 +63,10 @@ Commonly used in Management Strategy Evaluation (MSE) frameworks.
 \examples{
 \dontrun{
 # Forecast 10 years with fixed F
-out <- forecast_om(df = om_data, nyear = 10, Fnew = 0.2, Ninit = N_last_year)
+out <- forecast_op(df = om_data, nyear = 10, Fnew = 0.2, Ninit = N_last_year)
 
 # Forecast with stochastic recruitment and environmental input
-out <- forecast_om(df = om_data, nyear = 20, Fnew = rep(0.2, 20),
+out <- forecast_op(df = om_data, nyear = 20, Fnew = rep(0.2, 20),
                    env_new = env_proj, Ninit = N_last_year,
                    stochastic = TRUE, seed = 123)
 }

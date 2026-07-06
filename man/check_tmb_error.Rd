@@ -6,9 +6,6 @@
 \usage{
 check_tmb_error(df.tmb)
 }
-\arguments{
-\item{df.tmb}{}
-}
 \description{
 Check if parameter inputs has the correct format and dimensions to make sure TMB does not crash R
 }

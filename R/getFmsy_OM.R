@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' fmsy <- getFmsy.OM(sas = fitted_model, df = om_params, nyears = 100,
+#' fmsy <- getFmsy.OM(OM = om_run, df = om_params, nyears = 100,
 #'                    recruitment = "hockey", plotMSY = TRUE, stochastic = TRUE)
 #' }
 getFmsy.OM <- function(OM,
@@ -30,98 +30,90 @@ getFmsy.OM <- function(OM,
   years <- 1:nyears
   nyears <- length(years)
 
+  nage <- df$nage
+  nseason <- df$nseason
+  tEnd <- df$nyear # last historical year index
 
-  # Maturity
-  mat <- df$mat # Fecundity
+  # Maturity, mortality, weight, selectivity: hold the last historical year's
+  # (age x season) pattern constant through the nyears grid-search horizon.
+  # Plain array(x, dim=...) recycling does not preserve season alignment once
+  # nseason > 1 - it interleaves seasons across years - so .repeat_forecast_year()
+  # (defined in forecast_op.R) is used instead.
+  mat <- df$mat
+  if (is.null(dim(mat)) == FALSE) mat <- mat[, tEnd, , , drop = TRUE]
   M <- df$M
+  if (is.null(dim(M)) == FALSE) M <- M[, tEnd, , , drop = TRUE]
   weca <- df$weca
+  if (is.null(dim(weca)) == FALSE) weca <- weca[, tEnd, , , drop = TRUE]
   west <- df$west
-  #
-  if (length(dim(M)) != 4) {
-    M <- array(M, dim = c(df$nage, df$nyear + 1, 1, df$nseason))
+  if (is.null(dim(west)) == FALSE) west <- west[, tEnd, , , drop = TRUE]
+
+  if (length(dim(mat)) != 4) mat <- .repeat_forecast_year(mat, nyears, nage, nseason)
+  if (length(dim(M)) != 4) M <- .repeat_forecast_year(M, nyears, nage, nseason)
+  if (length(dim(weca)) != 4) weca <- .repeat_forecast_year(weca, nyears, nage, nseason)
+  if (length(dim(west)) != 4) west <- .repeat_forecast_year(west, nyears, nage, nseason)
+
+  propM <- array(.repeat_forecast_year(df$propM[, tEnd, ], nyears, nage, nseason), dim = c(nage, nyears, nseason))
+  propF <- array(.repeat_forecast_year(df$propF[, tEnd, ], nyears, nage, nseason), dim = c(nage, nyears, nseason))
+
+  # Selectivity may already be a full time-indexed array or a plain age vector.
+  Fsel <- df$Fsel
+  if (is.null(dim(Fsel)) == FALSE) Fsel <- Fsel[, tEnd, , , drop = TRUE]
+  if (length(dim(Fsel)) != 4) Fsel <- .repeat_forecast_year(Fsel, nyears, nage, nseason)
+  Fsel <- array(Fsel, dim = c(nage, nyears, nseason)) # drop the singleton space dim
+
+  Ninit <- df$Ninit
+
+  # Mirror the recruitment models run.agebased.sms.op() (via simulate_om_dynamics())
+  # actually supports, deriving each one's required parameters from df.
+  recruitment_types <- c("Ricker", "hockey", "Rmean", "estimated", "BH_steep", "BH_env")
+  if (!(recruitment %in% recruitment_types)) {
+    stop("recruitment must be one of: ", paste(recruitment_types, collapse = ", "))
   }
 
-  if (length(dim(weca)) != 4) {
-    weca <- array(weca, dim = c(df$nage, df$nyear + 1, 1, df$nseason))
-  }
-
-  if (length(dim(west)) != 4) {
-    west <- array(west, dim = c(df$nage, df$nyear + 1, 1, df$nseason))
-  }
-
-  if (length(dim(mat)) != 4) {
-    mat <- array(mat, dim = c(df$nage, df$nyear + 1, 1, df$nseason))
-  }
-
-  M <- array(M[, df$nyear, ], dim = c(df$nage, nyears, df$nseason))
-  mat <- array(Mat[, df$nyear, ], dim = c(df$nage, nyears, df$nseason))
-  weca <- array(weca[, df$nyears, ], dim = c(df$nage, nyears, df$nseason))
-  west <- array(west[, df$nyears, ], dim = c(df$nage, nyears, df$nseason))
-  propM <- array(df$propM[, df$nyears, ], dim = c(df$nage, nyears, df$nseason))
-  propF <- array(df$propF[, df$nyears, ], dim = c(df$nage, nyears, df$nseason))
-
-  Fselin <- getSelectivity(df, sas)
-  #Fselin <- Fselin[Fselin$block == max(Fselin$block),]
-  # I like this scaled to 1 for consistency
-
-  # blocks <- unique(Fselin$blocks)
-
-
-  # for(i in 1:length(blocks)){
-  #
-  #   Fsel$Fsel[Fsel$blocks == blocks[i]] <- Fsel$Fsel[Fsel$blocks == blocks[i]]/max(Fsel$Fsel[Fsel$blocks == blocks[i]])
-  #
-  # }
-
-  for (i in 1:df$nseason) {
-    if (i == 1) {
-      Fsel <- array(Fselin$selec[Fselin$season == i], dim = c(df$nage, nyears, 1))
-    } else {
-      tmp <- array(Fselin$selec[Fselin$season == i], dim = c(df$nage, nyears, 1))
-      Fsel <- abind::abind(Fsel, tmp, along = 3)
-    }
-  }
-
-  parms.est <- getEstimatedParms(sas)
-
-  Ninit <- exp(parms.est$value[parms.est$parameter == "logNinit"])
-  # SDR <- exp(parms.est$value[parms.est$parameter == 'logSDrec'])
+  alphaSR <- NA
+  betaSR <- NA
+  h_val <- NA
+  Rin <- NA
+  R0 <- df$R0
 
   if (recruitment == "hockey") {
-    alphaSR <- exp(parms.est$value[parms.est$parameter == "logalpha"])
     betaSR <- df$betaSR
-    R0 <- alphaSR * df$betaSR
-  } else {
-    alphaSR <- NA
-    betaSR <- NA
-    R0 <- exp(parms.est$value[parms.est$parameter == "logR0"])
+    alphaSR <- df$R0 / df$betaSR
+  } else if (recruitment == "Ricker") {
+    alphaSR <- df$alpha
+    betaSR <- df$betaSR
+  } else if (recruitment == "estimated") {
+    # There is no future df$Rin to draw on for an equilibrium run; hold
+    # recruitment at the geometric mean of the historical series for the
+    # whole grid-search horizon (same idea used in forecast_op()).
+    Rin <- rep(exp(mean(log(df$Rin))), nyears)
+  } else if (recruitment %in% c("BH_steep", "BH_env")) {
+    h_val <- df$h
   }
 
-  if(sas$dat$nenv >0){
+  if (!is.null(df$env)) {
+    beta_env <- df$beta_env
 
-    beta_env <- sas$reps$par.fixed[names(sas$reps$par.fixed) == 'env']
-
-    # For environmental input, repeat the last year
-    env <- matrix(df$env_matrix[df$nyears], ncol = df$nenv, nrow = nyears)
-
-  }else{
+    # For environmental input, repeat the last historical year
+    env <- matrix(df$env[tEnd, ], ncol = ncol(df$env), nrow = nyears, byrow = TRUE)
+  } else {
     env <- NULL
     beta_env <- NULL
   }
 
-  # Survey catchability
-  Q <- getCatchability(df, sas)
-  Q <- array(Q$Q, dim = c(df$nage, df$nsurvey), )
+  # Survey catchability is already available on df, not year-indexed.
+  Q <- df$Q
   Q[is.na(Q)] <- 0
 
 
 
   df.fmsy <- list(
     years = years,
-    nseason = df$nseason,
+    nseason = nseason,
     age = df$age,
-    nage = length(df$age),
-    F0 = matrix(0, length(years), df$nseason),
+    nage = nage,
+    F0 = matrix(0, length(years), nseason),
     Fsel = Fsel,
     propM = propM,
     propF = propF,
@@ -139,14 +131,15 @@ getFmsy.OM <- function(OM,
     surveySD = 0,
     Q = Q,
     recruitment = recruitment,
-    rseason = df$recseason,
+    rseason = df$rseason,
     Fmodel = "sim",
-    Ninit = NULL,
-    Rin = NA,
+    Ninit = Ninit,
+    Rin = Rin,
     move = FALSE,
     R0 = R0,
-    h = exp(-0.6931472), # Fix this later. need to find it in 'sas'
+    h = h_val,
     logSDR = log(0),
+    logSDcatch = log(0),
     beta_env = beta_env,
     env = env,
     alpha = alphaSR,
@@ -156,7 +149,7 @@ getFmsy.OM <- function(OM,
 
   tmp0 <- run.agebased.sms.op(df.fmsy)
 
-  Fmsyin <- seq(0.01 / max(Fselin$selec), 2 / max(Fselin$selec), length.out = 50) # scale to selectivity
+  Fmsyin <- seq(0.01 / max(Fsel), 2 / max(Fsel), length.out = 50) # scale to selectivity
 
   for (i in 1:length(Fmsyin)) {
     df.fmsy$F0 <- matrix(Fmsyin[i], length(years), df$nseason)

@@ -2,7 +2,22 @@
 #' @param df.tmb list of smsR input data
 #' @param sas fitted smsR stock assessment
 #' @param surveySD SD on survey
-#' @param recruitment Type of recruitment function shape
+#' @param recruitment Type of recruitment function shape used by the returned OM
+#'   (consumed by \code{\link{forecast_op}} / \code{\link{run.agebased.sms.op}}).
+#'   Defaults to \code{NULL}, which resolves to \code{"estimated"} (recruitment
+#'   held at the geometric mean of the historical series, no SSB feedback) -
+#'   the usual choice for short-term forecasts even when a reference point like
+#'   Fmsy was derived under a stock-recruit assumption. Pass \code{"hockey"}
+#'   explicitly to instead forecast under a hockey-stick stock-recruit
+#'   relationship; when \code{df.tmb$recmodel == 2} (recruitment estimated
+#'   freely per year in the assessment, no analytic SR relationship), that
+#'   hockey-stick is fit post-hoc to the assessment's own (SSB, R) history via
+#'   \code{method}, identically to \code{\link{getFmsy}}, so a forecast run at
+#'   \code{Fnew = getFmsy(..., recruitment = "hockey")$Fmsy} reproduces the
+#'   same equilibrium dynamics Fmsy was computed under.
+#' @param method Only used when \code{recruitment == "hockey"} and
+#'   \code{df.tmb$recmodel == 2}. \code{"nls"} (default) or \code{"segmented"} -
+#'   see \code{\link{getFmsy}}.
 #' @param nspace number of spatial cells
 #' @param moveinit Initial distribution in spatial cells (must add to 1)
 #' @param movemax maximum movement rate per cell
@@ -19,6 +34,7 @@ get_OM_parameters <- function(df.tmb,
                               sas = NULL,
                               surveySD = 0.4,
                               recruitment = NULL,
+                              method = "nls",
                               nspace = 1,
                               moveinit = 1,
                               movemax = 0.3,
@@ -76,6 +92,38 @@ get_OM_parameters <- function(df.tmb,
       rec <- getR(df.tmb, sas)$R
     }
 
+  }
+
+  # Recruitment shape for the returned OM. Defaults to "estimated" (geometric
+  # mean of historical recruitment, no SSB feedback) regardless of recmodel -
+  # short-term forecasts commonly use this even when Fmsy was derived under a
+  # stock-recruit assumption. Previously this default was hardcoded into the
+  # returned list itself, so passing recruitment = "hockey" silently had no
+  # effect; now the argument is actually honored. Pass recruitment = "hockey"
+  # explicitly to get a forecast that matches getFmsy(..., recruitment = "hockey").
+  if (is.null(recruitment)) {
+    recruitment <- "estimated"
+  }
+
+  alphaSR <- NA
+  betaSR  <- df.tmb$betaSR
+  R0      <- df.tmb$betaSR * exp(parms.true$value[parms.true$parameter == "logalpha"])
+
+  if (recruitment == "hockey") {
+    if (df.tmb$recmodel == 1) {
+      # recmodel == 1 fits an analytic hockey-stick inside the assessment
+      # itself, so logalpha is already the right estimate.
+      alphaSR <- exp(parms.true$value[parms.true$parameter == "logalpha"])
+      betaSR  <- df.tmb$betaSR
+    } else {
+      # recmodel == 2 has no analytic SR relationship - fit one post-hoc to
+      # the assessment's (SSB, R) history, exactly as getFmsy() does, so the
+      # two stay consistent.
+      hs_fit  <- .fit_hockey_recruitment(df.tmb, sas, method = method)
+      alphaSR <- hs_fit$alphaSR
+      betaSR  <- hs_fit$betaSR
+    }
+    R0 <- alphaSR * betaSR
   }
 
 
@@ -154,14 +202,14 @@ get_OM_parameters <- function(df.tmb,
     propF = df.tmb$propF,
     propM = df.tmb$propM,
     Fbarage = df.tmb$Fbarage,
-    betaSR = df.tmb$betaSR,
+    betaSR = betaSR,
     nsurvey = df.tmb$nsurvey,
     surveyStart = df.tmb$surveyStart,
     surveyEnd = df.tmb$surveyEnd,
     surveySD = surveySD,
     surveySeason = df.tmb$surveySeason,
     Q = Q,
-    recruitment = "estimated",
+    recruitment = recruitment,
     rec.space = rec.space,
     rec.model = df.tmb$recmodel,
     rseason = df.tmb$recseason,
@@ -172,8 +220,9 @@ get_OM_parameters <- function(df.tmb,
     ),
     Rin = rec,
     move = move,
-    R0 = df.tmb$betaSR * exp(parms.true$value[parms.true$parameter == "logalpha"]),
-    logSDR = exp(parms.true$value[parms.true$parameter == "logSDrec"]),
+    R0 = R0,
+    alpha = alphaSR,
+    logSDR = parms.true$value[parms.true$parameter == "logSDrec"],
     logSDcatch = log(0),
     b = rep(0, df.tmb$nyears),
     last_year = max(df.tmb$years)

@@ -11,12 +11,17 @@ smsR is an R implementation of the SMS model used to run seasonal stock assessme
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/yourusername/smsR # Replace with your actual URL}
+  \item \url{https://github.com/yourusername/smsR} # Replace with your actual URL
 }
 
 }
 \author{
 \strong{Maintainer}: Nis Sand Jacobsen \email{nsja@aqua.dtu.dk} (\href{https://orcid.org/0000-0001-8754-4518}{ORCID})
+
+Authors:
+\itemize{
+  \item Nis Sand Jacobsen \email{nsja@aqua.dtu.dk} (\href{https://orcid.org/0000-0001-8754-4518}{ORCID})
+}
 
 }
 \keyword{internal}
