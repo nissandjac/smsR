@@ -37,14 +37,3 @@ plotBubbles(sas)
 
 plot(sas)
 
-
-cobs <- getYield(df.tmb)
-cest <- getCatch(df.tmb, sas)
-
-plot(cobs)
-lines(cest$Catch)
-lines(OM$Catch, col = 'red')
-
-
-
-
