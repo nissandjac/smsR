@@ -26,26 +26,11 @@ plotBubbles <- function(sas, CVscale = TRUE) {
 
 
 
-  p7 <- ggplot(CR, ggplot2::aes(x = years, y = as.character(ages), color = factor(col))) +
-    ggplot2::geom_point(ggplot2::aes(size = abs(ResidCatch) / CSD), alpha = .3) +
-    facet_wrap(~season, nrow = df.tmb$nseason) +
-    theme_classic() +
-    ggplot2::scale_size(range = ss) +
-    ggplot2::scale_color_manual(values = c("red", "blue")) +
-    ggplot2::scale_y_discrete("age")
-
-
-
   SR <- getResidSurvey(df.tmb, sas)
   SR$col <- "Positive"
   SR$col[SR$ResidSurvey < 0] <- "Negative"
 
-
-  if (df.tmb$nsurvey == 1) {
-    SR$survey <- dimnames(df.tmb$Surveyobs)[[3]]
-    surveyCV$survey <- dimnames(df.tmb$Surveyobs)[[3]]
-  }
-
+#
 
 
   snames <- dimnames(df.tmb$Surveyobs)[[3]]

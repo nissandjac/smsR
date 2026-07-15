@@ -42,6 +42,7 @@ get_EM_parameters <- function(df.OM,
   Catchobs <- apply(OM$CatchN.save.age, MARGIN = c(1,2,4), FUN = sum)
   }
   # Group index and effort #
+
   # Average over spatial domain
 
   weca <- apply(df.OM$weca, MARGIN = c(1,2,4), FUN = mean)
@@ -50,6 +51,11 @@ get_EM_parameters <- function(df.OM,
   M <- apply(df.OM$M, MARGIN = c(1,2,4), FUN = mean)
 
   mtrx <- list(weca = weca, west = west, mat = mat, M = M)
+
+
+  if(sum(df.tmb$powers) == 0){
+    df.tmb$powers <- rep(list(NA), df.tmb$nsurvey)
+  }
 
 
   df.sim <- get_TMB_parameters(

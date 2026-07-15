@@ -11,9 +11,8 @@ OM_to_smsR(OM, df, recmodel = 1, MCV = NULL, M_max = max(df$age))
 Operating model output. Must include at least:
 - `survey` : array or list of survey observations (dimensions must align with
   `nage × nyear × nseason`, or be coercible).
-- `CatchN.save.age` : 4D array of catch-at-age numbers with dimensions
-  `[age, year, season, space]`; smsR uses the first spatial stratum
-  (i.e. `[..., , , 1]`).}
+- `Catchobs` : `array[nage, nyear, nseason]` catch-at-age numbers, already
+  perturbed with observation noise (as produced by `run.agebased.sms.op()`).}
 
 \item{df}{list
 Operating-model/meta parameters required for shaping inputs; must include:
@@ -42,8 +41,8 @@ Defaults to `max(df$age)` if available (adapt to your convention).}
 \value{
 list
   A named list ready for smsR, typically including:
-  - `Catchobs` : `array[nage, nyear, nseason]` catch-at-age numbers.
-  - `Catchobs_err` : same shape as `Catchobs`, with optional lognormal noise.
+  - `Catchobs` : `array[nage, nyear, nseason]` catch-at-age numbers, carried
+    over from `OM$Catchobs` (already includes observation noise).
   - `Surveyobs` : survey observations aligned to `nage × nyear × nseason`.
   - `recmodel`, `MCV`, `M_max` : passed-through control parameters.
   Additional elements may be included as needed by smsR.
@@ -51,18 +50,14 @@ list
 \description{
 Helper that reshapes/sanitizes outputs from an operating model (**OM**) into
 a compact list of arrays and options consumed by **smsR**. It builds quarter-
-level catch and survey inputs and (optionally) perturbs catch with lognormal
-noise using `df$logSDcatch`.
+level catch and survey inputs. Catch uncertainty is not added here; it is
+assumed to already be present in `OM$Catchobs`, as added by
+`run.agebased.sms.op()`.
 }
 \details{
-**Catch noise:** If `df$logSDcatch` is provided, `Catchobs_err` is formed as
-`Catchobs * exp(ε)`, where `ε ~ N(0, sd = exp(df$logSDcatch))`. If
-`logSDcatch` is length-`nage`, age-specific noise is applied per year/season.
-
-**Dimensionality:** `CatchN.save.age` is expected as
-`[age = df$nage, year = df$nyear, season = df$nseason, space >= 1]`. The
-function uses the first spatial dimension. `Surveyobs` must be conformable to
-`nage × nyear × nseason`; otherwise, provide a coercible structure.
+**Catch noise:** Not added by this function. `OM$Catchobs` (produced by
+`run.agebased.sms.op()` using `df$logSDcatch`) is used as-is, so catch
+uncertainty is only introduced once, upstream in the operating model.
 }
 \examples{
 # Minimal mock example (dimensions only)
@@ -71,8 +66,8 @@ df <- list(nyear = 3, nage = 5, nseason = 4, logSDcatch = log(0.2))
 OM <- list(
   survey = array(runif(df$nage * df$nyear * df$nseason),
                  dim = c(df$nage, df$nyear, df$nseason)),
-  CatchN.save.age = array(rpois(df$nage * df$nyear * df$nseason * 1, 100),
-                          dim = c(df$nage, df$nyear, df$nseason, 1))
+  Catchobs = array(rpois(df$nage * df$nyear * df$nseason, 100),
+                   dim = c(df$nage, df$nyear, df$nseason))
 )
 out <- OM_to_smsR(OM, df, recmodel = 1, MCV = NULL, M_max = df$nage)
 str(out)

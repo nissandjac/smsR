@@ -799,7 +799,7 @@ get_TMB_parameters <- function(
   if(dim(propM)[2] == nyear){
 
     propM.mean <- apply(propM[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
-    propM <- abind::abind(propM,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+    propM <- abind::abind(propM,array(propM.mean, dim = c(nage, 1, nseason) ), along = 2)
     if(warn == TRUE){
 
     warning('add projection year to propM. Using average of last 3 years')
@@ -810,7 +810,7 @@ get_TMB_parameters <- function(
   if(dim(propF)[2] == nyear){
 
     propF.mean <- apply(propF[,(nyear-2):nyear,, drop =FALSE], FUN = rowMeans, MAR = c(3))
-    propF <- abind::abind(propF,array(M.mean, dim = c(nage, 1, nseason) ), along = 2)
+    propF <- abind::abind(propF,array(propF.mean, dim = c(nage, 1, nseason) ), along = 2)
     if(warn == TRUE){
 
     warning('add projection year to propF. Using average of last 3 years')
