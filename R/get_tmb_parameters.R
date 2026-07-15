@@ -204,7 +204,7 @@ get_TMB_parameters <- function(
       mtrx$weca <- apply(mtrx$weca, c(1, 2, 4), mean, na.rm = TRUE)
       message('Assuming weca comes from OM. Averaging over spatial dimension')
     }else{
-      mtrx$weca <- mtrx$weca[,,1,]
+      mtrx$weca <- abind::adrop(mtrx$weca[,,1,,drop = FALSE], drop = 3)
     }
   }
 
@@ -213,7 +213,7 @@ get_TMB_parameters <- function(
       mtrx$west <- apply(mtrx$west, c(1, 2, 4), sum, na.rm = TRUE)
       message('Assuming west comes from OM. Averaging over spatial dimension')
     }else{
-      mtrx$west <- mtrx$west[,,1,]
+      mtrx$west <- abind::adrop(mtrx$west[,,1,,drop = FALSE], drop = 3)
     }
   }
 
@@ -222,7 +222,7 @@ get_TMB_parameters <- function(
       mtrx$mat <- apply(mtrx$mat, c(1, 2, 4), mean, na.rm = TRUE)
       message('Assuming mat comes from OM. Averaging over spatial dimension')
     }else{
-      mtrx$mat <- mtrx$mat[,,1,]
+      mtrx$mat <- abind::adrop(mtrx$mat[,,1,,drop = FALSE], drop = 3)
     }
   }
 
@@ -231,7 +231,7 @@ get_TMB_parameters <- function(
       mtrx$M <- apply(mtrx$M, c(1, 2, 4), mean, na.rm = TRUE)
       message('Assuming M comes from OM. Averaging over spatial dimension')
     }else{
-      mtrx$M <- mtrx$M[,,1,]
+      mtrx$M <- abind::adrop(mtrx$M[,,1,,drop = FALSE], drop = 3)
     }
   }
 

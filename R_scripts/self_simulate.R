@@ -32,6 +32,17 @@ ggplot(SSB, aes(x = years, y = SSB))+geom_line()+
   geom_ribbon(aes(ymin = low, ymax = high), fill = 'gray', alpha = .15)+
   theme_classic()
 
+# Compare SSB
+R <- getR(df.tmb, sas) %>% mutate(SSB_OM = c(OM$R.save))
+
+ggplot(R, aes(x = years, y = R))+geom_line()+
+  geom_point(aes(y = SSB_OM), linetype = 2, col = 'red') +
+  geom_ribbon(aes(ymin = low, ymax = high), fill = 'gray', alpha = .3)+
+  theme_classic()
+
+
+
+
 
 plotBubbles(sas)
 
