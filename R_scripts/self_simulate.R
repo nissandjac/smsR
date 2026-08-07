@@ -4,12 +4,14 @@ library(tidyverse)
 
 # Get OM parameters #
 
-pars <- sim_OM_parameters(nseason = 2,
+pars <- sim_OM_parameters(nseason = 1,
                           Fpast = 0.2,
                           F0 = 0.2,
-                          SDcatch = 0.2)
+                          SDcatch = 0.2, nyear = 100, Qminage = 1,
+                          Qmaxage = 5)
 
 # Simulate OM
+pars$F0[50:70] <- 0
 
 OM <- run.agebased.sms.op(pars)
 
@@ -47,4 +49,9 @@ ggplot(R, aes(x = years, y = R))+geom_line()+
 plotBubbles(sas)
 
 plot(sas)
+
+
+#
+
+
 
