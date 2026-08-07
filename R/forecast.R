@@ -287,46 +287,65 @@ calcFTAC <- function(TAC ,
 #' calc f required in OM to get TAC
 #'
 #' @param TAC TAC to optimize for
-#' @param df.OM list of OM parameters
+#' @param df.OM list of OM parameters. \code{F0} may be either the 3D
+#'   \code{[age, year, season]} array used by \code{\link{get_OM_parameters}}
+#'   or the 2D \code{[year, season]} matrix used by
+#'   \code{\link{sim_OM_parameters}} (age-selectivity applied separately via
+#'   \code{Fsel}) - both are detected and handled.
 #' @param Fcap Maximum F to test
+#' @param seed Seed passed to \code{\link{run.agebased.sms.op}} for every
+#'   trial evaluation and the returned solution. \code{run.agebased.sms.op}
+#'   has no deterministic mode - it redraws its full process/observation
+#'   error history from a fresh random seed whenever \code{seed = NULL}, which
+#'   would make the optimizer chase a noisy objective. Fix a seed here so the
+#'   search reflects the true F -> catch relationship.
 #'
 #' @export
 #'
 getOM_FTAC <- function(TAC ,
                      df.OM,
-                     Fcap = 10){
+                     Fcap = 10,
+                     seed = NULL){
+
+  new_yr <- length(df.OM$years)
+  is_2d  <- length(dim(df.OM$F0)) == 2
+
+  Fsel <- if(is_2d) df.OM$F0[new_yr, ] else df.OM$F0[,new_yr,]
+
+  # A TAC of 0 (e.g. a Bescape closure) is not reachable via log-space
+  # matching - log(0) is -Inf, which optim() rejects as a starting value.
+  # F = 0 is the exact, non-optimized answer in that case.
+  if(!is.finite(TAC) || TAC <= 0){
+    return(Fsel * 0)
+  }
 
   optFTAC <- function(data, par ){
     df <- data[[2]]
     TAC <- data[[1]]
-    # Fsel <- data$Fsel
     Fcalc <- as.numeric(par[1])
-    # N_current <- df.OM$N_current
 
-    df$F0[,length(df$years),] <- df$F0[,length(df$years),]*Fcalc
-    #ls <- forecast.sms(df.tmb, N_current,F0)
-    #ls <- forecast.sms(df.tmb)
-    tmp <- run.agebased.sms.op(df)
+    if(is_2d){
+      df$F0[new_yr, ] <- df$F0[new_yr, ] * Fcalc
+    }else{
+      df$F0[,new_yr,] <- df$F0[,new_yr,] * Fcalc
+    }
+    tmp <- run.agebased.sms.op(df, seed = seed)
+    catch <- tmp$Catch[new_yr]
 
-    ans <- (log(TAC) - log(tmp$Catch[length(df$years)]))^2
+    # A zero/non-finite trial catch (e.g. Fcalc near 0, or a zero selectivity
+    # template) would make log(catch) non-finite and crash L-BFGS-B mid-search.
+    # Penalize it instead of evaluating log() on it.
+    if(!is.finite(catch) || catch <= 0) return(1e10)
+
+    (log(TAC) - log(catch))^2
   }
 
-
-
-  # data.in <- list(TAC = TAC,
-  #                 N_current = df.OM$N_current,
-  #                 Fsel = Fsel,
-  #                 df.OM = df.OM)
   data.in <- list(TAC,
                   df.OM)
-
-
 
   parms.in <- list(1)
 
   Fnew <- stats::optim(parms.in, lower = 0.0001, upper = Fcap, fn = optFTAC, data= data.in, method = 'L-BFGS-B')
-
-  Fsel <- df.OM$F0[,length(df.OM$years),]
 
   return(Fnew$par*Fsel)
 }
