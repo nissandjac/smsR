@@ -3,8 +3,8 @@
 #' @description
 #' Helper that reshapes/sanitizes outputs from an operating model (**OM**) into
 #' a compact list of arrays and options consumed by **smsR**. It builds quarter-
-#' level catch and survey inputs. Catch uncertainty is not added here; it is
-#' assumed to already be present in `OM$Catchobs`, as added by
+#' level catch and survey inputs. Catch and survey uncertainty are not added here;
+#' they are assumed to already be present in `OM$Catchobs` and `OM$survey`, as added by
 #' `run.agebased.sms.op()`.
 #'
 #' @param OM list
@@ -86,16 +86,10 @@ OM_to_smsR <- function(OM,
   Catchobs_err <- array(OM$Catchobs, dim = c(df$nage, nyear, df$nseason))
 
 
-  # Add uncertainty to survey
-  Surveyobs[Surveyobs == -1] <- NA
-  for(i in 1:nyear){
-    for(j in 1:nage){
-      for(k in 1:df$nsurvey){
-        Surveyobs[j,i,k] <- Surveyobs[j,i,k] * exp(rnorm(1, mean = 0, sd = df$surveySD[k]) - 0.5 * df$surveySD[k]^2)
-     }
-    }
-  }
-  Surveyobs[is.na(Surveyobs)] <- -99
+  # Survey uncertainty is already added in run.agebased.sms.op() (OM$survey is
+  # the observed index; OM$survey.true is noise-free), so it is not perturbed
+  # a second time here. Only recode missing values.
+  Surveyobs[Surveyobs == -1] <- -99
 
 
 
